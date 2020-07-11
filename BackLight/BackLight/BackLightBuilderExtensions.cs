@@ -5,15 +5,15 @@ using Microsoft.Extensions.Options;
 
 namespace BackLight {
     public static class BackLightBuilderExtensions {
-        public static IApplicationBuilder UseBackLight(this IApplicationBuilder applicationBuilder,  Action<BackLightOptions> setupAction = null) {
-            var options = new BackLightOptions();
+        public static IApplicationBuilder UseBackLight(this IApplicationBuilder applicationBuilder,  Action<BackLightConfiguration> setupAction = null) {
+            var configuration = new BackLightConfiguration();
             if (setupAction != null) {
-                setupAction(options);
+                setupAction(configuration);
             } else {
-                options = applicationBuilder.ApplicationServices.GetRequiredService<IOptions<BackLightOptions>>().Value;
+                configuration = applicationBuilder.ApplicationServices.GetRequiredService<IOptions<BackLightConfiguration>>().Value;
             }
 
-            applicationBuilder.UseMiddleware<BackLightMiddleware>(options);
+            applicationBuilder.UseMiddleware<BackLightMiddleware>(configuration);
 
             return applicationBuilder;
         }

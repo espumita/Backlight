@@ -23,7 +23,9 @@ namespace BackLight.Sample.Web.Api {
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
-            app.UseBackLight();
+            app.UseBackLight(configuration => {
+                configuration.RoutePrefix = "back";
+            });
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
             });
