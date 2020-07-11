@@ -1,4 +1,9 @@
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -61,6 +66,31 @@ namespace BackLight {
         private async Task RespondWithIndexHtml(HttpResponse response) {
             response.StatusCode = 200;
             response.ContentType = "text/html;charset=utf-8";
+            using (var stream = IndexHtmlFileStream()) {
+                var documentContent = await new StreamReader(stream).ReadToEndAsync();
+                var responseStringBuilder = new StringBuilder(documentContent);
+                var indexHtmlConfiguration = IndexHtmlConfigurationFrom(backLightConfiguration);
+                InjectIndexHtmlConfigurationInto(responseStringBuilder, indexHtmlConfiguration);
+                await response.WriteAsync(responseStringBuilder.ToString(), Encoding.UTF8);
+            }
         }
+
+        private Stream IndexHtmlFileStream() {
+            return GetType().GetTypeInfo().Assembly
+                .GetManifestResourceStream("BackLight.index.html");
+        }
+
+        private static IDictionary<string, string> IndexHtmlConfigurationFrom(BackLightConfiguration backLightConfiguration) {
+            return new Dictionary<string, string> {
+                { "%(DocumentTitle)", backLightConfiguration.IndexHtmlDocumentTitle },
+            };
+        }
+
+        private static void InjectIndexHtmlConfigurationInto(StringBuilder responseStringBuilder, IDictionary<string, string> indexHtmlConfiguration) {
+            indexHtmlConfiguration.Keys.ToList().ForEach(key =>
+                responseStringBuilder.Replace(key, indexHtmlConfiguration[key])
+            );
+        }
+
     }
 }
