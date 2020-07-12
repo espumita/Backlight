@@ -15,12 +15,14 @@ namespace Backlight {
         private readonly IWebHostEnvironment hostingEnvironment;
         private readonly ILoggerFactory loggerFactory;
         private readonly BacklightConfiguration backlightConfiguration;
+        private readonly BacklightProvidersService backlightProvidersService;
 
-        public BacklightMiddleware(RequestDelegate next, IWebHostEnvironment hostingEnvironment, ILoggerFactory loggerFactory, BacklightConfiguration backlightConfiguration) {
+        public BacklightMiddleware(RequestDelegate next, IWebHostEnvironment hostingEnvironment, ILoggerFactory loggerFactory, BacklightConfiguration backlightConfiguration, BacklightProvidersService backlightProvidersService) {
             this.next = next;
             this.hostingEnvironment = hostingEnvironment;
             this.loggerFactory = loggerFactory;
             this.backlightConfiguration = backlightConfiguration;
+            this.backlightProvidersService = backlightProvidersService;
         }
 
         public async Task Invoke(HttpContext httpContext) {

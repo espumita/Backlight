@@ -15,8 +15,19 @@ namespace Backlight.Sample.Web.Api {
 
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllers();
+            var exampleEntityProvider = new ExampleEntityProvider();
+            var exampleEntit2Provider = new ExampleEntity2Provider();
+            var exampleEntity3Provider = new ExampleEntity3Provider();
+
             services.AddBacklight(options => {
-                options.Types = new List<string> { "test" }; 
+                options.For<ExampleEntity>()
+                    .AddCreate(exampleEntityProvider)
+                    .AddRead(exampleEntityProvider)
+                    .AddUpdate(exampleEntityProvider);
+                options.For<ExampleEntity2>()
+                    .AddCRUD(exampleEntit2Provider);
+                options.For<ExampleEntity3>()
+                    .AddRead(exampleEntity3Provider);
             });
         }
 

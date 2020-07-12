@@ -14,10 +14,10 @@ namespace Backlight {
         }
 
         public static void ConfigureBacklightServices(this IServiceCollection services, BacklightServicesOptions options) {
-
-           // services.Configure(setupAction);
+            var backlightProvidersService = new BacklightProvidersService(options);
+            services.AddSingleton<BacklightProvidersService>(backlightProvidersService);
+            // services.Configure(setupAction);
         }
     }
-
 
 }
