@@ -72,6 +72,8 @@ namespace Backlight {
                 var responseStringBuilder = new StringBuilder(documentContent);
                 var indexHtmlConfiguration = IndexHtmlConfigurationFrom(backlightConfiguration);
                 InjectIndexHtmlConfigurationInto(responseStringBuilder, indexHtmlConfiguration);
+                var indexHtmlEntities = IndexHtmlEntitiesFromBacklightProviderService();
+                InjectIndexHtmlConfigurationInto(responseStringBuilder, indexHtmlEntities);
                 await response.WriteAsync(responseStringBuilder.ToString(), Encoding.UTF8);
             }
         }
@@ -91,6 +93,11 @@ namespace Backlight {
             indexHtmlConfiguration.Keys.ToList().ForEach(key =>
                 responseStringBuilder.Replace(key, indexHtmlConfiguration[key])
             );
+        }
+        private IDictionary<string, string> IndexHtmlEntitiesFromBacklightProviderService() {
+            return new Dictionary<string, string>() {
+                { "%(Entities)", backlightProvidersService.EntitiesToInject()}
+            };
         }
 
     }

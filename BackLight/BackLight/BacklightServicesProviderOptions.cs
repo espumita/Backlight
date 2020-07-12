@@ -31,6 +31,22 @@
             DeleteProvider = crudProvider;
             return this;
         }
+
+        public bool CanCreate() {
+            return CreateProvider != null;
+        }
+
+        public bool CanRead() {
+            return ReadProvider != null;
+        }
+
+        public bool CanUpdate() {
+            return UpdateProvider != null;
+        }
+
+        public bool CanDelete() {
+            return DeleteProvider != null;
+        }
     }
 
 }
