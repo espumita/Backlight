@@ -1,6 +1,6 @@
 using System;
 
-namespace BackLight.Sample.Web.Api {
+namespace Backlight.Sample.Web.Api {
     public class WeatherForecast {
         public DateTime Date { get; set; }
 

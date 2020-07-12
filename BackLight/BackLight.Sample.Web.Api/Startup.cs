@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace BackLight.Sample.Web.Api {
+namespace Backlight.Sample.Web.Api {
     public class Startup {
         public Startup(IConfiguration configuration) {
             Configuration = configuration;
@@ -14,6 +14,7 @@ namespace BackLight.Sample.Web.Api {
 
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllers();
+           // services.AddBacklight();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {

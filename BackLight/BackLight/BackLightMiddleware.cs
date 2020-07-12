@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace BackLight {
+namespace Backlight {
     public class BacklightMiddleware {
         private readonly RequestDelegate next;
         private readonly IWebHostEnvironment hostingEnvironment;
