@@ -10,28 +10,28 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace BackLight {
-    public class BackLightMiddleware {
+    public class BacklightMiddleware {
         private readonly RequestDelegate next;
         private readonly IWebHostEnvironment hostingEnvironment;
         private readonly ILoggerFactory loggerFactory;
-        private readonly BackLightConfiguration backLightConfiguration;
+        private readonly BacklightConfiguration backlightConfiguration;
 
-        public BackLightMiddleware(RequestDelegate next, IWebHostEnvironment hostingEnvironment, ILoggerFactory loggerFactory, BackLightConfiguration backLightConfiguration) {
+        public BacklightMiddleware(RequestDelegate next, IWebHostEnvironment hostingEnvironment, ILoggerFactory loggerFactory, BacklightConfiguration backlightConfiguration) {
             this.next = next;
             this.hostingEnvironment = hostingEnvironment;
             this.loggerFactory = loggerFactory;
-            this.backLightConfiguration = backLightConfiguration;
+            this.backlightConfiguration = backlightConfiguration;
         }
 
         public async Task Invoke(HttpContext httpContext) {
             var httpMethod = httpContext.Request.Method;
             var path = httpContext.Request.Path.Value;
 
-            if (IsGet(httpMethod) && RoutePrefixIsRequestedWithOrWithoutSlash(backLightConfiguration.RoutePrefix, path)) {
+            if (IsGet(httpMethod) && RoutePrefixIsRequestedWithOrWithoutSlash(backlightConfiguration.RoutePrefix, path)) {
                 RedirectToIndexHtml(httpContext, path);
                 return;
             }
-            if (IsGet(httpMethod) && IsIndexHtmlRoute(backLightConfiguration.RoutePrefix, path)) {
+            if (IsGet(httpMethod) && IsIndexHtmlRoute(backlightConfiguration.RoutePrefix, path)) {
                 await RespondWithIndexHtml(httpContext.Response);
                 return;
             }
@@ -68,7 +68,7 @@ namespace BackLight {
             using (var stream = IndexHtmlFileStream()) {
                 var documentContent = await new StreamReader(stream).ReadToEndAsync();
                 var responseStringBuilder = new StringBuilder(documentContent);
-                var indexHtmlConfiguration = IndexHtmlConfigurationFrom(backLightConfiguration);
+                var indexHtmlConfiguration = IndexHtmlConfigurationFrom(backlightConfiguration);
                 InjectIndexHtmlConfigurationInto(responseStringBuilder, indexHtmlConfiguration);
                 await response.WriteAsync(responseStringBuilder.ToString(), Encoding.UTF8);
             }
@@ -79,9 +79,9 @@ namespace BackLight {
                 .GetManifestResourceStream("BackLight.index.html");
         }
 
-        private static IDictionary<string, string> IndexHtmlConfigurationFrom(BackLightConfiguration backLightConfiguration) {
+        private static IDictionary<string, string> IndexHtmlConfigurationFrom(BacklightConfiguration backlightConfiguration) {
             return new Dictionary<string, string> {
-                { "%(DocumentTitle)", backLightConfiguration.IndexHtmlDocumentTitle },
+                { "%(DocumentTitle)", backlightConfiguration.IndexHtmlDocumentTitle },
             };
         }
 

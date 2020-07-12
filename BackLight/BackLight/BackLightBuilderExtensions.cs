@@ -4,16 +4,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace BackLight {
-    public static class BackLightBuilderExtensions {
-        public static IApplicationBuilder UseBackLight(this IApplicationBuilder applicationBuilder,  Action<BackLightConfiguration> setupAction = null) {
-            var configuration = new BackLightConfiguration();
+    public static class BacklightBuilderExtensions {
+        public static IApplicationBuilder UseBacklight(this IApplicationBuilder applicationBuilder,  Action<BacklightConfiguration> setupAction = null) {
+            var configuration = new BacklightConfiguration();
             if (setupAction != null) {
                 setupAction(configuration);
             } else {
-                configuration = applicationBuilder.ApplicationServices.GetRequiredService<IOptions<BackLightConfiguration>>().Value;
+                configuration = applicationBuilder.ApplicationServices.GetRequiredService<IOptions<BacklightConfiguration>>().Value;
             }
 
-            applicationBuilder.UseMiddleware<BackLightMiddleware>(configuration);
+            applicationBuilder.UseMiddleware<BacklightMiddleware>(configuration);
 
             return applicationBuilder;
         }
