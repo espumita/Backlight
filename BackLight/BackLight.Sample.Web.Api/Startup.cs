@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +15,9 @@ namespace Backlight.Sample.Web.Api {
 
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllers();
-           // services.AddBacklight();
+            services.AddBacklight(options => {
+                options.Types = new List<string> { "test" }; 
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
