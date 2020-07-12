@@ -78,7 +78,7 @@ namespace Backlight {
 
         private Stream IndexHtmlFileStream() {
             return GetType().GetTypeInfo().Assembly
-                .GetManifestResourceStream("BackLight.index.html");
+                .GetManifestResourceStream("Backlight.index.html");
         }
 
         private static IDictionary<string, string> IndexHtmlConfigurationFrom(BacklightConfiguration backlightConfiguration) {
