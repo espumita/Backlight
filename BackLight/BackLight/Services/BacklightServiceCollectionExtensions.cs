@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Backlight {
+namespace Backlight.Services {
     public static class BacklightServiceCollectionExtensions {
 
         public static IServiceCollection AddBacklight(this IServiceCollection services, Action<BacklightServicesOptions> setupAction = null) {

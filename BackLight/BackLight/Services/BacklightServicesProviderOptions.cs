@@ -1,4 +1,6 @@
-﻿namespace Backlight {
+﻿using Backlight.Providers;
+
+namespace Backlight.Services {
     public class BacklightServicesProviderOptions {
         public CreateProvider CreateProvider { get; private set; }
         public ReadProvider ReadProvider { get; private set; }

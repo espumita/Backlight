@@ -5,11 +5,12 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Backlight.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Backlight {
+namespace Backlight.Middleware {
     public class BacklightMiddleware {
         private readonly RequestDelegate next;
         private readonly IWebHostEnvironment hostingEnvironment;
