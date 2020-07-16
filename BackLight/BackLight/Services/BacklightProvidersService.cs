@@ -23,7 +23,7 @@ namespace Backlight.Services {
             return JsonSerializer.Serialize(entities);
         }
 
-        public bool IsEntityConfiguredFor(string entity) {
+        public virtual bool IsEntityConfiguredFor(string entity) {
             return options.Providers.Keys.Any(entityType => entityType.FullName.Equals(entity));
         }
 

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text.Json;
@@ -18,65 +20,73 @@ namespace Backlight.Middleware {
         }
 
         public async Task Run() {
-            if (context.Request.Method == HttpMethods.Put) {
-                var backlightProvidersService = applicationBuilder.ApplicationServices.GetService<BacklightProvidersService>();
+            if (IsNotAllowed(context.Request.Method)) {
+                await ResponseWith(HttpStatusCode.MethodNotAllowed, ResponsesErrorMessages.MethodNotAllowed);
+                return;
+            }
+            string entity = String.Empty;
+            try {
                 var body = await GetBodyFrom(context.Request.Body);
-                var entity = await EntityFrom(body);
-                var entityIsConfigured = backlightProvidersService.IsEntityConfiguredFor(entity);
-                if (!entityIsConfigured) {
-                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    await context.Response.WriteAsync("Entity is not configured");
-                } else {
-                    var canCreate = backlightProvidersService.CanCreate(entity);
-                    if (!canCreate) {
-                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        await context.Response.WriteAsync("Entity Creation is not configured");
-                    } else {
-                        var createProvider = backlightProvidersService.CreateProvider(entity);
-                        var type = backlightProvidersService.GetType(entity);
-                        var entityPayload = await EntityPayloadFrom(type, body);
-                        createProvider.Create(entityPayload);
-                        context.Response.StatusCode = (int)HttpStatusCode.OK;
-                        await context.Response.WriteAsync("Create");
-                    }
-                }
+                entity = await EntityFrom(body);
+            } catch (EntityDeserializationException exception) {
+                await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityDeserializationError);
                 return;
             }
-
-            if (context.Request.Method == HttpMethods.Get) {
-                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                await context.Response.WriteAsync("Read");
-                return;
+            var backlightProvidersService = applicationBuilder.ApplicationServices.GetService<BacklightProvidersService>();
+            var entityIsConfigured = backlightProvidersService.IsEntityConfiguredFor(entity);
+            if (!entityIsConfigured) {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityIsNotConfigured);
             }
-
-            if (context.Request.Method.Equals(HttpMethods.Post)) {
-                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                await context.Response.WriteAsync("Update");
-                return;
-            }
-
-            if (context.Request.Method == HttpMethods.Delete) {
-                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                await context.Response.WriteAsync("Delete");
-                return;
-            }
-
-            context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-            await context.Response.WriteAsync(ResponsesErrorMessages.MethodNotAllowed);
+            return;
         }
-        
-        private static async Task<string> GetBodyFrom(Stream requestBody) {
-            using (StreamReader stream = new StreamReader(requestBody)) {
-                return await stream.ReadToEndAsync();
-            }
+
+        private bool IsNotAllowed(string requestMethod) {
+            var allowedMethods = new List<string> {
+                HttpMethods.Put,
+                HttpMethods.Get,
+                HttpMethods.Post,
+                HttpMethods.Delete
+            };
+            return !allowedMethods.Contains(requestMethod);
+        }
+
+        private async Task ResponseWith(HttpStatusCode httpStatusCode, string responseBody) {
+            context.Response.StatusCode = (int) httpStatusCode;
+            var responseStream = await ResponseBodyStreamWith(responseBody);
+            context.Response.Body = responseStream;
+        }
+
+        private async Task<Stream> ResponseBodyStreamWith(string responseBody) {
+            var bodyStream = new MemoryStream();
+            var streamWriter = new StreamWriter(bodyStream);
+            await streamWriter.WriteAsync(responseBody);
+            await streamWriter.FlushAsync();
+            bodyStream.Seek(0, SeekOrigin.Begin);
+            return bodyStream;
+        }
+
+        private static async Task<string> GetBodyFrom(Stream bodyStream) {
+            var memoryStream = new MemoryStream();
+            await bodyStream.CopyToAsync(memoryStream);
+            var streamReader = new StreamReader(memoryStream);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            var readToEndAsync = await streamReader.ReadToEndAsync();
+            streamReader.Close();
+            return readToEndAsync;
         }
 
         private static async Task<T> EntityPayloadFrom<T>(T type, string body) {
             return JsonSerializer.Deserialize<T>(body);
         }
         private static async Task<string> EntityFrom(string body) {
-            var backlightApiRequest = JsonSerializer.Deserialize<BacklightApiRequest>(body);
-            return backlightApiRequest.Entity;
+            try {
+                var backlightApiRequest = JsonSerializer.Deserialize<BacklightApiRequest>(body);
+                return backlightApiRequest.Entity;
+            } catch (Exception exception) {
+                //TODO log
+                throw new EntityDeserializationException(exception);
+            }
         }
 
     }
