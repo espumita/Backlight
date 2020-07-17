@@ -47,7 +47,7 @@ namespace Backlight.Middleware {
                 return;
             }
             if (context.Request.Method == HttpMethods.Put) {
-                var createProviderExecution = backlightProvidersService.ProviderFor(entity, context.Request.Method);
+                var createProviderExecution = backlightProvidersService.CreateProviderFor(entity, context.Request.Method);
                 var entityPayload = EnitytPayLoadFrom(body);
                 createProviderExecution(entityPayload);
                 await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityCreated);
@@ -65,7 +65,13 @@ namespace Backlight.Middleware {
                 var entityPayload = EnitytPayLoadFrom(body);
                 updateProviderExecution("aNewEntityId", entityPayload);
                 await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityUpdated);
-
+                return;
+            }
+            if (context.Request.Method == HttpMethods.Delete) {
+                var deleteProviderExecution = backlightProvidersService.DeleteProviderFor(entity, context.Request.Method);
+                var entityPayload = EnitytPayLoadFrom(body);
+                deleteProviderExecution(entityPayload);
+                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityDelete);
                 return;
             }
 

@@ -98,7 +98,7 @@ namespace Backlight.Test {
             backlightProvidersService.IsEntityConfiguredFor(AEntityName).Returns(true);
             backlightProvidersService.IsProviderAvailableFor(AEntityName, httpMethod).Returns(true);
             var createProvider = Substitute.For<CreateProvider>();
-            backlightProvidersService.ProviderFor(AEntityName, httpMethod).Returns((entityPayload) => {
+            backlightProvidersService.CreateProviderFor(AEntityName, httpMethod).Returns((entityPayload) => {
                 var entity = JsonSerializer.Deserialize<UserEntity>(entityPayload);
                 createProvider.Create(entity);
             });
@@ -161,6 +161,31 @@ namespace Backlight.Test {
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be("Entity updated");
+        }
+
+        [Test]
+        public async Task execute_delete_entity_provider() {
+            var httpMethod = HttpMethods.Delete;
+            httpContext.Request.Method = httpMethod;
+            var aUserEntity = new UserEntity { Name = "aName", Age = 23 };
+            var requestBodyStream = await RequestBodyStreamWith(JsonSerializer.Serialize(new BacklightApiRequest {
+                Entity = AEntityName,
+                PayLoad = ANewEntityId
+            }));
+            httpContext.Request.Body = requestBodyStream;
+            backlightProvidersService.IsEntityConfiguredFor(AEntityName).Returns(true);
+            backlightProvidersService.IsProviderAvailableFor(AEntityName, httpMethod).Returns(true);
+            var deleteProvider = Substitute.For<DeleteProvider>();
+            backlightProvidersService.DeleteProviderFor(AEntityName, httpMethod).Returns((entityId) => {
+                deleteProvider.Delete<UserEntity>(entityId);
+            });
+
+            await runner.Run();
+
+            deleteProvider.Received().Delete<UserEntity>(ANewEntityId);
+            httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
+            responseBody.Should().Be("Entity deleted");
         }
 
         public static IEnumerable<string> NotAllowedMethods() {

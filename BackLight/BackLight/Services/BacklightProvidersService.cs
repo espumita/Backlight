@@ -33,7 +33,7 @@ namespace Backlight.Services {
             return backlightServicesProviderOptions.CanCreate();
         }
 
-        public virtual Action<string> ProviderFor(string entity, string httpMethod) {
+        public virtual Action<string> CreateProviderFor(string entity, string httpMethod) {
             var type = options.CreateProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
             var backlightServicesProviderOptions = options.CreateProvidersDelegates[type];
             return backlightServicesProviderOptions;
@@ -48,6 +48,12 @@ namespace Backlight.Services {
         public virtual Action<string, string> UpdateProviderFor(string entity, string httpMethod) {
             var type = options.UpdateProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
             var backlightServicesProviderOptions = options.UpdateProvidersDelegates[type];
+            return backlightServicesProviderOptions;
+        }
+
+        public virtual Action<string> DeleteProviderFor(string entity, string httpMethod) {
+            var type = options.DeleteProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = options.DeleteProvidersDelegates[type];
             return backlightServicesProviderOptions;
         }
 
