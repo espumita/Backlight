@@ -18,7 +18,7 @@ namespace Backlight.Services {
                 var canRead = entityProvidersOptions.CanRead();
                 var canUpdate = entityProvidersOptions.CanUpdate();
                 var canDelete = entityProvidersOptions.CanDelete();
-                return new HtmlEntity(key.FullName.ToString(), canCreate, canRead, canUpdate, canDelete);
+                return new HtmlEntity(key.Name.ToString(), canCreate, canRead, canUpdate, canDelete);
             }).ToList();
             return JsonSerializer.Serialize(entities);
         }
