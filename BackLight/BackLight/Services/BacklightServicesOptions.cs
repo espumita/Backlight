@@ -18,6 +18,17 @@ namespace Backlight.Services {
                 var entity = JsonSerializer.Deserialize<T>(entityPayload);
                 backlightServicesProviderOptions.CreateProvider.Create(entity);
             };
+            ReadProvidersDelegates[typeof(T)] = (entityId) => {
+                var entity = backlightServicesProviderOptions.ReadProvider.Read<T>(entityId);
+                return JsonSerializer.Serialize(entity);
+            };
+            UpdateProvidersDelegates[typeof(T)] = (entityId, entityPayload) => {
+                var entity = JsonSerializer.Deserialize<T>(entityPayload);
+                backlightServicesProviderOptions.UpdateProvider.Update(entityId, entity);
+            };
+            DeleteProvidersDelegates[typeof(T)] = (entityId) => {
+                backlightServicesProviderOptions.DeleteProvider.Delete<T>(entityId);
+            };
             return backlightServicesProviderOptions;
         }
 

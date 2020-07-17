@@ -1,5 +1,5 @@
 ﻿namespace Backlight.Providers {
-    public interface UpdateProvider : Provider {
+    public interface UpdateProvider {
         void Update<T>(string entityId, T entity);
     }
 }

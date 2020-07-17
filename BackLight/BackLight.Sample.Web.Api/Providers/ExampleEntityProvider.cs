@@ -7,11 +7,13 @@ namespace Backlight.Sample.Web.Api.Providers {
             Console.WriteLine("Created Entity");
         }
 
-        public T Read<T>(string entityId) where T : new() {
-            return new T();
+        public T Read<T>(string entityId) {
+            Console.WriteLine("Readed Entity");
+            return default;
         }
 
         public void Update<T>(string entityId, T entity) {
+            Console.WriteLine("Updated Entity");
         }
     }
 }

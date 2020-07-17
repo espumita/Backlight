@@ -1,5 +1,5 @@
 ﻿namespace Backlight.Providers {
-    public interface CreateProvider : Provider {
+    public interface CreateProvider {
         void Create<T>(T entity);
 
     }
