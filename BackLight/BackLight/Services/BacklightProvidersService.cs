@@ -45,6 +45,12 @@ namespace Backlight.Services {
             return backlightServicesProviderOptions;
         }
 
+        public virtual Action<string, string> UpdateProviderFor(string entity, string httpMethod) {
+            var type = options.UpdateProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = options.UpdateProvidersDelegates[type];
+            return backlightServicesProviderOptions;
+        }
+
     }
 
 

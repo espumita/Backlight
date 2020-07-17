@@ -105,7 +105,7 @@ namespace Backlight.Test {
 
             await runner.Run();
 
-            createProvider.Received().Create(Arg.Is(aUserEntity));
+            createProvider.Received().Create(aUserEntity);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be("Entity created");
@@ -135,6 +135,32 @@ namespace Backlight.Test {
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be(JsonSerializer.Serialize(aUserEntity));
+        }
+
+        [Test]
+        public async Task execute_update_entity_provider() {
+            var httpMethod = HttpMethods.Post;
+            httpContext.Request.Method = httpMethod;
+            var aUserEntity = new UserEntity { Name = "aName", Age = 23 };
+            var requestBodyStream = await RequestBodyStreamWith(JsonSerializer.Serialize(new BacklightApiRequest {
+                Entity = AEntityName,
+                PayLoad = JsonSerializer.Serialize(aUserEntity)
+            }));
+            httpContext.Request.Body = requestBodyStream;
+            backlightProvidersService.IsEntityConfiguredFor(AEntityName).Returns(true);
+            backlightProvidersService.IsProviderAvailableFor(AEntityName, httpMethod).Returns(true);
+            var updateProvider = Substitute.For<UpdateProvider>();
+            backlightProvidersService.UpdateProviderFor(AEntityName, httpMethod).Returns((entityId, entityPayload) => {
+                var entity = JsonSerializer.Deserialize<UserEntity>(entityPayload);
+                updateProvider.Update(entityId, entity);
+            });
+
+            await runner.Run();
+
+            updateProvider.Received().Update(ANewEntityId, aUserEntity);
+            httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
+            responseBody.Should().Be("Entity updated");
         }
 
         public static IEnumerable<string> NotAllowedMethods() {

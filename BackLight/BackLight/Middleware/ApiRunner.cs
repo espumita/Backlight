@@ -60,6 +60,14 @@ namespace Backlight.Middleware {
                 await ResponseWith(HttpStatusCode.OK, serializedEntity);
                 return;
             }
+            if (context.Request.Method == HttpMethods.Post) {
+                var updateProviderExecution = backlightProvidersService.UpdateProviderFor(entity, context.Request.Method);
+                var entityPayload = EnitytPayLoadFrom(body);
+                updateProviderExecution("aNewEntityId", entityPayload);
+                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityUpdated);
+
+                return;
+            }
 
         }
 
