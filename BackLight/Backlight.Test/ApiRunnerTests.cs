@@ -5,6 +5,7 @@ using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Backlight.Middleware;
+using Backlight.Providers;
 using Backlight.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
@@ -14,7 +15,7 @@ using NUnit.Framework;
 
 namespace Backlight.Test {
     public class ApiRunnerTests {
-        private const string AEntityName = "ExampleEntity";
+        private const string AEntityName = nameof(UserEntity);
         private IApplicationBuilder applicationBuilder;
         private ApiRunner runner;
         private DefaultHttpContext httpContext;
@@ -83,6 +84,32 @@ namespace Backlight.Test {
             responseBody.Should().Be("Entity provider is not available");
         }
 
+        [Test]
+        public async Task execute_create_entity_provider() {
+            var httpMethod = HttpMethods.Get;
+            httpContext.Request.Method = httpMethod;
+            var aUserEntity = new UserEntity{ Name = "aName", Age = 23 };
+            var requestBodyStream = await RequestBodyStreamWith(JsonSerializer.Serialize(new BacklightApiRequest {
+                Entity = AEntityName,
+                PayLoad = JsonSerializer.Serialize(aUserEntity)
+            }));
+            httpContext.Request.Body = requestBodyStream;
+            backlightProvidersService.IsEntityConfiguredFor(AEntityName).Returns(true);
+            backlightProvidersService.IsProviderAvailableFor(AEntityName, httpMethod).Returns(true);
+            var createProvider = Substitute.For<CreateProvider>();
+            backlightProvidersService.ProviderFor(AEntityName, httpMethod).Returns((entityPayload) => {
+                var entity = JsonSerializer.Deserialize<UserEntity>(entityPayload);
+                createProvider.Create(entity);
+            });
+
+            await runner.Run();
+
+            createProvider.Received().Create(Arg.Is(aUserEntity));
+            httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
+            responseBody.Should().Be("Entity created");
+        }
+
         public static IEnumerable<string> NotAllowedMethods() {
             yield return HttpMethods.Connect;
             yield return HttpMethods.Head;
@@ -117,4 +144,5 @@ namespace Backlight.Test {
             return bodyStream;
         }
     }
+
 }

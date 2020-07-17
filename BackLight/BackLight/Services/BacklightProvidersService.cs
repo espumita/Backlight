@@ -24,26 +24,21 @@ namespace Backlight.Services {
         }
 
         public virtual bool IsEntityConfiguredFor(string entity) {
-            return options.Providers.Keys.Any(entityType => entityType.FullName.Equals(entity));
+            return options.Providers.Keys.Any(entityType => entityType.Name.Equals(entity));
         }
 
         public virtual bool IsProviderAvailableFor(string entity, string httpMethod) {
-            var type = options.Providers.Keys.FirstOrDefault(entityType => entityType.FullName.Equals(entity));
+            var type = options.Providers.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
             var backlightServicesProviderOptions = options.Providers[type];
             return backlightServicesProviderOptions.CanCreate();
         }
 
-        public CreateProvider CreateProvider(string entity) {
-            var type = options.Providers.Keys.FirstOrDefault(entityType => entityType.FullName.Equals(entity));
-            var backlightServicesProviderOptions = options.Providers[type];
-            return backlightServicesProviderOptions.CreateProvider;
+        public virtual Action<string> ProviderFor(string entity, string httpMethod) {
+            var type = options.CreateProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = options.CreateProvidersDelegates[type];
+            return backlightServicesProviderOptions;
         }
 
-        public Type GetType(string entity) {
-            return Type.GetType(entity);
-            var type = options.Providers.Keys.FirstOrDefault(entityType => entityType.FullName.Equals(entity));
-            return type;
-        }
     }
 
 

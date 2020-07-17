@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Backlight.Providers;
 using Backlight.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -25,9 +26,11 @@ namespace Backlight.Middleware {
                 return;
             }
             string entity = String.Empty;
+            string body = String.Empty;
+            
             try {
-                var body = await GetBodyFrom(context.Request.Body);
-                entity = await EntityFrom(body);
+                body = await GetBodyFrom(context.Request.Body);
+                entity = EntityFrom(body);
             } catch (EntityDeserializationException exception) {
                 await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityDeserializationError);
                 return;
@@ -35,16 +38,18 @@ namespace Backlight.Middleware {
             var backlightProvidersService = applicationBuilder.ApplicationServices.GetService<BacklightProvidersService>();
             var entityIsConfigured = backlightProvidersService.IsEntityConfiguredFor(entity);
             if (!entityIsConfigured) {
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityIsNotConfigured);
                 return;
             }
             var entityProviderIsAvailable = backlightProvidersService.IsProviderAvailableFor(entity, context.Request.Method);
             if (!entityProviderIsAvailable) {
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityProviderIsNotAvailable);
                 return;
             }
+            var createProviderExecution = backlightProvidersService.ProviderFor(entity, context.Request.Method);
+            var entityPayload = EnitytPayLoadFrom(body);
+            createProviderExecution(entityPayload);
+            await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityCreated);
             return;
         }
 
@@ -83,13 +88,20 @@ namespace Backlight.Middleware {
             return readToEndAsync;
         }
 
-        private static async Task<T> EntityPayloadFrom<T>(T type, string body) {
-            return JsonSerializer.Deserialize<T>(body);
-        }
-        private static async Task<string> EntityFrom(string body) {
+        private static string EntityFrom(string body) {
             try {
                 var backlightApiRequest = JsonSerializer.Deserialize<BacklightApiRequest>(body);
                 return backlightApiRequest.Entity;
+            } catch (Exception exception) {
+                //TODO log
+                throw new EntityDeserializationException(exception);
+            }
+        }
+
+        private static string EnitytPayLoadFrom(string body) {
+            try {
+                var backlightApiRequest = JsonSerializer.Deserialize<BacklightApiRequest>(body);
+                return backlightApiRequest.PayLoad;
             } catch (Exception exception) {
                 //TODO log
                 throw new EntityDeserializationException(exception);
