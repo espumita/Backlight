@@ -46,11 +46,21 @@ namespace Backlight.Middleware {
                 await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityProviderIsNotAvailable);
                 return;
             }
-            var createProviderExecution = backlightProvidersService.ProviderFor(entity, context.Request.Method);
-            var entityPayload = EnitytPayLoadFrom(body);
-            createProviderExecution(entityPayload);
-            await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityCreated);
-            return;
+            if (context.Request.Method == HttpMethods.Put) {
+                var createProviderExecution = backlightProvidersService.ProviderFor(entity, context.Request.Method);
+                var entityPayload = EnitytPayLoadFrom(body);
+                createProviderExecution(entityPayload);
+                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityCreated);
+                return;
+            }
+            if (context.Request.Method == HttpMethods.Get) {
+                var readProviderExecution = backlightProvidersService.ReaderProviderFor(entity, context.Request.Method);
+                var entityPayload = EnitytPayLoadFrom(body);
+                var serializedEntity = readProviderExecution(entityPayload);
+                await ResponseWith(HttpStatusCode.OK, serializedEntity);
+                return;
+            }
+
         }
 
         private static bool IsNotAllowed(string requestMethod) {

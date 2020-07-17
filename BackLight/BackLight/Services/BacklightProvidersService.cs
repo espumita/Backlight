@@ -39,6 +39,12 @@ namespace Backlight.Services {
             return backlightServicesProviderOptions;
         }
 
+        public virtual Func<string, string> ReaderProviderFor(string entity, string httpMethod) {
+            var type = options.ReadProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = options.ReadProvidersDelegates[type];
+            return backlightServicesProviderOptions;
+        }
+
     }
 
 

@@ -16,6 +16,7 @@ using NUnit.Framework;
 namespace Backlight.Test {
     public class ApiRunnerTests {
         private const string AEntityName = nameof(UserEntity);
+        private const string ANewEntityId = "aNewEntityId";
         private IApplicationBuilder applicationBuilder;
         private ApiRunner runner;
         private DefaultHttpContext httpContext;
@@ -86,7 +87,7 @@ namespace Backlight.Test {
 
         [Test]
         public async Task execute_create_entity_provider() {
-            var httpMethod = HttpMethods.Get;
+            var httpMethod = HttpMethods.Put;
             httpContext.Request.Method = httpMethod;
             var aUserEntity = new UserEntity{ Name = "aName", Age = 23 };
             var requestBodyStream = await RequestBodyStreamWith(JsonSerializer.Serialize(new BacklightApiRequest {
@@ -108,6 +109,32 @@ namespace Backlight.Test {
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be("Entity created");
+        }
+
+        [Test]
+        public async Task execute_read_entity_provider() {
+            var httpMethod = HttpMethods.Get;
+            httpContext.Request.Method = httpMethod;
+            var aUserEntity = new UserEntity { Name = "aName", Age = 23 };
+            var requestBodyStream = await RequestBodyStreamWith(JsonSerializer.Serialize(new BacklightApiRequest {
+                Entity = AEntityName,
+                PayLoad = ANewEntityId
+            }));
+            httpContext.Request.Body = requestBodyStream;
+            backlightProvidersService.IsEntityConfiguredFor(AEntityName).Returns(true);
+            backlightProvidersService.IsProviderAvailableFor(AEntityName, httpMethod).Returns(true);
+            var readProvider = Substitute.For<ReadProvider>();
+            readProvider.Read<UserEntity>(ANewEntityId).Returns(aUserEntity);
+            backlightProvidersService.ReaderProviderFor(AEntityName, httpMethod).Returns((entityId) => {
+                var entity = readProvider.Read<UserEntity>(entityId);
+                return JsonSerializer.Serialize(entity);
+            });
+
+            await runner.Run();
+
+            httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
+            responseBody.Should().Be(JsonSerializer.Serialize(aUserEntity));
         }
 
         public static IEnumerable<string> NotAllowedMethods() {

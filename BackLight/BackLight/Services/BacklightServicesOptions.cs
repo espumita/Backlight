@@ -7,6 +7,8 @@ namespace Backlight.Services {
         public Dictionary<Type, BacklightServicesProviderOptions> Providers { get; set; } = new Dictionary<Type, BacklightServicesProviderOptions>();
         public Dictionary<Type, Action<string>> CreateProvidersDelegates { get; set; } = new Dictionary<Type, Action<string>>();
 
+        public Dictionary<Type, Func<string, string>> ReadProvidersDelegates { get; set; } = new Dictionary<Type, Func<string, string>>();
+
 
         public BacklightServicesProviderOptions For<T>() {
             var backlightServicesProviderOptions = new BacklightServicesProviderOptions();
