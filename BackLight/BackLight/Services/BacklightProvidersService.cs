@@ -27,7 +27,7 @@ namespace Backlight.Services {
             return options.Providers.Keys.Any(entityType => entityType.FullName.Equals(entity));
         }
 
-        public bool CanCreate(string entity) {
+        public virtual bool IsProviderAvailableFor(string entity, string httpMethod) {
             var type = options.Providers.Keys.FirstOrDefault(entityType => entityType.FullName.Equals(entity));
             var backlightServicesProviderOptions = options.Providers[type];
             return backlightServicesProviderOptions.CanCreate();

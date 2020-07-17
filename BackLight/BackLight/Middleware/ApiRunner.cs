@@ -37,11 +37,18 @@ namespace Backlight.Middleware {
             if (!entityIsConfigured) {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityIsNotConfigured);
+                return;
+            }
+            var entityProviderIsAvailable = backlightProvidersService.IsProviderAvailableFor(entity, context.Request.Method);
+            if (!entityProviderIsAvailable) {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityProviderIsNotAvailable);
+                return;
             }
             return;
         }
 
-        private bool IsNotAllowed(string requestMethod) {
+        private static bool IsNotAllowed(string requestMethod) {
             var allowedMethods = new List<string> {
                 HttpMethods.Put,
                 HttpMethods.Get,

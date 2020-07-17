@@ -14,6 +14,7 @@ using NUnit.Framework;
 
 namespace Backlight.Test {
     public class ApiRunnerTests {
+        private const string AEntityName = "ExampleEntity";
         private IApplicationBuilder applicationBuilder;
         private ApiRunner runner;
         private DefaultHttpContext httpContext;
@@ -56,16 +57,30 @@ namespace Backlight.Test {
         [Test, TestCaseSource("AllowedMethods")]
         public async Task get_bad_request_when_entity_type_is_not_configured(string httpMethod) {
             httpContext.Request.Method = httpMethod;
-            var requestBodyStream = await RequestBodyStreamWith(JsonSerializer.Serialize(new BacklightApiRequest { Entity = "Test" }));
+            var requestBodyStream = await RequestBodyStreamWith(JsonSerializer.Serialize(new BacklightApiRequest { Entity = AEntityName }));
             httpContext.Request.Body = requestBodyStream;
-
-            backlightProvidersService.IsEntityConfiguredFor(Arg.Any<string>()).Returns(false);
+            backlightProvidersService.IsEntityConfiguredFor(AEntityName).Returns(false);
 
             await runner.Run();
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be("Entity is not configured");
+        }
+
+        [Test, TestCaseSource("AllowedMethods")]
+        public async Task get_bad_request_when_entity_provider_available(string httpMethod) {
+            httpContext.Request.Method = httpMethod;
+            var requestBodyStream = await RequestBodyStreamWith(JsonSerializer.Serialize(new BacklightApiRequest { Entity = AEntityName }));
+            httpContext.Request.Body = requestBodyStream;
+            backlightProvidersService.IsEntityConfiguredFor(AEntityName).Returns(true);
+            backlightProvidersService.IsProviderAvailableFor(AEntityName, httpMethod).Returns(false);
+
+            await runner.Run();
+
+            httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
+            responseBody.Should().Be("Entity provider is not available");
         }
 
         public static IEnumerable<string> NotAllowedMethods() {
