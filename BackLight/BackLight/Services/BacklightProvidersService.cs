@@ -39,9 +39,9 @@ namespace Backlight.Services {
         }
 
         public virtual Func<string, string> ReaderProviderFor(string entity, string httpMethod) {
-            var type = Configuration.Read.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
-            var backlightServicesProviderOptions = Configuration.Read[type];
-            return backlightServicesProviderOptions;
+            var type = Configuration.ProvidersConfiguration.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = Configuration.ProvidersConfiguration[type];
+            return backlightServicesProviderOptions.Read;
         }
 
         public virtual Action<string, string> UpdateProviderFor(string entity, string httpMethod) {

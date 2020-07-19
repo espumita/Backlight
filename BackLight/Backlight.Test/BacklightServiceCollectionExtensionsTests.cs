@@ -24,7 +24,6 @@ namespace Backlight.Test {
 
             var configuration = VerifyServiceTypeAndGetServiceConfiguration();
             configuration.ProvidersConfiguration.Should().BeEmpty();
-            configuration.Read.Should().BeEmpty();
             configuration.Update.Should().BeEmpty();
             configuration.Delete.Should().BeEmpty();
         }
@@ -61,13 +60,8 @@ namespace Backlight.Test {
             var providersConfiguration = serviceConfiguration.ProvidersConfiguration.Single();
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, read: true);
-            var read = serviceConfiguration.Read.Single();
-            read.Key.Should().Be<UserEntity>();
-            var readedValue = read.Value(AnEntityId);
+            var readedValue = providersConfiguration.Value.Read(AnEntityId);
             readedValue.Should().Be(JsonSerializer.Serialize(userEntity));
-            //configuration.Update.Should().BeEmpty();
-            //configuration.Delete.Should().BeEmpty();
-            //configuration.Create.Should().BeEmpty();
         }
 
         [Test]

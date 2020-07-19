@@ -6,7 +6,6 @@ using System.Text.Json;
 namespace Backlight.Services {
     public class ServiceConfiguration {
         public Dictionary<Type, ProvidersConfiguration> ProvidersConfiguration { get; } = new Dictionary<Type, ProvidersConfiguration>();
-        public Dictionary<Type, Func<string, string>> Read { get; } = new Dictionary<Type, Func<string, string>>();
         public Dictionary<Type, Action<string, string>> Update { get; } = new Dictionary<Type, Action<string, string>>();
         public Dictionary<Type, Action<string>> Delete { get; } = new Dictionary<Type, Action<string>>();
 
@@ -14,10 +13,7 @@ namespace Backlight.Services {
         public ProvidersConfiguration For<T>() {
             ProvidersConfiguration[typeof(T)] = new ProvidersConfiguration();
             ProvidersConfiguration[typeof(T)].RegisterCreationDelegationFor<T>();
-            Read[typeof(T)] = (entityId) => {
-                var entity = ProvidersConfiguration[typeof(T)].ReadProvider.Read<T>(entityId);
-                return JsonSerializer.Serialize(entity);
-            };
+            ProvidersConfiguration[typeof(T)].RegisterReadDelegationFor<T>();
             Update[typeof(T)] = (entityId, entityPayload) => {
                 var entity = JsonSerializer.Deserialize<T>(entityPayload);
                 ProvidersConfiguration[typeof(T)].UpdateProvider.Update(entityId, entity);

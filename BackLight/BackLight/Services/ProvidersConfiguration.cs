@@ -9,6 +9,7 @@ namespace Backlight.Services {
         public UpdateProvider UpdateProvider { get; private set; }
         public DeleteProvider DeleteProvider { get; private set; }
         public Action<string> Create { get; private set; }
+        public Func<string, string> Read { get; private set; }
 
         public ProvidersConfiguration AddCreate(CreateProvider createProvider) {
             CreateProvider = createProvider;
@@ -41,6 +42,13 @@ namespace Backlight.Services {
             Create = entityPayload => {
                 var entity = JsonSerializer.Deserialize<T>(entityPayload);
                 CreateProvider.Create(entity);
+            };
+        }
+
+        public void RegisterReadDelegationFor<T>() {
+            Read = entityId => {
+                var entity = ReadProvider.Read<T>(entityId);
+                return JsonSerializer.Serialize(entity);
             };
         }
     }
