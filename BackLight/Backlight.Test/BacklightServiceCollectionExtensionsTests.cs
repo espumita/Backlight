@@ -32,7 +32,7 @@ namespace Backlight.Test {
         }
 
         [Test]
-        public void be_configued_with_a_create_provider() {
+        public void be_configured_with_a_create_provider() {
             var createProvider = Substitute.For<CreateProvider>();
 
             collection.AddBacklight(configuration => {
@@ -55,7 +55,7 @@ namespace Backlight.Test {
         }
 
         [Test]
-        public void be_configued_with_a_read_provider() {
+        public void be_configured_with_a_read_provider() {
             var readProvider = Substitute.For<ReadProvider>();
             var userEntity = new UserEntity { Name = "aName", Age = 23 };
             const string AnEntityId = "anEntityId";
@@ -79,7 +79,7 @@ namespace Backlight.Test {
         }
 
         [Test]
-        public void be_configued_with_a_update_provider() {
+        public void be_configured_with_a_update_provider() {
             var updateProvider = Substitute.For<UpdateProvider>();
             collection.AddBacklight(configuration => {
                 configuration.For<UserEntity>()
@@ -102,7 +102,7 @@ namespace Backlight.Test {
         }
 
         [Test]
-        public void be_configued_with_a_delete_provider() {
+        public void be_configured_with_a_delete_provider() {
             var deleteProvider = Substitute.For<DeleteProvider>();
             collection.AddBacklight(configuration => {
                 configuration.For<UserEntity>()
@@ -124,7 +124,7 @@ namespace Backlight.Test {
         }
 
         [Test]
-        public void be_configued_with_a_crud_provider() {
+        public void be_configured_with_a_crud_provider() {
             var crudProvider = Substitute.For<CRUDProvider>();
             var userEntity = new UserEntity { Name = "aName", Age = 23 };
             const string AnEntityId = "anEntityId";
