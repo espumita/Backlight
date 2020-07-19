@@ -57,5 +57,32 @@ namespace Backlight.Test {
             //configuration.UpdateProvidersDelegates.Should().BeEmpty();
             //configuration.DeleteProvidersDelegates.Should().BeEmpty();
         }
+
+        [Test]
+        public void be_configued_with_a_update_provider() {
+            var updateProvider = Substitute.For<UpdateProvider>();
+            collection.AddBacklight(configuration => {
+                configuration.For<UserEntity>()
+                    .AddUpdate(updateProvider);
+            });
+
+            var serviceDescriptor = collection.Single();
+            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
+            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
+            var backlightProvidersService = (BacklightProvidersService)serviceDescriptor.ImplementationInstance;
+            var configuration = backlightProvidersService.Configuration;
+            var keyValuePair = configuration.Providers.Single();
+            keyValuePair.Key.Should().Be<UserEntity>();
+            keyValuePair.Value.CanUpdate().Should().BeTrue();
+            var valuePair = configuration.UpdateProvidersDelegates.Single();
+            valuePair.Key.Should().Be<UserEntity>();
+            var userEntity = new UserEntity { Name = "aName", Age = 23 };
+            const string AnEntityId = "anEntityId";
+            valuePair.Value(AnEntityId, JsonSerializer.Serialize(userEntity));
+            updateProvider.Received().Update(AnEntityId, userEntity);
+            //configuration.ReadProvidersDelegates.Should().BeEmpty();
+            //configuration.UpdateProvidersDelegates.Should().BeEmpty();
+            //configuration.DeleteProvidersDelegates.Should().BeEmpty();
+        }
     }
 }
