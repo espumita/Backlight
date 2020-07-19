@@ -13,10 +13,10 @@ namespace Backlight.Services {
         public string EntitiesToInject() {
             var entities = Configuration.ProvidersConfiguration.Keys.Select(key => {
                 var entityProvidersOptions = Configuration.ProvidersConfiguration[key];
-                var canCreate = entityProvidersOptions.CanCreate();
-                var canRead = entityProvidersOptions.CanRead();
-                var canUpdate = entityProvidersOptions.CanUpdate();
-                var canDelete = entityProvidersOptions.CanDelete();
+                var canCreate = Configuration.CanCreate(key.FullName);
+                var canRead = Configuration.CanRead(key.FullName);
+                var canUpdate = Configuration.CanUpdate(key.FullName);
+                var canDelete = Configuration.CanDelete(key.FullName);
                 return new HtmlEntity(key.Name.ToString(), canCreate, canRead, canUpdate, canDelete);
             }).ToList();
             return JsonSerializer.Serialize(entities);
@@ -29,7 +29,7 @@ namespace Backlight.Services {
         public virtual bool IsProviderAvailableFor(string entity, string httpMethod) {
             var type = Configuration.ProvidersConfiguration.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
             var backlightServicesProviderOptions = Configuration.ProvidersConfiguration[type];
-            return backlightServicesProviderOptions.CanCreate();
+            return false; //TODO CHECK Configurations can methods
         }
 
         public virtual Action<string> CreateProviderFor(string entity, string httpMethod) {
