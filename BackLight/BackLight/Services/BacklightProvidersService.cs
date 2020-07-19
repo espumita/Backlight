@@ -4,9 +4,9 @@ using System.Text.Json;
 
 namespace Backlight.Services {
     public class BacklightProvidersService {
-        public BacklightServicesConfiguration Configuration { get; private set; }
+        public ServiceConfiguration Configuration { get; private set; }
 
-        public BacklightProvidersService(BacklightServicesConfiguration configuration) {
+        public BacklightProvidersService(ServiceConfiguration configuration) {
             this.Configuration = configuration;
         }
 
