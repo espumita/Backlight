@@ -81,8 +81,34 @@ namespace Backlight.Test {
             valuePair.Value(AnEntityId, JsonSerializer.Serialize(userEntity));
             updateProvider.Received().Update(AnEntityId, userEntity);
             //configuration.ReadProvidersDelegates.Should().BeEmpty();
-            //configuration.UpdateProvidersDelegates.Should().BeEmpty();
+            //configuration.CreateProvidersDelegates.Should().BeEmpty();
             //configuration.DeleteProvidersDelegates.Should().BeEmpty();
+        }
+
+        [Test]
+        public void be_configued_with_a_delete_provider() {
+            var deleteProvider = Substitute.For<DeleteProvider>();
+            collection.AddBacklight(configuration => {
+                configuration.For<UserEntity>()
+                    .AddDelete(deleteProvider);
+            });
+
+            var serviceDescriptor = collection.Single();
+            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
+            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
+            var backlightProvidersService = (BacklightProvidersService)serviceDescriptor.ImplementationInstance;
+            var configuration = backlightProvidersService.Configuration;
+            var keyValuePair = configuration.Providers.Single();
+            keyValuePair.Key.Should().Be<UserEntity>();
+            keyValuePair.Value.CanDelete().Should().BeTrue();
+            var valuePair = configuration.DeleteProvidersDelegates.Single();
+            valuePair.Key.Should().Be<UserEntity>();
+            const string AnEntityId = "anEntityId";
+            valuePair.Value(AnEntityId);
+            deleteProvider.Received().Delete<UserEntity>(AnEntityId);
+            //configuration.ReadProvidersDelegates.Should().BeEmpty();
+            //configuration.UpdateProvidersDelegates.Should().BeEmpty();
+            //configuration.CreateProvidersDelegates.Should().BeEmpty();
         }
     }
 }
