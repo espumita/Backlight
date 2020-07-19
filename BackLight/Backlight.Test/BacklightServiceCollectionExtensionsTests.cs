@@ -110,5 +110,33 @@ namespace Backlight.Test {
             //configuration.UpdateProvidersDelegates.Should().BeEmpty();
             //configuration.CreateProvidersDelegates.Should().BeEmpty();
         }
+
+        [Test]
+        public void be_configued_with_a_read_provider() {
+            var readProvider = Substitute.For<ReadProvider>();
+            var userEntity = new UserEntity { Name = "aName", Age = 23 };
+            const string AnEntityId = "anEntityId";
+            readProvider.Read<UserEntity>(AnEntityId).Returns(userEntity);
+            collection.AddBacklight(configuration => {
+                configuration.For<UserEntity>()
+                    .AddRead(readProvider);
+            });
+
+            var serviceDescriptor = collection.Single();
+            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
+            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
+            var backlightProvidersService = (BacklightProvidersService)serviceDescriptor.ImplementationInstance;
+            var configuration = backlightProvidersService.Configuration;
+            var keyValuePair = configuration.Providers.Single();
+            keyValuePair.Key.Should().Be<UserEntity>();
+            keyValuePair.Value.CanRead().Should().BeTrue();
+            var valuePair = configuration.ReadProvidersDelegates.Single();
+            valuePair.Key.Should().Be<UserEntity>();
+            var readedValue = valuePair.Value(AnEntityId);
+            readedValue.Should().Be(JsonSerializer.Serialize(userEntity));
+            //configuration.UpdateProvidersDelegates.Should().BeEmpty();
+            //configuration.DeleteProvidersDelegates.Should().BeEmpty();
+            //configuration.CreateProvidersDelegates.Should().BeEmpty();
+        }
     }
 }
