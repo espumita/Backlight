@@ -9,6 +9,7 @@ using NUnit.Framework;
 
 namespace Backlight.Test {
     public class BacklightServiceCollectionExtensionsTests {
+        private const string AnEntityId = "anEntityId";
         private ServiceCollection collection;
         private UserEntity AUserEntity = new UserEntity{ Name = "aName", Age = 23};
 
@@ -46,9 +47,7 @@ namespace Backlight.Test {
         [Test]
         public void be_configured_with_a_read_provider() {
             var readProvider = Substitute.For<ReadProvider>();
-            var userEntity = new UserEntity { Name = "aName", Age = 23 };
-            const string AnEntityId = "anEntityId";
-            readProvider.Read<UserEntity>(AnEntityId).Returns(userEntity);
+            readProvider.Read<UserEntity>(AnEntityId).Returns(AUserEntity);
             collection.AddBacklight(configuration => {
                 configuration.For<UserEntity>()
                     .AddRead(readProvider);
@@ -59,7 +58,7 @@ namespace Backlight.Test {
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, read: true);
             var readedValue = providersConfiguration.Value.Read(AnEntityId);
-            readedValue.Should().Be(JsonSerializer.Serialize(userEntity));
+            readedValue.Should().Be(JsonSerializer.Serialize(AUserEntity));
         }
 
         [Test]
@@ -74,10 +73,8 @@ namespace Backlight.Test {
             var providersConfiguration = serviceConfiguration.ProvidersConfiguration.Single();
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, update: true);
-            var userEntity = new UserEntity { Name = "aName", Age = 23 };
-            const string AnEntityId = "anEntityId";
-            providersConfiguration.Value.Update(AnEntityId, JsonSerializer.Serialize(userEntity));
-            updateProvider.Received().Update(AnEntityId, userEntity);
+            providersConfiguration.Value.Update(AnEntityId, JsonSerializer.Serialize(AUserEntity));
+            updateProvider.Received().Update(AnEntityId, AUserEntity);
         }
 
         [Test]
@@ -92,7 +89,6 @@ namespace Backlight.Test {
             var providersConfiguration = serviceConfiguration.ProvidersConfiguration.Single();
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, delete: true);
-            const string AnEntityId = "anEntityId";
             providersConfiguration.Value.Delete(AnEntityId);
             deleteProvider.Received().Delete<UserEntity>(AnEntityId);
         }
@@ -100,8 +96,6 @@ namespace Backlight.Test {
         [Test]
         public void be_configured_with_a_crud_provider() {
             var crudProvider = Substitute.For<CRUDProvider>();
-            var userEntity = new UserEntity { Name = "aName", Age = 23 };
-            const string AnEntityId = "anEntityId";
             collection.AddBacklight(configuration => {
                 configuration.For<UserEntity>()
                     .AddCRUD(crudProvider);
@@ -111,7 +105,6 @@ namespace Backlight.Test {
             var providersConfiguration = serviceConfiguration.ProvidersConfiguration.Single();
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, true, true, true, true);
-            //Todo test 4
         }
 
         private static void VerifyOnlyCan<T>(ServiceConfiguration serviceConfiguration, bool create = false, bool read = false, bool update = false, bool delete = false) {
