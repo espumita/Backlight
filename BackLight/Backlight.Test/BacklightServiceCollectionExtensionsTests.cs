@@ -138,5 +138,29 @@ namespace Backlight.Test {
             //configuration.DeleteProvidersDelegates.Should().BeEmpty();
             //configuration.CreateProvidersDelegates.Should().BeEmpty();
         }
+
+        [Test]
+        public void be_configued_with_a_crud_provider() {
+            var crudProvider = Substitute.For<CRUDProvider>();
+            var userEntity = new UserEntity { Name = "aName", Age = 23 };
+            const string AnEntityId = "anEntityId";
+            collection.AddBacklight(configuration => {
+                configuration.For<UserEntity>()
+                    .AddCRUD(crudProvider);
+            });
+
+            var serviceDescriptor = collection.Single();
+            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
+            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
+            var backlightProvidersService = (BacklightProvidersService)serviceDescriptor.ImplementationInstance;
+            var configuration = backlightProvidersService.Configuration;
+            var keyValuePair = configuration.Providers.Single();
+            keyValuePair.Key.Should().Be<UserEntity>();
+            keyValuePair.Value.CanCreate().Should().BeTrue();
+            keyValuePair.Value.CanRead().Should().BeTrue();
+            keyValuePair.Value.CanUpdate().Should().BeTrue();
+            keyValuePair.Value.CanDelete().Should().BeTrue();
+            //Todo test 4
+        }
     }
 }
