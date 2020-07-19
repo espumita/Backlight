@@ -1,4 +1,5 @@
-﻿using Backlight.Providers;
+﻿using System;
+using Backlight.Providers;
 
 namespace Backlight.Services {
     public class ProvidersConfiguration {
@@ -6,6 +7,7 @@ namespace Backlight.Services {
         public ReadProvider ReadProvider { get; private set; }
         public UpdateProvider UpdateProvider { get; private set; }
         public DeleteProvider DeleteProvider { get; private set; }
+        public Action<string> Create { get; private set; }
 
         public ProvidersConfiguration AddCreate(CreateProvider createProvider) {
             CreateProvider = createProvider;
@@ -34,6 +36,9 @@ namespace Backlight.Services {
             return this;
         }
 
+        public void AddCreateDelegate(Action<string> action) {
+            Create = action;
+        }
     }
 
 }
