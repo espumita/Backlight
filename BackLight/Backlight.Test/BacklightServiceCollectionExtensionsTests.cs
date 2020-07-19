@@ -18,6 +18,7 @@ namespace Backlight.Test {
 
         [Test]
         public void be_not_configured_when_there_is_no_configuration() {
+
             collection.AddBacklight();
 
             var configuration = VerifyServiceTypeAndGetConfiguration();
@@ -31,6 +32,7 @@ namespace Backlight.Test {
         [Test]
         public void be_configued_with_a_create_provider() {
             var createProvider = Substitute.For<CreateProvider>();
+
             collection.AddBacklight(configuration => {
                 configuration.For<UserEntity>()
                     .AddCreate(createProvider);
@@ -40,6 +42,9 @@ namespace Backlight.Test {
             var keyValuePair = configuration.Providers.Single();
             keyValuePair.Key.Should().Be<UserEntity>();
             keyValuePair.Value.CanCreate().Should().BeTrue();
+            keyValuePair.Value.CanRead().Should().BeFalse();
+            keyValuePair.Value.CanUpdate().Should().BeFalse();
+            keyValuePair.Value.CanDelete().Should().BeFalse();
             var valuePair = configuration.CreateProvidersDelegates.Single();
             valuePair.Key.Should().Be<UserEntity>();
             var userEntity = new UserEntity{ Name = "aName", Age = 23};
@@ -48,6 +53,33 @@ namespace Backlight.Test {
             //configuration.ReadProvidersDelegates.Should().BeEmpty();
             //configuration.UpdateProvidersDelegates.Should().BeEmpty();
             //configuration.DeleteProvidersDelegates.Should().BeEmpty();
+        }
+
+        [Test]
+        public void be_configued_with_a_read_provider() {
+            var readProvider = Substitute.For<ReadProvider>();
+            var userEntity = new UserEntity { Name = "aName", Age = 23 };
+            const string AnEntityId = "anEntityId";
+            readProvider.Read<UserEntity>(AnEntityId).Returns(userEntity);
+            collection.AddBacklight(configuration => {
+                configuration.For<UserEntity>()
+                    .AddRead(readProvider);
+            });
+
+            var configuration = VerifyServiceTypeAndGetConfiguration();
+            var keyValuePair = configuration.Providers.Single();
+            keyValuePair.Key.Should().Be<UserEntity>();
+            keyValuePair.Value.CanCreate().Should().BeFalse();
+            keyValuePair.Value.CanRead().Should().BeTrue();
+            keyValuePair.Value.CanUpdate().Should().BeFalse();
+            keyValuePair.Value.CanDelete().Should().BeFalse();
+            var valuePair = configuration.ReadProvidersDelegates.Single();
+            valuePair.Key.Should().Be<UserEntity>();
+            var readedValue = valuePair.Value(AnEntityId);
+            readedValue.Should().Be(JsonSerializer.Serialize(userEntity));
+            //configuration.UpdateProvidersDelegates.Should().BeEmpty();
+            //configuration.DeleteProvidersDelegates.Should().BeEmpty();
+            //configuration.CreateProvidersDelegates.Should().BeEmpty();
         }
 
         [Test]
@@ -61,7 +93,10 @@ namespace Backlight.Test {
             var configuration = VerifyServiceTypeAndGetConfiguration();
             var keyValuePair = configuration.Providers.Single();
             keyValuePair.Key.Should().Be<UserEntity>();
+            keyValuePair.Value.CanCreate().Should().BeFalse();
+            keyValuePair.Value.CanRead().Should().BeFalse();
             keyValuePair.Value.CanUpdate().Should().BeTrue();
+            keyValuePair.Value.CanDelete().Should().BeFalse();
             var valuePair = configuration.UpdateProvidersDelegates.Single();
             valuePair.Key.Should().Be<UserEntity>();
             var userEntity = new UserEntity { Name = "aName", Age = 23 };
@@ -84,6 +119,9 @@ namespace Backlight.Test {
             var configuration = VerifyServiceTypeAndGetConfiguration();
             var keyValuePair = configuration.Providers.Single();
             keyValuePair.Key.Should().Be<UserEntity>();
+            keyValuePair.Value.CanCreate().Should().BeFalse();
+            keyValuePair.Value.CanRead().Should().BeFalse();
+            keyValuePair.Value.CanUpdate().Should().BeFalse();
             keyValuePair.Value.CanDelete().Should().BeTrue();
             var valuePair = configuration.DeleteProvidersDelegates.Single();
             valuePair.Key.Should().Be<UserEntity>();
@@ -92,30 +130,6 @@ namespace Backlight.Test {
             deleteProvider.Received().Delete<UserEntity>(AnEntityId);
             //configuration.ReadProvidersDelegates.Should().BeEmpty();
             //configuration.UpdateProvidersDelegates.Should().BeEmpty();
-            //configuration.CreateProvidersDelegates.Should().BeEmpty();
-        }
-
-        [Test]
-        public void be_configued_with_a_read_provider() {
-            var readProvider = Substitute.For<ReadProvider>();
-            var userEntity = new UserEntity { Name = "aName", Age = 23 };
-            const string AnEntityId = "anEntityId";
-            readProvider.Read<UserEntity>(AnEntityId).Returns(userEntity);
-            collection.AddBacklight(configuration => {
-                configuration.For<UserEntity>()
-                    .AddRead(readProvider);
-            });
-
-            var configuration = VerifyServiceTypeAndGetConfiguration();
-            var keyValuePair = configuration.Providers.Single();
-            keyValuePair.Key.Should().Be<UserEntity>();
-            keyValuePair.Value.CanRead().Should().BeTrue();
-            var valuePair = configuration.ReadProvidersDelegates.Single();
-            valuePair.Key.Should().Be<UserEntity>();
-            var readedValue = valuePair.Value(AnEntityId);
-            readedValue.Should().Be(JsonSerializer.Serialize(userEntity));
-            //configuration.UpdateProvidersDelegates.Should().BeEmpty();
-            //configuration.DeleteProvidersDelegates.Should().BeEmpty();
             //configuration.CreateProvidersDelegates.Should().BeEmpty();
         }
 
