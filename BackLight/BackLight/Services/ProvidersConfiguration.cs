@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using Backlight.Providers;
 
 namespace Backlight.Services {
@@ -36,8 +37,11 @@ namespace Backlight.Services {
             return this;
         }
 
-        public void AddCreateDelegate(Action<string> action) {
-            Create = action;
+        public void RegisterCreationDelegationFor<T>() {
+            Create = entityPayload => {
+                var entity = JsonSerializer.Deserialize<T>(entityPayload);
+                CreateProvider.Create(entity);
+            };
         }
     }
 

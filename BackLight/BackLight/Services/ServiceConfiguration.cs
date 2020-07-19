@@ -13,10 +13,7 @@ namespace Backlight.Services {
 
         public ProvidersConfiguration For<T>() {
             ProvidersConfiguration[typeof(T)] = new ProvidersConfiguration();
-            ProvidersConfiguration[typeof(T)].AddCreateDelegate(entityPayload => {
-                var entity = JsonSerializer.Deserialize<T>(entityPayload);
-                ProvidersConfiguration[typeof(T)].CreateProvider.Create(entity);
-            });
+            ProvidersConfiguration[typeof(T)].RegisterCreationDelegationFor<T>();
             Read[typeof(T)] = (entityId) => {
                 var entity = ProvidersConfiguration[typeof(T)].ReadProvider.Read<T>(entityId);
                 return JsonSerializer.Serialize(entity);
