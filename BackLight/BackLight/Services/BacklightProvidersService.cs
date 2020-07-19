@@ -45,15 +45,15 @@ namespace Backlight.Services {
         }
 
         public virtual Action<string, string> UpdateProviderFor(string entity, string httpMethod) {
-            var type = Configuration.Update.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
-            var backlightServicesProviderOptions = Configuration.Update[type];
-            return backlightServicesProviderOptions;
+            var type = Configuration.ProvidersConfiguration.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = Configuration.ProvidersConfiguration[type];
+            return backlightServicesProviderOptions.Update;
         }
 
         public virtual Action<string> DeleteProviderFor(string entity, string httpMethod) {
-            var type = Configuration.Delete.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
-            var backlightServicesProviderOptions = Configuration.Delete[type];
-            return backlightServicesProviderOptions;
+            var type = Configuration.ProvidersConfiguration.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = Configuration.ProvidersConfiguration[type];
+            return backlightServicesProviderOptions.Delete;
         }
 
     }

@@ -24,8 +24,6 @@ namespace Backlight.Test {
 
             var configuration = VerifyServiceTypeAndGetServiceConfiguration();
             configuration.ProvidersConfiguration.Should().BeEmpty();
-            configuration.Update.Should().BeEmpty();
-            configuration.Delete.Should().BeEmpty();
         }
 
         [Test]
@@ -76,15 +74,10 @@ namespace Backlight.Test {
             var providersConfiguration = serviceConfiguration.ProvidersConfiguration.Single();
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, update: true);
-            var update = serviceConfiguration.Update.Single();
-            update.Key.Should().Be<UserEntity>();
             var userEntity = new UserEntity { Name = "aName", Age = 23 };
             const string AnEntityId = "anEntityId";
-            update.Value(AnEntityId, JsonSerializer.Serialize(userEntity));
+            providersConfiguration.Value.Update(AnEntityId, JsonSerializer.Serialize(userEntity));
             updateProvider.Received().Update(AnEntityId, userEntity);
-            //configuration.Read.Should().BeEmpty();
-            //configuration.Create.Should().BeEmpty();
-            //configuration.Delete.Should().BeEmpty();
         }
 
         [Test]
@@ -99,14 +92,9 @@ namespace Backlight.Test {
             var providersConfiguration = serviceConfiguration.ProvidersConfiguration.Single();
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, delete: true);
-            var delete = serviceConfiguration.Delete.Single();
-            delete.Key.Should().Be<UserEntity>();
             const string AnEntityId = "anEntityId";
-            delete.Value(AnEntityId);
+            providersConfiguration.Value.Delete(AnEntityId);
             deleteProvider.Received().Delete<UserEntity>(AnEntityId);
-            //configuration.Read.Should().BeEmpty();
-            //configuration.Update.Should().BeEmpty();
-            //configuration.Create.Should().BeEmpty();
         }
 
         [Test]
