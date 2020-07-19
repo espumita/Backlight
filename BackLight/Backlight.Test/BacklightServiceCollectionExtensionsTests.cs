@@ -20,11 +20,7 @@ namespace Backlight.Test {
         public void be_not_configured_when_there_is_no_configuration() {
             collection.AddBacklight();
 
-            var serviceDescriptor = collection.Single();
-            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
-            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
-            var backlightProvidersService = (BacklightProvidersService)serviceDescriptor.ImplementationInstance;
-            var configuration = backlightProvidersService.Configuration;
+            var configuration = VerifyServiceTypeAndGetConfiguration();
             configuration.Providers.Should().BeEmpty();
             configuration.CreateProvidersDelegates.Should().BeEmpty();
             configuration.ReadProvidersDelegates.Should().BeEmpty();
@@ -40,11 +36,7 @@ namespace Backlight.Test {
                     .AddCreate(createProvider);
             });
 
-            var serviceDescriptor = collection.Single();
-            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
-            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
-            var backlightProvidersService = (BacklightProvidersService)serviceDescriptor.ImplementationInstance;
-            var configuration = backlightProvidersService.Configuration;
+            var configuration = VerifyServiceTypeAndGetConfiguration();
             var keyValuePair = configuration.Providers.Single();
             keyValuePair.Key.Should().Be<UserEntity>();
             keyValuePair.Value.CanCreate().Should().BeTrue();
@@ -66,11 +58,7 @@ namespace Backlight.Test {
                     .AddUpdate(updateProvider);
             });
 
-            var serviceDescriptor = collection.Single();
-            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
-            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
-            var backlightProvidersService = (BacklightProvidersService)serviceDescriptor.ImplementationInstance;
-            var configuration = backlightProvidersService.Configuration;
+            var configuration = VerifyServiceTypeAndGetConfiguration();
             var keyValuePair = configuration.Providers.Single();
             keyValuePair.Key.Should().Be<UserEntity>();
             keyValuePair.Value.CanUpdate().Should().BeTrue();
@@ -93,11 +81,7 @@ namespace Backlight.Test {
                     .AddDelete(deleteProvider);
             });
 
-            var serviceDescriptor = collection.Single();
-            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
-            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
-            var backlightProvidersService = (BacklightProvidersService)serviceDescriptor.ImplementationInstance;
-            var configuration = backlightProvidersService.Configuration;
+            var configuration = VerifyServiceTypeAndGetConfiguration();
             var keyValuePair = configuration.Providers.Single();
             keyValuePair.Key.Should().Be<UserEntity>();
             keyValuePair.Value.CanDelete().Should().BeTrue();
@@ -122,11 +106,7 @@ namespace Backlight.Test {
                     .AddRead(readProvider);
             });
 
-            var serviceDescriptor = collection.Single();
-            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
-            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
-            var backlightProvidersService = (BacklightProvidersService)serviceDescriptor.ImplementationInstance;
-            var configuration = backlightProvidersService.Configuration;
+            var configuration = VerifyServiceTypeAndGetConfiguration();
             var keyValuePair = configuration.Providers.Single();
             keyValuePair.Key.Should().Be<UserEntity>();
             keyValuePair.Value.CanRead().Should().BeTrue();
@@ -149,11 +129,7 @@ namespace Backlight.Test {
                     .AddCRUD(crudProvider);
             });
 
-            var serviceDescriptor = collection.Single();
-            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
-            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
-            var backlightProvidersService = (BacklightProvidersService)serviceDescriptor.ImplementationInstance;
-            var configuration = backlightProvidersService.Configuration;
+            var configuration = VerifyServiceTypeAndGetConfiguration();
             var keyValuePair = configuration.Providers.Single();
             keyValuePair.Key.Should().Be<UserEntity>();
             keyValuePair.Value.CanCreate().Should().BeTrue();
@@ -161,6 +137,14 @@ namespace Backlight.Test {
             keyValuePair.Value.CanUpdate().Should().BeTrue();
             keyValuePair.Value.CanDelete().Should().BeTrue();
             //Todo test 4
+        }
+
+        private BacklightServicesConfiguration VerifyServiceTypeAndGetConfiguration() {
+            var serviceDescriptor = collection.Single();
+            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
+            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
+            var backlightProvidersService = (BacklightProvidersService) serviceDescriptor.ImplementationInstance;
+            return backlightProvidersService.Configuration;
         }
     }
 }
