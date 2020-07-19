@@ -23,14 +23,14 @@ namespace Backlight.Sample.Web.Api {
             var exampleEntit2Provider = new ExampleEntity2Provider();
             var exampleEntity3Provider = new ExampleEntity3Provider();
 
-            services.AddBacklight(options => {
-                options.For<ExampleEntity>()
+            services.AddBacklight(configuration => {
+                configuration.For<ExampleEntity>()
                     .AddCreate(exampleEntityProvider)
                     .AddRead(exampleEntityProvider)
                     .AddUpdate(exampleEntityProvider);
-                options.For<ExampleEntity2>()
+                configuration.For<ExampleEntity2>()
                     .AddCRUD(exampleEntit2Provider);
-                options.For<ExampleEntity3>()
+                configuration.For<ExampleEntity3>()
                     .AddRead(exampleEntity3Provider);
             });
         }

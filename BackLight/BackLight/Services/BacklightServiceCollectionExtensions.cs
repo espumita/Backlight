@@ -4,19 +4,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Backlight.Services {
     public static class BacklightServiceCollectionExtensions {
 
-        public static IServiceCollection AddBacklight(this IServiceCollection services, Action<BacklightServicesOptions> setupAction = null) {
-            var options = new BacklightServicesOptions();
-            if (setupAction != null) {
-                setupAction(options);
-                services.ConfigureBacklightServices(options);
+        public static IServiceCollection AddBacklight(this IServiceCollection services, Action<BacklightServicesConfiguration> setupServiceConfigurationAction = null) {
+            var configuration = new BacklightServicesConfiguration();
+            if (setupServiceConfigurationAction != null) {
+                setupServiceConfigurationAction(configuration);
             }
+            services.ConfigureBacklightServicesWith(configuration);
             return services;
         }
 
-        public static void ConfigureBacklightServices(this IServiceCollection services, BacklightServicesOptions options) {
-            var backlightProvidersService = new BacklightProvidersService(options);
+        private static void ConfigureBacklightServicesWith(this IServiceCollection services, BacklightServicesConfiguration configuration) {
+            var backlightProvidersService = new BacklightProvidersService(configuration);
             services.AddSingleton(backlightProvidersService);
-            // services.Configure(setupAction);
         }
     }
 

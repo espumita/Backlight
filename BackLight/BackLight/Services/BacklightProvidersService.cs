@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Text.Json;
-using Backlight.Providers;
 
 namespace Backlight.Services {
     public class BacklightProvidersService {
-        private readonly BacklightServicesOptions options;
+        public BacklightServicesConfiguration Configuration { get; private set; }
 
-        public BacklightProvidersService(BacklightServicesOptions options) {
-            this.options = options;
+        public BacklightProvidersService(BacklightServicesConfiguration configuration) {
+            this.Configuration = configuration;
         }
 
         public string EntitiesToInject() {
-            var entities = options.Providers.Keys.Select(key => {
-                var entityProvidersOptions = options.Providers[key];
+            var entities = Configuration.Providers.Keys.Select(key => {
+                var entityProvidersOptions = Configuration.Providers[key];
                 var canCreate = entityProvidersOptions.CanCreate();
                 var canRead = entityProvidersOptions.CanRead();
                 var canUpdate = entityProvidersOptions.CanUpdate();
@@ -24,36 +23,36 @@ namespace Backlight.Services {
         }
 
         public virtual bool IsEntityConfiguredFor(string entity) {
-            return options.Providers.Keys.Any(entityType => entityType.Name.Equals(entity));
+            return Configuration.Providers.Keys.Any(entityType => entityType.Name.Equals(entity));
         }
 
         public virtual bool IsProviderAvailableFor(string entity, string httpMethod) {
-            var type = options.Providers.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
-            var backlightServicesProviderOptions = options.Providers[type];
+            var type = Configuration.Providers.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = Configuration.Providers[type];
             return backlightServicesProviderOptions.CanCreate();
         }
 
         public virtual Action<string> CreateProviderFor(string entity, string httpMethod) {
-            var type = options.CreateProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
-            var backlightServicesProviderOptions = options.CreateProvidersDelegates[type];
+            var type = Configuration.CreateProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = Configuration.CreateProvidersDelegates[type];
             return backlightServicesProviderOptions;
         }
 
         public virtual Func<string, string> ReaderProviderFor(string entity, string httpMethod) {
-            var type = options.ReadProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
-            var backlightServicesProviderOptions = options.ReadProvidersDelegates[type];
+            var type = Configuration.ReadProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = Configuration.ReadProvidersDelegates[type];
             return backlightServicesProviderOptions;
         }
 
         public virtual Action<string, string> UpdateProviderFor(string entity, string httpMethod) {
-            var type = options.UpdateProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
-            var backlightServicesProviderOptions = options.UpdateProvidersDelegates[type];
+            var type = Configuration.UpdateProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = Configuration.UpdateProvidersDelegates[type];
             return backlightServicesProviderOptions;
         }
 
         public virtual Action<string> DeleteProviderFor(string entity, string httpMethod) {
-            var type = options.DeleteProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
-            var backlightServicesProviderOptions = options.DeleteProvidersDelegates[type];
+            var type = Configuration.DeleteProvidersDelegates.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var backlightServicesProviderOptions = Configuration.DeleteProvidersDelegates[type];
             return backlightServicesProviderOptions;
         }
 
