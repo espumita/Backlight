@@ -11,13 +11,13 @@ namespace Backlight.Services {
         }
 
         public string EntitiesToInject() {
-            var entities = Options.ProvidersForType.Keys.Select(key => {
-                var entityProvidersOptions = Options.ProvidersForType[key];
-                var canCreate = Options.CanCreate(key.FullName);
-                var canRead = Options.CanRead(key.FullName);
-                var canUpdate = Options.CanUpdate(key.FullName);
-                var canDelete = Options.CanDelete(key.FullName);
-                return new HtmlEntity(key.Name.ToString(), canCreate, canRead, canUpdate, canDelete);
+            var entities = Options.ProvidersForType.Keys.Select(type => {
+                var providerForType = Options.ProvidersForType[type];
+                var canCreate = providerForType.CanCreate();
+                var canRead = providerForType.CanRead();
+                var canUpdate = providerForType.CanUpdate();
+                var canDelete = providerForType.CanDelete();
+                return new HtmlEntity(type.Name.ToString(), canCreate, canRead, canUpdate, canDelete);
             }).ToList();
             return JsonSerializer.Serialize(entities);
         }
