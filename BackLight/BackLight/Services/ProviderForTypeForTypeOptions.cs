@@ -3,7 +3,7 @@ using System.Text.Json;
 using Backlight.Providers;
 
 namespace Backlight.Services {
-    public class ProviderOptions : IProviderOptions {
+    public class ProviderForTypeForTypeOptions : IProviderForTypeOptions {
         public CreateProvider Create { get; private set; }
         public ReadProvider Read { get; private set; }
         public UpdateProvider Update { get; private set; }
@@ -13,26 +13,26 @@ namespace Backlight.Services {
         public Action<string, string> UpdateDelegate { get; private set; }
         public Action<string> DeleteDelegate { get; private set; }
 
-        public IProviderOptions AddCreate(CreateProvider createProvider) {
+        public IProviderForTypeOptions AddCreate(CreateProvider createProvider) {
             Create = createProvider;
             return this;
         }
 
-        public IProviderOptions AddRead(ReadProvider readProvider) {
+        public IProviderForTypeOptions AddRead(ReadProvider readProvider) {
             Read = readProvider;
             return this;
         }
-        public IProviderOptions AddUpdate(UpdateProvider updateProvider) {
+        public IProviderForTypeOptions AddUpdate(UpdateProvider updateProvider) {
             Update = updateProvider;
             return this;
         }
 
-        public IProviderOptions AddDelete(DeleteProvider deleteProvider) {
+        public IProviderForTypeOptions AddDelete(DeleteProvider deleteProvider) {
             Delete = deleteProvider;
             return this;
         }
 
-        public IProviderOptions AddCRUD(CRUDProvider crudProvider) {
+        public IProviderForTypeOptions AddCRUD(CRUDProvider crudProvider) {
             Create = crudProvider;
             Read = crudProvider;
             Update = crudProvider;
@@ -74,6 +74,21 @@ namespace Backlight.Services {
             };
         }
 
+        public bool CanCreate() {
+            return Create != null;
+        }
+
+        public bool CanRead() {
+            return Read != null;
+        }
+
+        public bool CanUpdate() {
+            return Update != null;
+        }
+
+        public bool CanDelete() {
+            return Delete != null;
+        }
     }
 
 }

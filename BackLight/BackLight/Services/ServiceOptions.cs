@@ -4,45 +4,45 @@ using System.Linq;
 
 namespace Backlight.Services {
     public class ServiceOptions : IServiceOptions {
-        public Dictionary<Type, ProviderOptions> ProvidersOptions { get; } = new Dictionary<Type, ProviderOptions>();
+        public Dictionary<Type, ProviderForTypeForTypeOptions> ProvidersForType { get; } = new Dictionary<Type, ProviderForTypeForTypeOptions>();
 
-        public IProviderOptions For<T>() {
-            var providerOptions = new ProviderOptions();
-            providerOptions.RegisterDelegatesFor<T>();
-            ProvidersOptions[typeof(T)] = providerOptions;
-            return providerOptions;
+        public IProviderForTypeOptions For<T>() {
+            var provider = new ProviderForTypeForTypeOptions();
+            provider.RegisterDelegatesFor<T>();
+            ProvidersForType[typeof(T)] = provider;
+            return provider;
         }
 
         public bool CanCreate(string entityFullName) {
             if (!IsProviderConfiguredFor(entityFullName)) return false;
             var key = ProviderConfigurationKeyFrom(entityFullName);
-            return ProvidersOptions[key].Create != null;
+            return ProvidersForType[key].Create != null;
         }
 
         public bool CanRead(string entityFullName) {
             if (!IsProviderConfiguredFor(entityFullName)) return false;
-            var key = ProviderConfigurationKeyFrom(entityFullName);
-            return ProvidersOptions[key].Read != null;
+            var type = ProviderConfigurationKeyFrom(entityFullName);
+            return ProvidersForType[type].Read != null;
         }
 
         public bool CanUpdate(string entityFullName) {
             if (!IsProviderConfiguredFor(entityFullName)) return false;
-            var key = ProviderConfigurationKeyFrom(entityFullName);
-            return ProvidersOptions[key].Update != null;
+            var type = ProviderConfigurationKeyFrom(entityFullName);
+            return ProvidersForType[type].Update != null;
         }
 
         public bool CanDelete(string entityFullName) {
             if (!IsProviderConfiguredFor(entityFullName)) return false;
-            var key = ProviderConfigurationKeyFrom(entityFullName);
-            return ProvidersOptions[key].Delete != null;
+            var type = ProviderConfigurationKeyFrom(entityFullName);
+            return ProvidersForType[type].Delete != null;
         }
 
         private bool IsProviderConfiguredFor(string entityFullName) {
-            return ProvidersOptions.Keys.Any(entityType => entityType.FullName.Equals(entityFullName));
+            return ProvidersForType.Keys.Any(entityType => entityType.FullName.Equals(entityFullName));
         }
         
         private Type ProviderConfigurationKeyFrom(string entityFullName) {
-            return ProvidersOptions.Keys.First(x => x.FullName.Equals(entityFullName));
+            return ProvidersForType.Keys.First(x => x.FullName.Equals(entityFullName));
         }
 
     }

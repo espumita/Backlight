@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Text.Json;
 using Backlight.Providers;
 using Backlight.Services;
 using FluentAssertions;
@@ -19,12 +18,12 @@ namespace Backlight.Test.Services {
         }
 
         [Test]
-        public void be_not_configured_when_there_is_no_configuration() {
+        public void be_not_configured_when_there_is_no_options_configured() {
 
             collection.AddBacklight();
 
             var service = VerifyServiceOfType<BacklightProvidersService>();
-            service.Options.ProvidersOptions.Should().BeEmpty();
+            service.Options.ProvidersForType.Should().BeEmpty();
         }
 
         [Test]
@@ -37,81 +36,70 @@ namespace Backlight.Test.Services {
             });
 
             var service = VerifyServiceOfType<BacklightProvidersService>();
-            var providersOptions = service.Options.ProvidersOptions.Single();
-            providersOptions.Key.Should().Be<UserEntity>();
-            VerifyOnlyCan<UserEntity>(service.Options, create: true);
-            providersOptions.Value.CreateDelegate(JsonSerializer.Serialize(AUserEntity));
-            createProvider.Received().Create(AUserEntity);
+            service.Options.ProvidersForType.Count.Should().Be(1);
+            var providerForType = service.Options.ProvidersForType[typeof(UserEntity)];
+            VerifyOnlyCan(providerForType, create: true);
         }
 
         [Test]
         public void be_configured_with_a_read_provider() {
             var readProvider = Substitute.For<ReadProvider>();
             readProvider.Read<UserEntity>(AnEntityId).Returns(AUserEntity);
+            
             collection.AddBacklight(configuration => {
                 configuration.For<UserEntity>()
                     .AddRead(readProvider);
             });
 
             var service = VerifyServiceOfType<BacklightProvidersService>();
-            var providersOptions = service.Options.ProvidersOptions.Single();
-            providersOptions.Key.Should().Be<UserEntity>();
-            VerifyOnlyCan<UserEntity>(service.Options, read: true);
-            var readedValue = providersOptions.Value.ReadDelegate(AnEntityId);
-            readedValue.Should().Be(JsonSerializer.Serialize(AUserEntity));
+            service.Options.ProvidersForType.Count.Should().Be(1);
+            var providerForType = service.Options.ProvidersForType[typeof(UserEntity)];
+            VerifyOnlyCan(providerForType, read: true);
         }
 
         [Test]
         public void be_configured_with_a_update_provider() {
             var updateProvider = Substitute.For<UpdateProvider>();
+
             collection.AddBacklight(configuration => {
                 configuration.For<UserEntity>()
                     .AddUpdate(updateProvider);
             });
 
             var service = VerifyServiceOfType<BacklightProvidersService>();
-            var providersOptions = service.Options.ProvidersOptions.Single();
-            providersOptions.Key.Should().Be<UserEntity>();
-            VerifyOnlyCan<UserEntity>(service.Options, update: true);
-            providersOptions.Value.UpdateDelegate(AnEntityId, JsonSerializer.Serialize(AUserEntity));
-            updateProvider.Received().Update(AnEntityId, AUserEntity);
+            service.Options.ProvidersForType.Count.Should().Be(1);
+            var providerForType = service.Options.ProvidersForType[typeof(UserEntity)];
+            VerifyOnlyCan(providerForType, update: true);
         }
 
         [Test]
         public void be_configured_with_a_delete_provider() {
             var deleteProvider = Substitute.For<DeleteProvider>();
+
             collection.AddBacklight(configuration => {
                 configuration.For<UserEntity>()
                     .AddDelete(deleteProvider);
             });
 
             var service = VerifyServiceOfType<BacklightProvidersService>();
-            var providersOptions = service.Options.ProvidersOptions.Single();
-            providersOptions.Key.Should().Be<UserEntity>();
-            VerifyOnlyCan<UserEntity>(service.Options, delete: true);
-            providersOptions.Value.DeleteDelegate(AnEntityId);
-            deleteProvider.Received().Delete<UserEntity>(AnEntityId);
+            service.Options.ProvidersForType.Count.Should().Be(1);
+            var providerForType = service.Options.ProvidersForType[typeof(UserEntity)];
+            VerifyOnlyCan(providerForType, delete: true);
         }
 
         [Test]
         public void be_configured_with_a_crud_provider() {
             var crudProvider = Substitute.For<CRUDProvider>();
+
             collection.AddBacklight(configuration => {
                 configuration.For<UserEntity>()
                     .AddCRUD(crudProvider);
             });
 
             var service = VerifyServiceOfType<BacklightProvidersService>();
-            var providersOptions = service.Options.ProvidersOptions.Single();
-            providersOptions.Key.Should().Be<UserEntity>();
-            VerifyOnlyCan<UserEntity>(service.Options, true, true, true, true);
-        }
-
-        private static void VerifyOnlyCan<T>(ServiceOptions serviceOptions, bool create = false, bool read = false, bool update = false, bool delete = false) {
-            serviceOptions.CanCreate(typeof(T).FullName).Should().Be(create);
-            serviceOptions.CanRead(typeof(T).FullName).Should().Be(read);
-            serviceOptions.CanUpdate(typeof(T).FullName).Should().Be(update);
-            serviceOptions.CanDelete(typeof(T).FullName).Should().Be(delete);
+            service.Options.ProvidersForType.Count.Should().Be(1);
+            var providerForType = service.Options.ProvidersForType[typeof(UserEntity)];
+            VerifyOnlyCan(providerForType, create: true, read: true, update: true, delete: true);
         }
 
         private T VerifyServiceOfType<T>() {
@@ -120,5 +108,13 @@ namespace Backlight.Test.Services {
             serviceDescriptor.ServiceType.Should().Be(typeof(T));
             return (T) serviceDescriptor.ImplementationInstance;
         }
+
+        private static void VerifyOnlyCan(ProviderForTypeForTypeOptions providerForType, bool create = false, bool read = false, bool update = false, bool delete = false) {
+            providerForType.CanCreate().Should().Be(create);
+            providerForType.CanRead().Should().Be(read);
+            providerForType.CanUpdate().Should().Be(update);
+            providerForType.CanDelete().Should().Be(delete);
+        }
+
     }
 }

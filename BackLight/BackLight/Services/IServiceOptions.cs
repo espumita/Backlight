@@ -1,5 +1,5 @@
 ﻿namespace Backlight.Services {
     public interface IServiceOptions {
-        IProviderOptions For<T>();
+        IProviderForTypeOptions For<T>();
     }
 }
