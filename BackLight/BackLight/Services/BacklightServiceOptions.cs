@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Backlight.Services {
-    public class ServiceConfiguration {
-        public Dictionary<Type, ProvidersConfiguration> ProvidersConfiguration { get; } = new Dictionary<Type, ProvidersConfiguration>();
+    public class BacklightServiceOptions : ServiceOptions {
+        public Dictionary<Type, BacklightProvidersConfiguration> ProvidersConfiguration { get; } = new Dictionary<Type, BacklightProvidersConfiguration>();
 
         public ProvidersConfiguration For<T>() {
-            var providersConfiguration = new ProvidersConfiguration();
-            providersConfiguration.RegisterCreationDelegationFor<T>()
-                .RegisterReadDelegationFor<T>()
-                .RegisterUpdateDelegationFor<T>()
-                .RegisterDeleteDelegationFor<T>();
+            var providersConfiguration = new BacklightProvidersConfiguration();
+            providersConfiguration.RegisterDelegatesFor<T>();
             ProvidersConfiguration[typeof(T)] = providersConfiguration;
             return providersConfiguration;
         }

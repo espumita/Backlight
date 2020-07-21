@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Backlight.Middleware;
 using Backlight.Sample.Web.Api.Entities;
 using Backlight.Sample.Web.Api.Providers;

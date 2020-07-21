@@ -107,19 +107,19 @@ namespace Backlight.Test {
             VerifyOnlyCan<UserEntity>(serviceConfiguration, true, true, true, true);
         }
 
-        private static void VerifyOnlyCan<T>(ServiceConfiguration serviceConfiguration, bool create = false, bool read = false, bool update = false, bool delete = false) {
-            serviceConfiguration.CanCreate(typeof(T).FullName).Should().Be(create);
-            serviceConfiguration.CanRead(typeof(T).FullName).Should().Be(read);
-            serviceConfiguration.CanUpdate(typeof(T).FullName).Should().Be(update);
-            serviceConfiguration.CanDelete(typeof(T).FullName).Should().Be(delete);
+        private static void VerifyOnlyCan<T>(BacklightServiceOptions backlightServiceOptions, bool create = false, bool read = false, bool update = false, bool delete = false) {
+            backlightServiceOptions.CanCreate(typeof(T).FullName).Should().Be(create);
+            backlightServiceOptions.CanRead(typeof(T).FullName).Should().Be(read);
+            backlightServiceOptions.CanUpdate(typeof(T).FullName).Should().Be(update);
+            backlightServiceOptions.CanDelete(typeof(T).FullName).Should().Be(delete);
         }
 
-        private ServiceConfiguration VerifyServiceTypeAndGetServiceConfiguration() {
+        private BacklightServiceOptions VerifyServiceTypeAndGetServiceConfiguration() {
             var serviceDescriptor = collection.Single();
             serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
             serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
             var backlightProvidersService = (BacklightProvidersService) serviceDescriptor.ImplementationInstance;
-            return backlightProvidersService.Configuration;
+            return backlightProvidersService.Options;
         }
     }
 }
