@@ -4,39 +4,39 @@ using Backlight.Providers;
 
 namespace Backlight.Services {
     public class ProviderOptions : IProviderOptions {
-        public CreateProvider CreateProvider { get; private set; }
-        public ReadProvider ReadProvider { get; private set; }
-        public UpdateProvider UpdateProvider { get; private set; }
-        public DeleteProvider DeleteProvider { get; private set; }
-        public Action<string> Create { get; private set; }
-        public Func<string, string> Read { get; private set; }
-        public Action<string, string> Update { get; private set; }
-        public Action<string> Delete { get; private set; }
+        public CreateProvider Create { get; private set; }
+        public ReadProvider Read { get; private set; }
+        public UpdateProvider Update { get; private set; }
+        public DeleteProvider Delete { get; private set; }
+        public Action<string> CreateDelegate { get; private set; }
+        public Func<string, string> ReadDelegate { get; private set; }
+        public Action<string, string> UpdateDelegate { get; private set; }
+        public Action<string> DeleteDelegate { get; private set; }
 
         public IProviderOptions AddCreate(CreateProvider createProvider) {
-            CreateProvider = createProvider;
+            Create = createProvider;
             return this;
         }
 
         public IProviderOptions AddRead(ReadProvider readProvider) {
-            ReadProvider = readProvider;
+            Read = readProvider;
             return this;
         }
         public IProviderOptions AddUpdate(UpdateProvider updateProvider) {
-            UpdateProvider = updateProvider;
+            Update = updateProvider;
             return this;
         }
 
         public IProviderOptions AddDelete(DeleteProvider deleteProvider) {
-            DeleteProvider = deleteProvider;
+            Delete = deleteProvider;
             return this;
         }
 
         public IProviderOptions AddCRUD(CRUDProvider crudProvider) {
-            CreateProvider = crudProvider;
-            ReadProvider = crudProvider;
-            UpdateProvider = crudProvider;
-            DeleteProvider = crudProvider;
+            Create = crudProvider;
+            Read = crudProvider;
+            Update = crudProvider;
+            Delete = crudProvider;
             return this;
         }
 
@@ -48,29 +48,29 @@ namespace Backlight.Services {
         }
 
         private void RegisterCreationDelegationFor<T>() {
-            Create = entityPayload => {
+            CreateDelegate = entityPayload => {
                 var entity = JsonSerializer.Deserialize<T>(entityPayload);
-                CreateProvider.Create(entity);
+                Create.Create(entity);
             };
         }
 
         private void RegisterReadDelegationFor<T>() {
-            Read = entityId => {
-                var entity = ReadProvider.Read<T>(entityId);
+            ReadDelegate = entityId => {
+                var entity = Read.Read<T>(entityId);
                 return JsonSerializer.Serialize(entity);
             };
         }
 
         private void RegisterUpdateDelegationFor<T>() {
-            Update = (entityId, entityPayload) => {
+            UpdateDelegate = (entityId, entityPayload) => {
                 var entity = JsonSerializer.Deserialize<T>(entityPayload);
-                UpdateProvider.Update(entityId, entity);
+                Update.Update(entityId, entity);
             };
         }
 
         private void RegisterDeleteDelegationFor<T>() {
-            Delete = entityId => {
-                DeleteProvider.Delete<T>(entityId);
+            DeleteDelegate = entityId => {
+                Delete.Delete<T>(entityId);
             };
         }
 

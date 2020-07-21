@@ -23,8 +23,8 @@ namespace Backlight.Test.Services {
 
             collection.AddBacklight();
 
-            var options = VerifyServiceTypeAndGetServiceOptions();
-            options.ProvidersOptions.Should().BeEmpty();
+            var service = VerifyServiceOfType<BacklightProvidersService>();
+            service.Options.ProvidersOptions.Should().BeEmpty();
         }
 
         [Test]
@@ -36,11 +36,11 @@ namespace Backlight.Test.Services {
                     .AddCreate(createProvider);
             });
 
-            var serviceConfiguration = VerifyServiceTypeAndGetServiceOptions();
-            var providersConfiguration = serviceConfiguration.ProvidersOptions.Single();
-            providersConfiguration.Key.Should().Be<UserEntity>();
-            VerifyOnlyCan<UserEntity>(serviceConfiguration, create: true);
-            providersConfiguration.Value.Create(JsonSerializer.Serialize(AUserEntity));
+            var service = VerifyServiceOfType<BacklightProvidersService>();
+            var providersOptions = service.Options.ProvidersOptions.Single();
+            providersOptions.Key.Should().Be<UserEntity>();
+            VerifyOnlyCan<UserEntity>(service.Options, create: true);
+            providersOptions.Value.CreateDelegate(JsonSerializer.Serialize(AUserEntity));
             createProvider.Received().Create(AUserEntity);
         }
 
@@ -53,11 +53,11 @@ namespace Backlight.Test.Services {
                     .AddRead(readProvider);
             });
 
-            var serviceConfiguration = VerifyServiceTypeAndGetServiceOptions();
-            var providersConfiguration = serviceConfiguration.ProvidersOptions.Single();
-            providersConfiguration.Key.Should().Be<UserEntity>();
-            VerifyOnlyCan<UserEntity>(serviceConfiguration, read: true);
-            var readedValue = providersConfiguration.Value.Read(AnEntityId);
+            var service = VerifyServiceOfType<BacklightProvidersService>();
+            var providersOptions = service.Options.ProvidersOptions.Single();
+            providersOptions.Key.Should().Be<UserEntity>();
+            VerifyOnlyCan<UserEntity>(service.Options, read: true);
+            var readedValue = providersOptions.Value.ReadDelegate(AnEntityId);
             readedValue.Should().Be(JsonSerializer.Serialize(AUserEntity));
         }
 
@@ -69,11 +69,11 @@ namespace Backlight.Test.Services {
                     .AddUpdate(updateProvider);
             });
 
-            var serviceConfiguration = VerifyServiceTypeAndGetServiceOptions();
-            var providersConfiguration = serviceConfiguration.ProvidersOptions.Single();
-            providersConfiguration.Key.Should().Be<UserEntity>();
-            VerifyOnlyCan<UserEntity>(serviceConfiguration, update: true);
-            providersConfiguration.Value.Update(AnEntityId, JsonSerializer.Serialize(AUserEntity));
+            var service = VerifyServiceOfType<BacklightProvidersService>();
+            var providersOptions = service.Options.ProvidersOptions.Single();
+            providersOptions.Key.Should().Be<UserEntity>();
+            VerifyOnlyCan<UserEntity>(service.Options, update: true);
+            providersOptions.Value.UpdateDelegate(AnEntityId, JsonSerializer.Serialize(AUserEntity));
             updateProvider.Received().Update(AnEntityId, AUserEntity);
         }
 
@@ -85,11 +85,11 @@ namespace Backlight.Test.Services {
                     .AddDelete(deleteProvider);
             });
 
-            var serviceConfiguration = VerifyServiceTypeAndGetServiceOptions();
-            var providersConfiguration = serviceConfiguration.ProvidersOptions.Single();
-            providersConfiguration.Key.Should().Be<UserEntity>();
-            VerifyOnlyCan<UserEntity>(serviceConfiguration, delete: true);
-            providersConfiguration.Value.Delete(AnEntityId);
+            var service = VerifyServiceOfType<BacklightProvidersService>();
+            var providersOptions = service.Options.ProvidersOptions.Single();
+            providersOptions.Key.Should().Be<UserEntity>();
+            VerifyOnlyCan<UserEntity>(service.Options, delete: true);
+            providersOptions.Value.DeleteDelegate(AnEntityId);
             deleteProvider.Received().Delete<UserEntity>(AnEntityId);
         }
 
@@ -101,10 +101,10 @@ namespace Backlight.Test.Services {
                     .AddCRUD(crudProvider);
             });
 
-            var serviceConfiguration = VerifyServiceTypeAndGetServiceOptions();
-            var providersConfiguration = serviceConfiguration.ProvidersOptions.Single();
-            providersConfiguration.Key.Should().Be<UserEntity>();
-            VerifyOnlyCan<UserEntity>(serviceConfiguration, true, true, true, true);
+            var service = VerifyServiceOfType<BacklightProvidersService>();
+            var providersOptions = service.Options.ProvidersOptions.Single();
+            providersOptions.Key.Should().Be<UserEntity>();
+            VerifyOnlyCan<UserEntity>(service.Options, true, true, true, true);
         }
 
         private static void VerifyOnlyCan<T>(ServiceOptions serviceOptions, bool create = false, bool read = false, bool update = false, bool delete = false) {
@@ -114,12 +114,11 @@ namespace Backlight.Test.Services {
             serviceOptions.CanDelete(typeof(T).FullName).Should().Be(delete);
         }
 
-        private ServiceOptions VerifyServiceTypeAndGetServiceOptions() {
+        private T VerifyServiceOfType<T>() {
             var serviceDescriptor = collection.Single();
             serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
-            serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
-            var backlightProvidersService = (BacklightProvidersService) serviceDescriptor.ImplementationInstance;
-            return backlightProvidersService.Options;
+            serviceDescriptor.ServiceType.Should().Be(typeof(T));
+            return (T) serviceDescriptor.ImplementationInstance;
         }
     }
 }

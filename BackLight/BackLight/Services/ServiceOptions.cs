@@ -16,25 +16,25 @@ namespace Backlight.Services {
         public bool CanCreate(string entityFullName) {
             if (!IsProviderConfiguredFor(entityFullName)) return false;
             var key = ProviderConfigurationKeyFrom(entityFullName);
-            return ProvidersOptions[key].CreateProvider != null;
+            return ProvidersOptions[key].Create != null;
         }
 
         public bool CanRead(string entityFullName) {
             if (!IsProviderConfiguredFor(entityFullName)) return false;
             var key = ProviderConfigurationKeyFrom(entityFullName);
-            return ProvidersOptions[key].ReadProvider != null;
+            return ProvidersOptions[key].Read != null;
         }
 
         public bool CanUpdate(string entityFullName) {
             if (!IsProviderConfiguredFor(entityFullName)) return false;
             var key = ProviderConfigurationKeyFrom(entityFullName);
-            return ProvidersOptions[key].UpdateProvider != null;
+            return ProvidersOptions[key].Update != null;
         }
 
         public bool CanDelete(string entityFullName) {
             if (!IsProviderConfiguredFor(entityFullName)) return false;
             var key = ProviderConfigurationKeyFrom(entityFullName);
-            return ProvidersOptions[key].DeleteProvider != null;
+            return ProvidersOptions[key].Delete != null;
         }
 
         private bool IsProviderConfiguredFor(string entityFullName) {

@@ -7,7 +7,7 @@ namespace Backlight.Services {
         public ServiceOptions Options { get; private set; }
 
         public BacklightProvidersService(ServiceOptions options) {
-            this.Options = options;
+            Options = options;
         }
 
         public string EntitiesToInject() {
@@ -35,25 +35,25 @@ namespace Backlight.Services {
         public virtual Action<string> CreateProviderFor(string entity, string httpMethod) {
             var type = Options.ProvidersOptions.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
             var providersConfiguration = Options.ProvidersOptions[type];
-            return providersConfiguration.Create;
+            return providersConfiguration.CreateDelegate;
         }
 
         public virtual Func<string, string> ReaderProviderFor(string entity, string httpMethod) {
             var type = Options.ProvidersOptions.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
             var backlightServicesProviderOptions = Options.ProvidersOptions[type];
-            return backlightServicesProviderOptions.Read;
+            return backlightServicesProviderOptions.ReadDelegate;
         }
 
         public virtual Action<string, string> UpdateProviderFor(string entity, string httpMethod) {
             var type = Options.ProvidersOptions.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
             var backlightServicesProviderOptions = Options.ProvidersOptions[type];
-            return backlightServicesProviderOptions.Update;
+            return backlightServicesProviderOptions.UpdateDelegate;
         }
 
         public virtual Action<string> DeleteProviderFor(string entity, string httpMethod) {
             var type = Options.ProvidersOptions.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
             var backlightServicesProviderOptions = Options.ProvidersOptions[type];
-            return backlightServicesProviderOptions.Delete;
+            return backlightServicesProviderOptions.DeleteDelegate;
         }
 
     }
