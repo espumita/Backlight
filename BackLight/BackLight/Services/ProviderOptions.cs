@@ -3,7 +3,7 @@ using System.Text.Json;
 using Backlight.Providers;
 
 namespace Backlight.Services {
-    public class BacklightProvidersConfiguration : ProvidersConfiguration {
+    public class ProviderOptions : IProviderOptions {
         public CreateProvider CreateProvider { get; private set; }
         public ReadProvider ReadProvider { get; private set; }
         public UpdateProvider UpdateProvider { get; private set; }
@@ -13,26 +13,26 @@ namespace Backlight.Services {
         public Action<string, string> Update { get; private set; }
         public Action<string> Delete { get; private set; }
 
-        public ProvidersConfiguration AddCreate(CreateProvider createProvider) {
+        public IProviderOptions AddCreate(CreateProvider createProvider) {
             CreateProvider = createProvider;
             return this;
         }
 
-        public ProvidersConfiguration AddRead(ReadProvider readProvider) {
+        public IProviderOptions AddRead(ReadProvider readProvider) {
             ReadProvider = readProvider;
             return this;
         }
-        public ProvidersConfiguration AddUpdate(UpdateProvider updateProvider) {
+        public IProviderOptions AddUpdate(UpdateProvider updateProvider) {
             UpdateProvider = updateProvider;
             return this;
         }
 
-        public ProvidersConfiguration AddDelete(DeleteProvider deleteProvider) {
+        public IProviderOptions AddDelete(DeleteProvider deleteProvider) {
             DeleteProvider = deleteProvider;
             return this;
         }
 
-        public ProvidersConfiguration AddCRUD(CRUDProvider crudProvider) {
+        public IProviderOptions AddCRUD(CRUDProvider crudProvider) {
             CreateProvider = crudProvider;
             ReadProvider = crudProvider;
             UpdateProvider = crudProvider;

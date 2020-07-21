@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace Backlight.Test {
+namespace Backlight.Test.Services {
     public class BacklightServiceCollectionExtensionsTests {
         private const string AnEntityId = "anEntityId";
         private ServiceCollection collection;
@@ -23,8 +23,8 @@ namespace Backlight.Test {
 
             collection.AddBacklight();
 
-            var configuration = VerifyServiceTypeAndGetServiceConfiguration();
-            configuration.ProvidersConfiguration.Should().BeEmpty();
+            var options = VerifyServiceTypeAndGetServiceOptions();
+            options.ProvidersOptions.Should().BeEmpty();
         }
 
         [Test]
@@ -36,8 +36,8 @@ namespace Backlight.Test {
                     .AddCreate(createProvider);
             });
 
-            var serviceConfiguration = VerifyServiceTypeAndGetServiceConfiguration();
-            var providersConfiguration = serviceConfiguration.ProvidersConfiguration.Single();
+            var serviceConfiguration = VerifyServiceTypeAndGetServiceOptions();
+            var providersConfiguration = serviceConfiguration.ProvidersOptions.Single();
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, create: true);
             providersConfiguration.Value.Create(JsonSerializer.Serialize(AUserEntity));
@@ -53,8 +53,8 @@ namespace Backlight.Test {
                     .AddRead(readProvider);
             });
 
-            var serviceConfiguration = VerifyServiceTypeAndGetServiceConfiguration();
-            var providersConfiguration = serviceConfiguration.ProvidersConfiguration.Single();
+            var serviceConfiguration = VerifyServiceTypeAndGetServiceOptions();
+            var providersConfiguration = serviceConfiguration.ProvidersOptions.Single();
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, read: true);
             var readedValue = providersConfiguration.Value.Read(AnEntityId);
@@ -69,8 +69,8 @@ namespace Backlight.Test {
                     .AddUpdate(updateProvider);
             });
 
-            var serviceConfiguration = VerifyServiceTypeAndGetServiceConfiguration();
-            var providersConfiguration = serviceConfiguration.ProvidersConfiguration.Single();
+            var serviceConfiguration = VerifyServiceTypeAndGetServiceOptions();
+            var providersConfiguration = serviceConfiguration.ProvidersOptions.Single();
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, update: true);
             providersConfiguration.Value.Update(AnEntityId, JsonSerializer.Serialize(AUserEntity));
@@ -85,8 +85,8 @@ namespace Backlight.Test {
                     .AddDelete(deleteProvider);
             });
 
-            var serviceConfiguration = VerifyServiceTypeAndGetServiceConfiguration();
-            var providersConfiguration = serviceConfiguration.ProvidersConfiguration.Single();
+            var serviceConfiguration = VerifyServiceTypeAndGetServiceOptions();
+            var providersConfiguration = serviceConfiguration.ProvidersOptions.Single();
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, delete: true);
             providersConfiguration.Value.Delete(AnEntityId);
@@ -101,20 +101,20 @@ namespace Backlight.Test {
                     .AddCRUD(crudProvider);
             });
 
-            var serviceConfiguration = VerifyServiceTypeAndGetServiceConfiguration();
-            var providersConfiguration = serviceConfiguration.ProvidersConfiguration.Single();
+            var serviceConfiguration = VerifyServiceTypeAndGetServiceOptions();
+            var providersConfiguration = serviceConfiguration.ProvidersOptions.Single();
             providersConfiguration.Key.Should().Be<UserEntity>();
             VerifyOnlyCan<UserEntity>(serviceConfiguration, true, true, true, true);
         }
 
-        private static void VerifyOnlyCan<T>(BacklightServiceOptions backlightServiceOptions, bool create = false, bool read = false, bool update = false, bool delete = false) {
-            backlightServiceOptions.CanCreate(typeof(T).FullName).Should().Be(create);
-            backlightServiceOptions.CanRead(typeof(T).FullName).Should().Be(read);
-            backlightServiceOptions.CanUpdate(typeof(T).FullName).Should().Be(update);
-            backlightServiceOptions.CanDelete(typeof(T).FullName).Should().Be(delete);
+        private static void VerifyOnlyCan<T>(ServiceOptions serviceOptions, bool create = false, bool read = false, bool update = false, bool delete = false) {
+            serviceOptions.CanCreate(typeof(T).FullName).Should().Be(create);
+            serviceOptions.CanRead(typeof(T).FullName).Should().Be(read);
+            serviceOptions.CanUpdate(typeof(T).FullName).Should().Be(update);
+            serviceOptions.CanDelete(typeof(T).FullName).Should().Be(delete);
         }
 
-        private BacklightServiceOptions VerifyServiceTypeAndGetServiceConfiguration() {
+        private ServiceOptions VerifyServiceTypeAndGetServiceOptions() {
             var serviceDescriptor = collection.Single();
             serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
             serviceDescriptor.ServiceType.Should().Be(typeof(BacklightProvidersService));
