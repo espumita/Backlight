@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 
 namespace Backlight.Services {
     public class BacklightProvidersService {
@@ -28,8 +29,12 @@ namespace Backlight.Services {
 
         public virtual bool IsProviderAvailableFor(string entity, string httpMethod) {
             var type = Options.ProvidersForType.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
-            var backlightServicesProviderOptions = Options.ProvidersForType[type];
-            return false; //TODO CHECK Configurations can methods
+            var providerForType = Options.ProvidersForType[type];
+            if (httpMethod == HttpMethods.Put && providerForType.CanCreate()) return true;
+            if (httpMethod == HttpMethods.Get && providerForType.CanRead()) return true;
+            if (httpMethod == HttpMethods.Post && providerForType.CanUpdate()) return true;
+            if (httpMethod == HttpMethods.Delete && providerForType.CanDelete()) return true;
+            return false;
         }
 
         public virtual Action<string> CreateProviderFor(string entity, string httpMethod) {
