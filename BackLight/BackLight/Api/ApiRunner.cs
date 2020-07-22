@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Backlight.Exceptions;
@@ -88,8 +89,9 @@ namespace Backlight.Api {
 
         private async Task ResponseWith(HttpStatusCode httpStatusCode, string responseBody, HttpContext httpContext) {
             httpContext.Response.StatusCode = (int) httpStatusCode;
-            var responseStream = await ResponseBodyStreamWith(responseBody);
-            httpContext.Response.Body = responseStream;
+            await httpContext.Response.WriteAsync(responseBody, Encoding.UTF8);
+            //var responseStream = await ResponseBodyStreamWith(responseBody);
+            // httpContext.Response.Body = responseStream;// TODO FIX TEST READ BODY
         }
 
         private async Task<Stream> ResponseBodyStreamWith(string responseBody) {

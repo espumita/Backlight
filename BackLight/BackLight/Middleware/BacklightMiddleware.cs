@@ -1,24 +1,21 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Backlight.Services;
 using Microsoft.AspNetCore.Http;
 
 namespace Backlight.Middleware {
     public class BacklightMiddleware {
         private readonly RequestDelegate next;
         private readonly MiddlewareConfiguration configuration;
-        private readonly BacklightService service;
+        private readonly BacklightIndexHtmlRenderer idexHtmlRenderer;
 
-        public BacklightMiddleware(RequestDelegate next, MiddlewareConfiguration configuration, BacklightService service) {
+        public BacklightMiddleware(RequestDelegate next, MiddlewareConfiguration configuration, BacklightIndexHtmlRenderer idexHtmlRenderer) {
             this.next = next;
             this.configuration = configuration;
-            this.service = service;
+            this.idexHtmlRenderer = idexHtmlRenderer;
         }
 
         public async Task Invoke(HttpContext httpContext) {
@@ -44,7 +41,7 @@ namespace Backlight.Middleware {
             return Regex.IsMatch(path, $"^/?{Regex.Escape(routePrefix)}/?$");
         }
 
-        public void RedirectToIndexHtml(HttpContext httpContext, string path) {
+        private static void RedirectToIndexHtml(HttpContext httpContext, string path) {
             var relativeRedirectPath = path.EndsWith("/")
                 ? "index.html"
                 : $"{path.Split('/').Last()}/index.html";
@@ -63,38 +60,21 @@ namespace Backlight.Middleware {
         private async Task RespondWithIndexHtml(HttpResponse response) {
             response.StatusCode = 200;
             response.ContentType = "text/html;charset=utf-8";
-            using (var stream = IndexHtmlFileStream()) {
-                var documentContent = await new StreamReader(stream).ReadToEndAsync();
-                var responseStringBuilder = new StringBuilder(documentContent);
-                var indexHtmlConfiguration = IndexHtmlConfigurationFrom(configuration);
-                InjectIndexHtmlConfigurationInto(responseStringBuilder, indexHtmlConfiguration);
-                var indexHtmlEntities = IndexHtmlEntitiesFromBacklightProviderService();
-                InjectIndexHtmlConfigurationInto(responseStringBuilder, indexHtmlEntities);
-                await response.WriteAsync(responseStringBuilder.ToString(), Encoding.UTF8);
-            }
+            var rawIndexHtml = await idexHtmlRenderer.RenderWith(configuration.IndexHtmlDocumentTitle);
+             await response.WriteAsync(rawIndexHtml, Encoding.UTF8);
+           // var responseStream = await ResponseBodyStreamWith(rawIndexHtml);
+           // response.Body = responseStream;// TODO FIX TEST READ BODY
         }
 
-        private Stream IndexHtmlFileStream() {
-            return GetType().GetTypeInfo().Assembly
-                .GetManifestResourceStream("Backlight.index.html");
-        }
-
-        private static IDictionary<string, string> IndexHtmlConfigurationFrom(MiddlewareConfiguration configuration) {
-            return new Dictionary<string, string> {
-                { "%(DocumentTitle)", configuration.IndexHtmlDocumentTitle },
-            };
-        }
-
-        private static void InjectIndexHtmlConfigurationInto(StringBuilder responseStringBuilder, IDictionary<string, string> indexHtmlConfiguration) {
-            indexHtmlConfiguration.Keys.ToList().ForEach(key =>
-                responseStringBuilder.Replace(key, indexHtmlConfiguration[key])
-            );
-        }
-        private IDictionary<string, string> IndexHtmlEntitiesFromBacklightProviderService() {
-            return new Dictionary<string, string>() {
-                { "%(Entities)", service.EntitiesToInject()}
-            };
+        private async Task<Stream> ResponseBodyStreamWith(string responseBody) {
+            var bodyStream = new MemoryStream();
+            var streamWriter = new StreamWriter(bodyStream);
+            await streamWriter.WriteAsync(responseBody);
+            await streamWriter.FlushAsync();
+            bodyStream.Seek(0, SeekOrigin.Begin);
+            return bodyStream;
         }
 
     }
+
 }

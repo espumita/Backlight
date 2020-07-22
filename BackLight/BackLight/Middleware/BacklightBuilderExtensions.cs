@@ -8,8 +8,9 @@ namespace Backlight.Middleware {
             var configuration = new MiddlewareConfiguration();
             if (setupAction != null) {
                 setupAction(configuration);
-            } 
-            return applicationBuilder.UseMiddleware<BacklightMiddleware>(configuration)
+            }
+
+            return applicationBuilder.UseMiddleware<BacklightMiddleware>(configuration, new BacklightIndexHtmlRenderer())
                 .Map($"/{configuration.RoutePrefix}/api", ConfigureApiEndpointRunner());
         }
 
