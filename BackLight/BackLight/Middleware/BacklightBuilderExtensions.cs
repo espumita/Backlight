@@ -1,7 +1,5 @@
 using System;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Backlight.Middleware {
     public static class BacklightBuilderExtensions {
@@ -9,10 +7,7 @@ namespace Backlight.Middleware {
             var configuration = new BacklightConfiguration();
             if (setupAction != null) {
                 setupAction(configuration);
-            } else {
-                configuration = applicationBuilder.ApplicationServices.GetRequiredService<IOptions<BacklightConfiguration>>().Value;
-            }
-
+            } 
             applicationBuilder.UseMiddleware<BacklightMiddleware>(configuration);
             applicationBuilder.Map($"/{configuration.RoutePrefix}/api", MapApi());
             return applicationBuilder;
@@ -25,5 +20,4 @@ namespace Backlight.Middleware {
         }
 
     }
-
 }
