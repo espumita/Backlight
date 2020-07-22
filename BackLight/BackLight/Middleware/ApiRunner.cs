@@ -14,65 +14,63 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Backlight.Middleware {
     public class ApiRunner {
         private readonly IApplicationBuilder applicationBuilder;
-        private readonly HttpContext context;
 
-        public ApiRunner(IApplicationBuilder applicationBuilder, HttpContext context) {
+        public ApiRunner(IApplicationBuilder applicationBuilder) {
             this.applicationBuilder = applicationBuilder;
-            this.context = context;
         }
 
-        public async Task Run() {
-            if (IsNotAllowed(context.Request.Method)) {
-                await ResponseWith(HttpStatusCode.MethodNotAllowed, ResponsesErrorMessages.MethodNotAllowed);
+        public async Task Run(HttpContext httpContext) {
+            if (IsNotAllowed(httpContext.Request.Method)) {
+                await ResponseWith(HttpStatusCode.MethodNotAllowed, ResponsesErrorMessages.MethodNotAllowed, httpContext);
                 return;
             }
             string entity = String.Empty;
             string body = String.Empty;
             
             try {
-                body = await GetBodyFrom(context.Request.Body);
+                body = await GetBodyFrom(httpContext.Request.Body);
                 entity = EntityFrom(body);
             } catch (EntityDeserializationException exception) {
-                await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityDeserializationError);
+                await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityDeserializationError, httpContext);
                 return;
             }
             var backlightProvidersService = applicationBuilder.ApplicationServices.GetService<BacklightProvidersService>();
             var entityIsConfigured = backlightProvidersService.IsEntityConfiguredFor(entity);
             if (!entityIsConfigured) {
-                await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityIsNotConfigured);
+                await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityIsNotConfigured, httpContext);
                 return;
             }
-            var entityProviderIsAvailable = backlightProvidersService.IsProviderAvailableFor(entity, context.Request.Method);
+            var entityProviderIsAvailable = backlightProvidersService.IsProviderAvailableFor(entity, httpContext.Request.Method);
             if (!entityProviderIsAvailable) {
-                await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityProviderIsNotAvailable);
+                await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityProviderIsNotAvailable, httpContext);
                 return;
             }
-            if (context.Request.Method == HttpMethods.Put) {
-                var createProviderExecution = backlightProvidersService.CreateProviderFor(entity, context.Request.Method);
+            if (httpContext.Request.Method == HttpMethods.Put) {
+                var createProviderExecution = backlightProvidersService.CreateProviderFor(entity, httpContext.Request.Method);
                 var entityPayload = EnitytPayLoadFrom(body);
                 createProviderExecution(entityPayload);
-                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityCreated);
+                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityCreated, httpContext);
                 return;
             }
-            if (context.Request.Method == HttpMethods.Get) {
-                var readProviderExecution = backlightProvidersService.ReaderProviderFor(entity, context.Request.Method);
+            if (httpContext.Request.Method == HttpMethods.Get) {
+                var readProviderExecution = backlightProvidersService.ReaderProviderFor(entity, httpContext.Request.Method);
                 var entityPayload = EnitytPayLoadFrom(body);
                 var serializedEntity = readProviderExecution(entityPayload);
-                await ResponseWith(HttpStatusCode.OK, serializedEntity);
+                await ResponseWith(HttpStatusCode.OK, serializedEntity, httpContext);
                 return;
             }
-            if (context.Request.Method == HttpMethods.Post) {
-                var updateProviderExecution = backlightProvidersService.UpdateProviderFor(entity, context.Request.Method);
+            if (httpContext.Request.Method == HttpMethods.Post) {
+                var updateProviderExecution = backlightProvidersService.UpdateProviderFor(entity, httpContext.Request.Method);
                 var entityPayload = EnitytPayLoadFrom(body);
                 updateProviderExecution("aNewEntityId", entityPayload);
-                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityUpdated);
+                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityUpdated, httpContext);
                 return;
             }
-            if (context.Request.Method == HttpMethods.Delete) {
-                var deleteProviderExecution = backlightProvidersService.DeleteProviderFor(entity, context.Request.Method);
+            if (httpContext.Request.Method == HttpMethods.Delete) {
+                var deleteProviderExecution = backlightProvidersService.DeleteProviderFor(entity, httpContext.Request.Method);
                 var entityPayload = EnitytPayLoadFrom(body);
                 deleteProviderExecution(entityPayload);
-                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityDelete);
+                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityDelete, httpContext);
                 return;
             }
 
@@ -88,10 +86,10 @@ namespace Backlight.Middleware {
             return !allowedMethods.Contains(requestMethod);
         }
 
-        private async Task ResponseWith(HttpStatusCode httpStatusCode, string responseBody) {
-            context.Response.StatusCode = (int) httpStatusCode;
+        private async Task ResponseWith(HttpStatusCode httpStatusCode, string responseBody, HttpContext httpContext) {
+            httpContext.Response.StatusCode = (int) httpStatusCode;
             var responseStream = await ResponseBodyStreamWith(responseBody);
-            context.Response.Body = responseStream;
+            httpContext.Response.Body = responseStream;
         }
 
         private async Task<Stream> ResponseBodyStreamWith(string responseBody) {

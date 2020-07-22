@@ -29,7 +29,7 @@ namespace Backlight.Test {
             serviceProvider = applicationBuilder.ApplicationServices = Substitute.For<IServiceProvider>();
             backlightProvidersService = Substitute.For<BacklightProvidersService>(new object[] { null });
             httpContext = new DefaultHttpContext();
-            runner = new ApiRunner(applicationBuilder, httpContext);
+            runner = new ApiRunner(applicationBuilder);
 
             serviceProvider.GetService(Arg.Is(typeof(BacklightProvidersService))).Returns(backlightProvidersService);
         }
@@ -38,7 +38,7 @@ namespace Backlight.Test {
         public async Task get_method_not_allowed_response_when_try_to_run_under_a_not_allowed_http_method(string httpMethod) {
             httpContext.Request.Method = httpMethod;
 
-            await runner.Run();
+            await runner.Run(httpContext);
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.MethodNotAllowed);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
@@ -49,7 +49,7 @@ namespace Backlight.Test {
         public async Task get_bad_request_when_the_entity_deserialization_has_an_error(string httpMethod) {
             httpContext.Request.Method = httpMethod;
 
-            await runner.Run();
+            await runner.Run(httpContext);
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
@@ -63,7 +63,7 @@ namespace Backlight.Test {
             httpContext.Request.Body = requestBodyStream;
             backlightProvidersService.IsEntityConfiguredFor(AEntityName).Returns(false);
 
-            await runner.Run();
+            await runner.Run(httpContext);
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
@@ -78,7 +78,7 @@ namespace Backlight.Test {
             backlightProvidersService.IsEntityConfiguredFor(AEntityName).Returns(true);
             backlightProvidersService.IsProviderAvailableFor(AEntityName, httpMethod).Returns(false);
 
-            await runner.Run();
+            await runner.Run(httpContext);
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
@@ -103,7 +103,7 @@ namespace Backlight.Test {
                 createProvider.Create(entity);
             });
 
-            await runner.Run();
+            await runner.Run(httpContext);
 
             createProvider.Received().Create(aUserEntity);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
@@ -130,7 +130,7 @@ namespace Backlight.Test {
                 return JsonSerializer.Serialize(entity);
             });
 
-            await runner.Run();
+            await runner.Run(httpContext);
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
@@ -155,7 +155,7 @@ namespace Backlight.Test {
                 updateProvider.Update(entityId, entity);
             });
 
-            await runner.Run();
+            await runner.Run(httpContext);
 
             updateProvider.Received().Update(ANewEntityId, aUserEntity);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
@@ -180,7 +180,7 @@ namespace Backlight.Test {
                 deleteProvider.Delete<UserEntity>(entityId);
             });
 
-            await runner.Run();
+            await runner.Run(httpContext);
 
             deleteProvider.Received().Delete<UserEntity>(ANewEntityId);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);

@@ -8,14 +8,13 @@ namespace Backlight.Middleware {
             if (setupAction != null) {
                 setupAction(configuration);
             } 
-            applicationBuilder.UseMiddleware<BacklightMiddleware>(configuration);
-            applicationBuilder.Map($"/{configuration.RoutePrefix}/api", MapApi());
-            return applicationBuilder;
+            return applicationBuilder.UseMiddleware<BacklightMiddleware>(configuration)
+                .Map($"/{configuration.RoutePrefix}/api", ConfigureApiEndpointMapping());
         }
 
-        private static Action<IApplicationBuilder> MapApi() {
-            return applicationBuilder => applicationBuilder.Run(async context => {
-                await new ApiRunner(applicationBuilder, context).Run();
+        private static Action<IApplicationBuilder> ConfigureApiEndpointMapping() {
+            return applicationBuilder => applicationBuilder.Run(async httpContext => {
+                await new ApiRunner(applicationBuilder).Run(httpContext);
             });
         }
 

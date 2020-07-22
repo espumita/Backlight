@@ -18,4 +18,8 @@
     <ProjectReference Include="..\BackLight\Backlight.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Middleware\" />
+  </ItemGroup>
+
 </Project>
