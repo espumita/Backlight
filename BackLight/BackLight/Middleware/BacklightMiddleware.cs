@@ -1,27 +1,22 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Backlight.Services;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 namespace Backlight.Middleware {
     public class BacklightMiddleware {
         private readonly RequestDelegate next;
-        private readonly IWebHostEnvironment hostingEnvironment;
-        private readonly ILoggerFactory loggerFactory;
         private readonly MiddlewareConfiguration configuration;
         private readonly BacklightService service;
 
-        public BacklightMiddleware(RequestDelegate next, IWebHostEnvironment hostingEnvironment, ILoggerFactory loggerFactory, MiddlewareConfiguration configuration, BacklightService service) {
+        public BacklightMiddleware(RequestDelegate next, MiddlewareConfiguration configuration, BacklightService service) {
             this.next = next;
-            this.hostingEnvironment = hostingEnvironment;
-            this.loggerFactory = loggerFactory;
             this.configuration = configuration;
             this.service = service;
         }
@@ -57,7 +52,7 @@ namespace Backlight.Middleware {
         }
 
         private static void RespondWithRedirect(HttpResponse response, string location) {
-            response.StatusCode = 301;
+            response.StatusCode = (int) HttpStatusCode.Redirect;
             response.Headers["Location"] = location;
         }
 
