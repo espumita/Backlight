@@ -37,5 +37,18 @@ namespace Backlight.Test.Middleware {
             var responseHeader = httpContext.Response.Headers["Location"];
             responseHeader.ToString().Should().Be($"{ARoutePrefix}/index.html");
         }
+
+        [Test]
+        public async Task redirect_to_index_html_when_route_is_correct_and_have_slash() {
+            configuration.RoutePrefix = ARoutePrefix;
+            httpContext.Request.Method = HttpMethods.Get;
+            httpContext.Request.Path = new PathString($"/{ARoutePrefix}/");
+
+            await middleware.Invoke(httpContext);
+
+            httpContext.Response.StatusCode = (int)HttpStatusCode.Redirect;
+            var responseHeader = httpContext.Response.Headers["Location"];
+            responseHeader.ToString().Should().Be("index.html");
+        }
     }
 }
