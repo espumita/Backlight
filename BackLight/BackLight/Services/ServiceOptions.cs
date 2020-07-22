@@ -9,7 +9,7 @@ namespace Backlight.Services {
         public ServiceOptions() {
             ProvidersForType = new Dictionary<Type, ProviderForTypeForTypeOptions>();
         }
-
+            
         public IProviderForTypeOptions For<T>() {
             CheckIfExistsConfigurationForType<T>();
             var provider = new ProviderForTypeForTypeOptions();

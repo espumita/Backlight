@@ -118,6 +118,72 @@ namespace Backlight.Test.Services {
             action.Should().Throw<CannotConfigureTheSameEntityTwiceException>();
         }
 
+
+        [Test]
+        public void throw_an_exception_when_try_to_add_a_creation_provider_twice() {
+            var createProvider = Substitute.For<CreateProvider>();
+
+            Action action = () => collection.AddBacklight(configuration => {
+                configuration.For<UserEntity>()
+                    .AddCreate(createProvider)
+                    .AddCreate(createProvider);
+            });
+
+            action.Should().Throw<CannotConfigureTheSameProviderTwiceException>();
+        }
+
+        [Test]
+        public void throw_an_exception_when_try_to_add_a_read_provider_twice() {
+            var readProvider = Substitute.For<ReadProvider>();
+
+            Action action = () => collection.AddBacklight(configuration => {
+                configuration.For<UserEntity>()
+                    .AddRead(readProvider)
+                    .AddRead(readProvider);
+            });
+
+            action.Should().Throw<CannotConfigureTheSameProviderTwiceException>();
+        }
+
+        [Test]
+        public void throw_an_exception_when_try_to_add_a_update_provider_twice() {
+            var updateProvider = Substitute.For<UpdateProvider>();
+
+            Action action = () => collection.AddBacklight(configuration => {
+                configuration.For<UserEntity>()
+                    .AddUpdate(updateProvider)
+                    .AddUpdate(updateProvider);
+            });
+
+            action.Should().Throw<CannotConfigureTheSameProviderTwiceException>();
+        }
+
+        [Test]
+        public void throw_an_exception_when_try_to_add_a_delete_provider_twice() {
+            var deleteProvider = Substitute.For<DeleteProvider>();
+
+            Action action = () => collection.AddBacklight(configuration => {
+                configuration.For<UserEntity>()
+                    .AddDelete(deleteProvider)
+                    .AddDelete(deleteProvider);
+            });
+
+            action.Should().Throw<CannotConfigureTheSameProviderTwiceException>();
+        }
+
+        [Test]
+        public void throw_an_exception_when_try_to_add_a_crud_provider_twice() {
+            var crudProvider = Substitute.For<CRUDProvider>();
+
+            Action action = () => collection.AddBacklight(configuration => {
+                configuration.For<UserEntity>()
+                    .AddCRUD(crudProvider)
+                    .AddCRUD(crudProvider);
+            });
+
+            action.Should().Throw<CannotConfigureTheSameProviderTwiceException>();
+        }
+
         private T VerifyServiceOfType<T>() {
             var serviceDescriptor = collection.Single();
             serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
