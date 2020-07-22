@@ -22,6 +22,7 @@ namespace Backlight.Services {
             Read = readProvider;
             return this;
         }
+
         public IProviderForTypeOptions AddUpdate(UpdateProvider updateProvider) {
             Update = updateProvider;
             return this;
@@ -89,6 +90,6 @@ namespace Backlight.Services {
         public bool CanDelete() {
             return Delete != null;
         }
+        
     }
-
 }

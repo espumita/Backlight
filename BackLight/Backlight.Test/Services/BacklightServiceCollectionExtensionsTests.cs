@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using Backlight.Exceptions;
 using Backlight.Providers;
 using Backlight.Services;
 using FluentAssertions;
@@ -102,6 +104,20 @@ namespace Backlight.Test.Services {
             VerifyOnlyCan(providerForType, create: true, read: true, update: true, delete: true);
         }
 
+        [Test]
+        public void throw_an_exception_when_try_to_add_the_same_entity_twice() {
+            var createProvider = Substitute.For<CreateProvider>();
+
+            Action action = () => collection.AddBacklight(configuration => {
+                configuration.For<UserEntity>()
+                    .AddCreate(createProvider);
+                configuration.For<UserEntity>()
+                    .AddCreate(createProvider);
+            });
+
+            action.Should().Throw<CannotConfigureTheSameEntityTwiceException>();
+        }
+
         private T VerifyServiceOfType<T>() {
             var serviceDescriptor = collection.Single();
             serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
@@ -117,4 +133,5 @@ namespace Backlight.Test.Services {
         }
 
     }
+
 }

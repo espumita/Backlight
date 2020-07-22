@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Backlight.Exceptions;
 using Backlight.Providers;
 using Backlight.Services;
 using Microsoft.AspNetCore.Builder;

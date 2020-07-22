@@ -1,6 +1,6 @@
 using System;
 
-namespace Backlight.Middleware {
+namespace Backlight.Exceptions {
     public class EntityDeserializationException : Exception {
         private readonly Exception innerException;
 
