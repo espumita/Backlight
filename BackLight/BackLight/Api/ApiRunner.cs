@@ -5,13 +5,13 @@ using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Backlight.Exceptions;
-using Backlight.Providers;
+using Backlight.Middleware;
 using Backlight.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Backlight.Middleware {
+namespace Backlight.Api {
     public class ApiRunner {
         private readonly IApplicationBuilder applicationBuilder;
 
@@ -34,7 +34,7 @@ namespace Backlight.Middleware {
                 await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityDeserializationError, httpContext);
                 return;
             }
-            var backlightProvidersService = applicationBuilder.ApplicationServices.GetService<BacklightProvidersService>();
+            var backlightProvidersService = applicationBuilder.ApplicationServices.GetService<BacklightService>();
             var entityIsConfigured = backlightProvidersService.IsEntityConfiguredFor(entity);
             if (!entityIsConfigured) {
                 await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityIsNotConfigured, httpContext);
@@ -113,7 +113,7 @@ namespace Backlight.Middleware {
 
         private static string EntityFrom(string body) {
             try {
-                var backlightApiRequest = JsonSerializer.Deserialize<BacklightApiRequest>(body);
+                var backlightApiRequest = JsonSerializer.Deserialize<ApiRequest>(body);
                 return backlightApiRequest.Entity;
             } catch (Exception exception) {
                 //TODO log
@@ -123,7 +123,7 @@ namespace Backlight.Middleware {
 
         private static string EnitytPayLoadFrom(string body) {
             try {
-                var backlightApiRequest = JsonSerializer.Deserialize<BacklightApiRequest>(body);
+                var backlightApiRequest = JsonSerializer.Deserialize<ApiRequest>(body);
                 return backlightApiRequest.PayLoad;
             } catch (Exception exception) {
                 //TODO log

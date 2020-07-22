@@ -24,7 +24,7 @@ namespace Backlight.Test.Services {
 
             collection.AddBacklight();
 
-            var service = VerifyServiceOfType<BacklightProvidersService>();
+            var service = VerifyServiceOfType<BacklightService>();
             service.Options.ProvidersForType.Should().BeEmpty();
         }
 
@@ -37,7 +37,7 @@ namespace Backlight.Test.Services {
                     .AddCreate(createProvider);
             });
 
-            var service = VerifyServiceOfType<BacklightProvidersService>();
+            var service = VerifyServiceOfType<BacklightService>();
             service.Options.ProvidersForType.Count.Should().Be(1);
             var providerForType = service.Options.ProvidersForType[typeof(UserEntity)];
             VerifyOnlyCan(providerForType, create: true);
@@ -53,7 +53,7 @@ namespace Backlight.Test.Services {
                     .AddRead(readProvider);
             });
 
-            var service = VerifyServiceOfType<BacklightProvidersService>();
+            var service = VerifyServiceOfType<BacklightService>();
             service.Options.ProvidersForType.Count.Should().Be(1);
             var providerForType = service.Options.ProvidersForType[typeof(UserEntity)];
             VerifyOnlyCan(providerForType, read: true);
@@ -68,7 +68,7 @@ namespace Backlight.Test.Services {
                     .AddUpdate(updateProvider);
             });
 
-            var service = VerifyServiceOfType<BacklightProvidersService>();
+            var service = VerifyServiceOfType<BacklightService>();
             service.Options.ProvidersForType.Count.Should().Be(1);
             var providerForType = service.Options.ProvidersForType[typeof(UserEntity)];
             VerifyOnlyCan(providerForType, update: true);
@@ -83,7 +83,7 @@ namespace Backlight.Test.Services {
                     .AddDelete(deleteProvider);
             });
 
-            var service = VerifyServiceOfType<BacklightProvidersService>();
+            var service = VerifyServiceOfType<BacklightService>();
             service.Options.ProvidersForType.Count.Should().Be(1);
             var providerForType = service.Options.ProvidersForType[typeof(UserEntity)];
             VerifyOnlyCan(providerForType, delete: true);
@@ -98,7 +98,7 @@ namespace Backlight.Test.Services {
                     .AddCRUD(crudProvider);
             });
 
-            var service = VerifyServiceOfType<BacklightProvidersService>();
+            var service = VerifyServiceOfType<BacklightService>();
             service.Options.ProvidersForType.Count.Should().Be(1);
             var providerForType = service.Options.ProvidersForType[typeof(UserEntity)];
             VerifyOnlyCan(providerForType, create: true, read: true, update: true, delete: true);
@@ -191,7 +191,7 @@ namespace Backlight.Test.Services {
             return (T) serviceDescriptor.ImplementationInstance;
         }
 
-        private static void VerifyOnlyCan(ProviderForTypeForTypeOptions providerForType, bool create = false, bool read = false, bool update = false, bool delete = false) {
+        private static void VerifyOnlyCan(ProviderForTypeOptions providerForType, bool create = false, bool read = false, bool update = false, bool delete = false) {
             providerForType.CanCreate().Should().Be(create);
             providerForType.CanRead().Should().Be(read);
             providerForType.CanUpdate().Should().Be(update);

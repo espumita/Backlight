@@ -4,15 +4,15 @@ using Backlight.Exceptions;
 
 namespace Backlight.Services {
     public class ServiceOptions : IServiceOptions {
-        public Dictionary<Type, ProviderForTypeForTypeOptions> ProvidersForType { get; }
+        public Dictionary<Type, ProviderForTypeOptions> ProvidersForType { get; }
 
         public ServiceOptions() {
-            ProvidersForType = new Dictionary<Type, ProviderForTypeForTypeOptions>();
+            ProvidersForType = new Dictionary<Type, ProviderForTypeOptions>();
         }
-            
+
         public IProviderForTypeOptions For<T>() {
             CheckIfExistsConfigurationForType<T>();
-            var provider = new ProviderForTypeForTypeOptions();
+            var provider = new ProviderForTypeOptions();
             provider.RegisterDelegatesFor<T>();
             ProvidersForType[typeof(T)] = provider;
             return provider;

@@ -4,7 +4,7 @@ using Backlight.Exceptions;
 using Backlight.Providers;
 
 namespace Backlight.Services {
-    public class ProviderForTypeForTypeOptions : IProviderForTypeOptions {
+    public class ProviderForTypeOptions : IProviderForTypeOptions {
         public CreateProvider Create { get; private set; }
         public ReadProvider Read { get; private set; }
         public UpdateProvider Update { get; private set; }
@@ -47,6 +47,22 @@ namespace Backlight.Services {
             return this;
         }
 
+        public bool CanCreate() {
+            return Create != null;
+        }
+
+        public bool CanRead() {
+            return Read != null;
+        }
+
+        public bool CanUpdate() {
+            return Update != null;
+        }
+
+        public bool CanDelete() {
+            return Delete != null;
+        }
+
         public void RegisterDelegatesFor<T>() {
             RegisterCreationDelegationFor<T>();
             RegisterReadDelegationFor<T>();
@@ -79,22 +95,6 @@ namespace Backlight.Services {
             DeleteDelegate = entityId => {
                 Delete.Delete<T>(entityId);
             };
-        }
-
-        public bool CanCreate() {
-            return Create != null;
-        }
-
-        public bool CanRead() {
-            return Read != null;
-        }
-
-        public bool CanUpdate() {
-            return Update != null;
-        }
-
-        public bool CanDelete() {
-            return Delete != null;
         }
 
     }

@@ -1,4 +1,4 @@
-﻿namespace Backlight.Middleware {
+﻿namespace Backlight.Api {
     public class ResponsesSuccessMessages {
         public static string EntityCreated { get; } = "Entity created";
         public static string EntityUpdated { get; } = "Entity updated";

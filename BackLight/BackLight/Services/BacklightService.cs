@@ -4,10 +4,10 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 
 namespace Backlight.Services {
-    public class BacklightProvidersService {
+    public class BacklightService {
         public ServiceOptions Options { get; private set; }
 
-        public BacklightProvidersService(ServiceOptions options) {
+        public BacklightService(ServiceOptions options) {
             Options = options;
         }
 

@@ -1,4 +1,4 @@
-namespace Backlight.Middleware {
+namespace Backlight.Api {
     public class ResponsesErrorMessages {
 
         public static string MethodNotAllowed { get; } = "Http method is not allowed";
