@@ -19,7 +19,9 @@ namespace Backlight.Api {
         }
 
         public async Task Run(HttpContext httpContext) {
-            if (IsNotAllowed(httpContext.Request.Method)) {
+            var httpMethod = httpContext.Request.Method;
+
+            if (IsNotAllowed(httpMethod)) {
                 await ResponseWith(HttpStatusCode.MethodNotAllowed, ResponsesErrorMessages.MethodNotAllowed, httpContext);
                 return;
             }
@@ -31,44 +33,60 @@ namespace Backlight.Api {
                 await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityDeserializationError, httpContext);
                 return;
             }
-            var backlightProvidersService = applicationBuilder.ApplicationServices.GetService<BacklightService>();
-            var entityIsConfigured = backlightProvidersService.IsEntityConfiguredFor(entity);
+            var service = applicationBuilder.ApplicationServices.GetService<BacklightService>();
+            var entityIsConfigured = service.IsEntityConfiguredFor(entity);
             if (!entityIsConfigured) {
                 await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityIsNotConfigured, httpContext);
                 return;
             }
-            var entityProviderIsAvailable = backlightProvidersService.IsProviderAvailableFor(entity, httpContext.Request.Method);
-            if (!entityProviderIsAvailable) {
-                await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityProviderIsNotAvailable, httpContext);
-                return;
+
+            if (httpMethod == HttpMethods.Put) {
+                if (!service.CanCreate(entity)) {
+                    await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityProviderIsNotAvailable, httpContext);
+                    return;
+                } else {
+                    var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
+                    var create = service.CreateProviderFor(entity);
+                    create(entityPayload);
+                    await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityCreated, httpContext);
+                    return;
+                }
             }
-            if (httpContext.Request.Method == HttpMethods.Put) {
-                var createProviderExecution = backlightProvidersService.CreateProviderFor(entity, httpContext.Request.Method);
-                var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
-                createProviderExecution(entityPayload);
-                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityCreated, httpContext);
-                return;
+            if (httpMethod == HttpMethods.Get) {
+                if (!service.CanRead(entity)) {
+                    await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityProviderIsNotAvailable, httpContext);
+                    return;
+                } else {
+                    var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
+                    var read = service.ReaderProviderFor(entity);
+                    var serializedEntity = read(entityPayload);
+                    await ResponseWith(HttpStatusCode.OK, serializedEntity, httpContext);
+                    return;
+                }
             }
-            if (httpContext.Request.Method == HttpMethods.Get) {
-                var readProviderExecution = backlightProvidersService.ReaderProviderFor(entity, httpContext.Request.Method);
-                var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
-                var serializedEntity = readProviderExecution(entityPayload);
-                await ResponseWith(HttpStatusCode.OK, serializedEntity, httpContext);
-                return;
+            if (httpMethod == HttpMethods.Post) {
+                if (!service.CanUpdate(entity)) {
+                    await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityProviderIsNotAvailable, httpContext);
+                    return;
+                } else {
+                    var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
+                    var update = service.UpdateProviderFor(entity);
+                    update("TODOEntityId", entityPayload);
+                    await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityUpdated, httpContext);
+                    return;
+                }
             }
-            if (httpContext.Request.Method == HttpMethods.Post) {
-                var updateProviderExecution = backlightProvidersService.UpdateProviderFor(entity, httpContext.Request.Method);
-                var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
-                updateProviderExecution("TODOEntityId", entityPayload);
-                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityUpdated, httpContext);
-                return;
-            }
-            if (httpContext.Request.Method == HttpMethods.Delete) {
-                var deleteProviderExecution = backlightProvidersService.DeleteProviderFor(entity, httpContext.Request.Method);
-                var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
-                deleteProviderExecution(entityPayload);
-                await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityDelete, httpContext);
-                return;
+            if (httpMethod == HttpMethods.Delete) {
+                if (!service.CanDelete(entity)) {
+                    await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityProviderIsNotAvailable, httpContext);
+                    return;
+                } else {
+                    var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
+                    var delete = service.DeleteProviderFor(entity);
+                    delete(entityPayload);
+                    await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityDelete, httpContext);
+                    return;
+                }
             }
 
         }

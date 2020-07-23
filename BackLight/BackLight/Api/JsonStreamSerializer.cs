@@ -7,6 +7,8 @@ using Backlight.Exceptions;
 namespace Backlight.Api {
     public class JsonStreamSerializer : StreamSerializer {
 
+        //TODO unify this in a single body serialization at once
+
         private string body;
 
         public async Task<string> EntityFrom(Stream stream) {
