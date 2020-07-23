@@ -17,7 +17,7 @@ namespace Backlight.Middleware {
 
         private static Action<IApplicationBuilder> ConfigureApiEndpointRunner() {
             return applicationBuilder => applicationBuilder.Run(async httpContext => {
-                await new ApiRunner(applicationBuilder).Run(httpContext);
+                await new ApiRunner(applicationBuilder, new JsonStreamSerializer()).Run(httpContext);
             });
         }
 

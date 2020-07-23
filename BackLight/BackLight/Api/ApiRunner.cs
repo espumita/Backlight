@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Backlight.Exceptions;
 using Backlight.Services;
@@ -14,9 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Backlight.Api {
     public class ApiRunner {
         private readonly IApplicationBuilder applicationBuilder;
+        private readonly StreamSerializer streamSerializer;
 
-        public ApiRunner(IApplicationBuilder applicationBuilder) {
+        public ApiRunner(IApplicationBuilder applicationBuilder, StreamSerializer streamSerializer) {
             this.applicationBuilder = applicationBuilder;
+            this.streamSerializer = streamSerializer;
         }
 
         public async Task Run(HttpContext httpContext) {
@@ -25,11 +24,9 @@ namespace Backlight.Api {
                 return;
             }
             var entity = string.Empty;
-            var body = string.Empty;
             
             try {
-                body = await GetBodyFrom(httpContext.Request.Body);
-                entity = EntityFrom(body);
+                entity = await streamSerializer.EntityFrom(httpContext.Request.Body);
             } catch (EntityDeserializationException exception) {
                 await ResponseWith(HttpStatusCode.BadRequest, ResponsesErrorMessages.EntityDeserializationError, httpContext);
                 return;
@@ -47,28 +44,28 @@ namespace Backlight.Api {
             }
             if (httpContext.Request.Method == HttpMethods.Put) {
                 var createProviderExecution = backlightProvidersService.CreateProviderFor(entity, httpContext.Request.Method);
-                var entityPayload = EnitytPayLoadFrom(body);
+                var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
                 createProviderExecution(entityPayload);
                 await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityCreated, httpContext);
                 return;
             }
             if (httpContext.Request.Method == HttpMethods.Get) {
                 var readProviderExecution = backlightProvidersService.ReaderProviderFor(entity, httpContext.Request.Method);
-                var entityPayload = EnitytPayLoadFrom(body);
+                var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
                 var serializedEntity = readProviderExecution(entityPayload);
                 await ResponseWith(HttpStatusCode.OK, serializedEntity, httpContext);
                 return;
             }
             if (httpContext.Request.Method == HttpMethods.Post) {
                 var updateProviderExecution = backlightProvidersService.UpdateProviderFor(entity, httpContext.Request.Method);
-                var entityPayload = EnitytPayLoadFrom(body);
-                updateProviderExecution("aNewEntityId", entityPayload);
+                var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
+                updateProviderExecution("TODOEntityId", entityPayload);
                 await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityUpdated, httpContext);
                 return;
             }
             if (httpContext.Request.Method == HttpMethods.Delete) {
                 var deleteProviderExecution = backlightProvidersService.DeleteProviderFor(entity, httpContext.Request.Method);
-                var entityPayload = EnitytPayLoadFrom(body);
+                var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
                 deleteProviderExecution(entityPayload);
                 await ResponseWith(HttpStatusCode.OK, ResponsesSuccessMessages.EntityDelete, httpContext);
                 return;
@@ -89,36 +86,6 @@ namespace Backlight.Api {
         private async Task ResponseWith(HttpStatusCode httpStatusCode, string responseBody, HttpContext httpContext) {
             httpContext.Response.StatusCode = (int) httpStatusCode;
             await httpContext.Response.WriteAsync(responseBody, Encoding.UTF8);
-        }
-
-        private static async Task<string> GetBodyFrom(Stream bodyStream) {
-            var memoryStream = new MemoryStream();
-            await bodyStream.CopyToAsync(memoryStream);
-            var streamReader = new StreamReader(memoryStream);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            var readToEndAsync = await streamReader.ReadToEndAsync();
-            streamReader.Close();
-            return readToEndAsync;
-        }
-
-        private static string EntityFrom(string body) {
-            try {
-                var backlightApiRequest = JsonSerializer.Deserialize<ApiRequest>(body);
-                return backlightApiRequest.Entity;
-            } catch (Exception exception) {
-                //TODO log
-                throw new EntityDeserializationException(exception);
-            }
-        }
-
-        private static string EnitytPayLoadFrom(string body) {
-            try {
-                var backlightApiRequest = JsonSerializer.Deserialize<ApiRequest>(body);
-                return backlightApiRequest.PayLoad;
-            } catch (Exception exception) {
-                //TODO log
-                throw new EntityDeserializationException(exception);
-            }
         }
 
     }
