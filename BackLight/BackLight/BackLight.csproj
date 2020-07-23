@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="index.html" />
+    <EmbeddedResource Include="Middleware\Html\index.html" />
   </ItemGroup>
 
 </Project>

@@ -4,18 +4,19 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Backlight.Middleware.Html;
 using Microsoft.AspNetCore.Http;
 
 namespace Backlight.Middleware {
     public class BacklightMiddleware {
         private readonly RequestDelegate next;
         private readonly MiddlewareConfiguration configuration;
-        private readonly BacklightIndexHtmlRenderer idexHtmlRenderer;
+        private readonly IndexHtmlLoader idexHtmlLoader;
 
-        public BacklightMiddleware(RequestDelegate next, MiddlewareConfiguration configuration, BacklightIndexHtmlRenderer idexHtmlRenderer) {
+        public BacklightMiddleware(RequestDelegate next, MiddlewareConfiguration configuration, IndexHtmlLoader idexHtmlLoader) {
             this.next = next;
             this.configuration = configuration;
-            this.idexHtmlRenderer = idexHtmlRenderer;
+            this.idexHtmlLoader = idexHtmlLoader;
         }
 
         public async Task Invoke(HttpContext httpContext) {
@@ -60,7 +61,7 @@ namespace Backlight.Middleware {
         private async Task RespondWithIndexHtml(HttpResponse response) {
             response.StatusCode = 200;
             response.ContentType = "text/html;charset=utf-8";
-            var rawIndexHtml = await idexHtmlRenderer.RenderWith(configuration.IndexHtmlDocumentTitle);
+            var rawIndexHtml = await idexHtmlLoader.LoadRawWith(configuration.IndexHtmlDocumentTitle);
              await response.WriteAsync(rawIndexHtml, Encoding.UTF8);
            // var responseStream = await ResponseBodyStreamWith(rawIndexHtml);
            // response.Body = responseStream;// TODO FIX TEST READ BODY

@@ -1,5 +1,6 @@
 using System;
 using Backlight.Api;
+using Backlight.Middleware.Html;
 using Microsoft.AspNetCore.Builder;
 
 namespace Backlight.Middleware {
@@ -10,7 +11,7 @@ namespace Backlight.Middleware {
                 setupAction(configuration);
             }
 
-            return applicationBuilder.UseMiddleware<BacklightMiddleware>(configuration, new BacklightIndexHtmlRenderer())
+            return applicationBuilder.UseMiddleware<BacklightMiddleware>(configuration, new IndexHtmlLoader())
                 .Map($"/{configuration.RoutePrefix}/api", ConfigureApiEndpointRunner());
         }
 

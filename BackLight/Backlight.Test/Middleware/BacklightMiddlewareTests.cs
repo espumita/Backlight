@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Backlight.Middleware;
-using Backlight.Services;
+using Backlight.Middleware.Html;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using NSubstitute;
@@ -17,14 +17,14 @@ namespace Backlight.Test.Middleware {
         private MiddlewareConfiguration configuration;
         private BacklightMiddleware middleware;
         private DefaultHttpContext httpContext;
-        private BacklightIndexHtmlRenderer indexHtmlRenderer;
+        private IndexHtmlLoader indexHtmlLoader;
 
         [SetUp]
         public void SetUp() {
             next = Substitute.For<RequestDelegate>();
             configuration = new MiddlewareConfiguration();
-            indexHtmlRenderer = Substitute.For<BacklightIndexHtmlRenderer>();
-            middleware = new BacklightMiddleware(next, configuration, indexHtmlRenderer);
+            indexHtmlLoader = Substitute.For<IndexHtmlLoader>();
+            middleware = new BacklightMiddleware(next, configuration, indexHtmlLoader);
             httpContext = new DefaultHttpContext();
         }
 
@@ -60,7 +60,7 @@ namespace Backlight.Test.Middleware {
             configuration.IndexHtmlDocumentTitle = AIndexHtmlDocumentTitle;
             httpContext.Request.Method = HttpMethods.Get;
             httpContext.Request.Path = new PathString($"/{ARoutePrefix}/index.html");
-            indexHtmlRenderer.RenderWith(AIndexHtmlDocumentTitle).Returns(ARawIndexHtml);
+            indexHtmlLoader.LoadRawWith(AIndexHtmlDocumentTitle).Returns(ARawIndexHtml);
 
             await middleware.Invoke(httpContext);
 
