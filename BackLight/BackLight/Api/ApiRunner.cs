@@ -24,8 +24,8 @@ namespace Backlight.Api {
                 await ResponseWith(HttpStatusCode.MethodNotAllowed, ResponsesErrorMessages.MethodNotAllowed, httpContext);
                 return;
             }
-            string entity = String.Empty;
-            string body = String.Empty;
+            var entity = string.Empty;
+            var body = string.Empty;
             
             try {
                 body = await GetBodyFrom(httpContext.Request.Body);

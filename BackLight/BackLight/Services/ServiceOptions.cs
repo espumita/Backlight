@@ -13,7 +13,7 @@ namespace Backlight.Services {
         public IProviderForTypeOptions For<T>() {
             CheckIfExistsConfigurationForType<T>();
             var provider = new ProviderForTypeOptions();
-            provider.RegisterDelegatesFor<T>();
+            provider.RegisterDelegatesFor<T>(new JsonEntitySerializer());
             ProvidersForType[typeof(T)] = provider;
             return provider;
         }
@@ -23,4 +23,5 @@ namespace Backlight.Services {
         }
 
     }
+
 }

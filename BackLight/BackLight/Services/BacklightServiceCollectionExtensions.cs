@@ -9,8 +9,8 @@ namespace Backlight.Services {
             if (setupAction != null) {
                 setupAction(options);
             }
-            var backlightProvidersService = new BacklightService(options);
-            return services.AddSingleton(backlightProvidersService);
+            var backlightService = new BacklightService(options);
+            return services.AddSingleton(backlightService);
         }
 
     }

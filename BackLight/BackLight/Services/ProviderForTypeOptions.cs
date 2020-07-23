@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json;
 using Backlight.Exceptions;
 using Backlight.Providers;
 
@@ -63,30 +62,30 @@ namespace Backlight.Services {
             return Delete != null;
         }
 
-        public void RegisterDelegatesFor<T>() {
-            RegisterCreationDelegationFor<T>();
-            RegisterReadDelegationFor<T>();
-            RegisterUpdateDelegationFor<T>();
+        public void RegisterDelegatesFor<T>(EntitySerializer entitySerializer) {
+            RegisterCreationDelegationFor<T>(entitySerializer);
+            RegisterReadDelegationFor<T>(entitySerializer);
+            RegisterUpdateDelegationFor<T>(entitySerializer);
             RegisterDeleteDelegationFor<T>();
         }
 
-        private void RegisterCreationDelegationFor<T>() {
+        private void RegisterCreationDelegationFor<T>(EntitySerializer entitySerializer) {
             CreateDelegate = entityPayload => {
-                var entity = JsonSerializer.Deserialize<T>(entityPayload);
+                var entity = entitySerializer.Deserialize<T>(entityPayload);
                 Create.Create(entity);
             };
         }
 
-        private void RegisterReadDelegationFor<T>() {
+        private void RegisterReadDelegationFor<T>(EntitySerializer entitySerializer) {
             ReadDelegate = entityId => {
                 var entity = Read.Read<T>(entityId);
-                return JsonSerializer.Serialize(entity);
+                return entitySerializer.Serialize(entity);
             };
         }
 
-        private void RegisterUpdateDelegationFor<T>() {
+        private void RegisterUpdateDelegationFor<T>(EntitySerializer entitySerializer) {
             UpdateDelegate = (entityId, entityPayload) => {
-                var entity = JsonSerializer.Deserialize<T>(entityPayload);
+                var entity = entitySerializer.Deserialize<T>(entityPayload);
                 Update.Update(entityId, entity);
             };
         }
@@ -98,4 +97,5 @@ namespace Backlight.Services {
         }
 
     }
+
 }
