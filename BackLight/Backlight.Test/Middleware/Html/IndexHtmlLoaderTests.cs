@@ -3,7 +3,7 @@ using Backlight.Middleware.Html;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Backlight.Test.Middleware {
+namespace Backlight.Test.Middleware.Html {
     public class IndexHtmlLoaderTests {
         private const string ADocumentTitle = "aDocumentTitle";
 

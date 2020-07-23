@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Backlight.Exceptions;
-using Backlight.Middleware;
 using Backlight.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -90,17 +89,6 @@ namespace Backlight.Api {
         private async Task ResponseWith(HttpStatusCode httpStatusCode, string responseBody, HttpContext httpContext) {
             httpContext.Response.StatusCode = (int) httpStatusCode;
             await httpContext.Response.WriteAsync(responseBody, Encoding.UTF8);
-            //var responseStream = await ResponseBodyStreamWith(responseBody);
-            // httpContext.Response.Body = responseStream;// TODO FIX TEST READ BODY
-        }
-
-        private async Task<Stream> ResponseBodyStreamWith(string responseBody) {
-            var bodyStream = new MemoryStream();
-            var streamWriter = new StreamWriter(bodyStream);
-            await streamWriter.WriteAsync(responseBody);
-            await streamWriter.FlushAsync();
-            bodyStream.Seek(0, SeekOrigin.Begin);
-            return bodyStream;
         }
 
         private static async Task<string> GetBodyFrom(Stream bodyStream) {

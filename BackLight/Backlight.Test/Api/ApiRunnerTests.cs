@@ -29,6 +29,7 @@ namespace Backlight.Test.Api {
             serviceProvider = applicationBuilder.ApplicationServices = Substitute.For<IServiceProvider>();
             backlightService = Substitute.For<BacklightService>(new object[] { null });
             httpContext = new DefaultHttpContext();
+            httpContext.Response.Body = new MemoryStream();
             runner = new ApiRunner(applicationBuilder);
 
             serviceProvider.GetService(Arg.Is(typeof(BacklightService))).Returns(backlightService);
@@ -204,15 +205,11 @@ namespace Backlight.Test.Api {
         }
 
         private static async Task<string> ReadBodyFrom(Stream bodyStream) {
-            var memoryStream = new MemoryStream();
-            await bodyStream.CopyToAsync(memoryStream);
-            var streamReader = new StreamReader(memoryStream);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            var readToEndAsync = await streamReader.ReadToEndAsync();
-            streamReader.Close();
-            return readToEndAsync;
+            bodyStream.CanSeek.Should().BeTrue();
+            bodyStream.Seek(0, SeekOrigin.Begin);
+            var streamReader = new StreamReader(bodyStream);
+            return await streamReader.ReadToEndAsync();
         }
-
         private async Task<Stream> RequestBodyStreamWith(string responseBody) {
             var bodyStream = new MemoryStream();
             var streamWriter = new StreamWriter(bodyStream);

@@ -26,6 +26,7 @@ namespace Backlight.Test.Middleware {
             indexHtmlLoader = Substitute.For<IndexHtmlLoader>();
             middleware = new BacklightMiddleware(next, configuration, indexHtmlLoader);
             httpContext = new DefaultHttpContext();
+            httpContext.Response.Body = new MemoryStream();
         }
 
         [Test]
@@ -66,18 +67,15 @@ namespace Backlight.Test.Middleware {
 
             httpContext.Response.StatusCode = (int)HttpStatusCode.OK;
             httpContext.Response.ContentType = "text/html;charset=utf-8";
-            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
+            var responseBody = await ReadResponseBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be(ARawIndexHtml);
         }
 
-        private static async Task<string> ReadBodyFrom(Stream bodyStream) {
-            var memoryStream = new MemoryStream();
-            await bodyStream.CopyToAsync(memoryStream);
-            var streamReader = new StreamReader(memoryStream);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            var readToEndAsync = await streamReader.ReadToEndAsync();
-            streamReader.Close();
-            return readToEndAsync;
+        private static async Task<string> ReadResponseBodyFrom(Stream bodyStream) {
+            bodyStream.CanSeek.Should().BeTrue();
+            bodyStream.Seek(0, SeekOrigin.Begin);
+            var streamReader = new StreamReader(bodyStream);
+            return await streamReader.ReadToEndAsync();
         }
     }
 }
