@@ -27,34 +27,10 @@ namespace Backlight.Api {
                 var service = applicationBuilder.ApplicationServices.GetService<BacklightService>();
                 var entityIsConfigured = service.IsEntityConfiguredFor(entity);
                 if (!entityIsConfigured) return await EntityIsNotConfiguredResponse(httpContext);
-                if (httpMethod == HttpMethods.Put) {
-                    if (!service.CanCreate(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
-                    var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
-                    var create = service.CreateProviderFor(entity);
-                    create(entityPayload);
-                    return await OkResponse(SuccessMessages.EntityCreated, httpContext);
-                }
-                if (httpMethod == HttpMethods.Get) {
-                    if (!service.CanRead(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
-                    var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
-                    var read = service.ReaderProviderFor(entity);
-                    var serializedEntity = read(entityPayload);
-                    return await OkResponse(serializedEntity, httpContext);
-                }
-                if (httpMethod == HttpMethods.Post) {
-                    if (!service.CanUpdate(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
-                    var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
-                    var update = service.UpdateProviderFor(entity);
-                    update("TODOEntityId", entityPayload);
-                    return await OkResponse(SuccessMessages.EntityUpdated, httpContext);
-                }
-                if (httpMethod == HttpMethods.Delete) {
-                    if (!service.CanDelete(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
-                    var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
-                    var delete = service.DeleteProviderFor(entity);
-                    delete(entityPayload);
-                    return await OkResponse(SuccessMessages.EntityDeleted, httpContext);
-                }
+                if (httpMethod == HttpMethods.Put) return await Create(entity, service, httpContext);
+                if (httpMethod == HttpMethods.Get) return await Read(entity, service, httpContext);
+                if (httpMethod == HttpMethods.Post) return await Update(entity, service, httpContext);
+                if (httpMethod == HttpMethods.Delete) return await Delete(entity, service, httpContext);
             } catch (EntityDeserializationException exception) {
                 return await EntityDeserializationErrorResponse(httpContext);
             }
@@ -99,6 +75,38 @@ namespace Backlight.Api {
         private async Task ResponseWith(HttpStatusCode httpStatusCode, string responseBody, HttpContext httpContext) {
             httpContext.Response.StatusCode = (int) httpStatusCode;
             await httpContext.Response.WriteAsync(responseBody, Encoding.UTF8);
+        }
+
+        private async Task<ApiResult> Create(string entity, BacklightService service, HttpContext httpContext) {
+            if (!service.CanCreate(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
+            var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
+            var create = service.CreateProviderFor(entity);
+            create(entityPayload);
+            return await OkResponse(SuccessMessages.EntityCreated, httpContext);
+        }
+
+        private async Task<ApiResult> Read(string entity, BacklightService service, HttpContext httpContext) {
+            if (!service.CanRead(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
+            var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
+            var read = service.ReaderProviderFor(entity);
+            var serializedEntity = read(entityPayload);
+            return await OkResponse(serializedEntity, httpContext);
+        }
+
+        private async Task<ApiResult> Update(string entity, BacklightService service, HttpContext httpContext) {
+            if (!service.CanUpdate(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
+            var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
+            var update = service.UpdateProviderFor(entity);
+            update("TODOEntityId", entityPayload);
+            return await OkResponse(SuccessMessages.EntityUpdated, httpContext);
+        }
+
+        private async Task<ApiResult> Delete(string entity, BacklightService service, HttpContext httpContext) {
+            if (!service.CanDelete(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
+            var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
+            var delete = service.DeleteProviderFor(entity);
+            delete(entityPayload);
+            return await OkResponse(SuccessMessages.EntityDeleted, httpContext);
         }
 
     }
