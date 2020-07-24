@@ -1,5 +1,5 @@
 namespace Backlight.Api {
-    public class ResponsesErrorMessages {
+    public class ErrorMessages {
 
         public static string MethodNotAllowed { get; } = "Http method is not allowed";
         public static string EntityDeserializationError { get; } = "Entity deserialization error";

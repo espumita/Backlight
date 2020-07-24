@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Backlight.Exceptions;
 
-namespace Backlight.Api {
+namespace Backlight.Api.Serialization {
     public class JsonStreamSerializer : StreamSerializer {
 
         //TODO unify this in a single body serialization at once

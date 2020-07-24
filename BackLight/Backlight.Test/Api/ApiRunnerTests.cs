@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Backlight.Api;
+using Backlight.Api.Serialization;
 using Backlight.Exceptions;
 using Backlight.Providers;
 using Backlight.Services;

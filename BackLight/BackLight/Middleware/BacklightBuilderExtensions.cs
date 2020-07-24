@@ -1,5 +1,6 @@
 using System;
 using Backlight.Api;
+using Backlight.Api.Serialization;
 using Backlight.Middleware.Html;
 using Microsoft.AspNetCore.Builder;
 

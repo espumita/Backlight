@@ -11,9 +11,9 @@ namespace Backlight.Test.Middleware.Html {
         public async Task get_raw_index_html_with_document_title() {
             var indexHtmlLoader = new IndexHtmlLoader();
             
-            var rawIndexHmtl = await indexHtmlLoader.LoadRawWith(ADocumentTitle);
+            var rawIndexHtml = await indexHtmlLoader.LoadRawWith(ADocumentTitle);
 
-            rawIndexHmtl.Contains($"<title>{ADocumentTitle}</title>").Should().BeTrue();
+            rawIndexHtml.Contains($"<title>{ADocumentTitle}</title>").Should().BeTrue();
         }
     }
 }
