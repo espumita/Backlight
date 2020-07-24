@@ -68,7 +68,10 @@ namespace Backlight.Test.Api {
         public async Task get_bad_request_when_entity_type_is_not_configured(string httpMethod) {
             httpContext.Request.Method = httpMethod;
             GivenARequestBodyWith(AEntityName, string.Empty);
-            backlightService.IsEntityConfiguredFor(AEntityName).Returns(false);
+            backlightService.CreateProviderFor(AEntityName).Throws<EntityIsNotConfiguredException>();
+            backlightService.ReaderProviderFor(AEntityName).Throws<EntityIsNotConfiguredException>();
+            backlightService.UpdateProviderFor(AEntityName).Throws<EntityIsNotConfiguredException>();
+            backlightService.DeleteProviderFor(AEntityName).Throws<EntityIsNotConfiguredException>();
 
             await runner.Run(httpContext);
 
@@ -81,7 +84,6 @@ namespace Backlight.Test.Api {
         public async Task get_bad_request_when_entity_provider_available(string httpMethod) {
             httpContext.Request.Method = httpMethod;
             GivenARequestBodyWith(AEntityName, "");
-            backlightService.IsEntityConfiguredFor(AEntityName).Returns(true);
             backlightService.CreateProviderFor(AEntityName).Throws<EntityProviderIsNotAvailableException>();
             backlightService.ReaderProviderFor(AEntityName).Throws<EntityProviderIsNotAvailableException>();
             backlightService.UpdateProviderFor(AEntityName).Throws<EntityProviderIsNotAvailableException>();
@@ -99,7 +101,6 @@ namespace Backlight.Test.Api {
             var httpMethod = HttpMethods.Put;
             httpContext.Request.Method = httpMethod;
             GivenARequestBodyWith(AEntityName, ASerializedEntity);
-            backlightService.IsEntityConfiguredFor(AEntityName).Returns(true);
             var createProviderDelegate = Substitute.For<Action<string>>();
             backlightService.CreateProviderFor(AEntityName).Returns(createProviderDelegate);
 
@@ -116,7 +117,6 @@ namespace Backlight.Test.Api {
             var httpMethod = HttpMethods.Get;
             httpContext.Request.Method = httpMethod;
             GivenARequestBodyWith(AEntityName, ANewEntityId);
-            backlightService.IsEntityConfiguredFor(AEntityName).Returns(true);
             var readProviderDelegate = Substitute.For<Func<string, string>>();
             readProviderDelegate.Invoke(ANewEntityId).Returns(ASerializedEntity);
             backlightService.ReaderProviderFor(AEntityName).Returns(readProviderDelegate);
@@ -133,7 +133,6 @@ namespace Backlight.Test.Api {
             var httpMethod = HttpMethods.Post;
             httpContext.Request.Method = httpMethod;
             GivenARequestBodyWith(AEntityName, ASerializedEntity);
-            backlightService.IsEntityConfiguredFor(AEntityName).Returns(true);
             var updateProviderDelegate = Substitute.For<Action<string, string>>();
             backlightService.UpdateProviderFor(AEntityName).Returns(updateProviderDelegate);
 
@@ -151,7 +150,6 @@ namespace Backlight.Test.Api {
             httpContext.Request.Method = httpMethod;
             var aUserEntity = new UserEntity { Name = "aName", Age = 23 };
             GivenARequestBodyWith(AEntityName, ANewEntityId);
-            backlightService.IsEntityConfiguredFor(AEntityName).Returns(true);
             var deleteProvider = Substitute.For<DeleteProvider>();
             backlightService.DeleteProviderFor(AEntityName).Returns((entityId) => {
                 deleteProvider.Delete<UserEntity>(entityId);

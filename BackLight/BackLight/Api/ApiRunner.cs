@@ -25,8 +25,6 @@ namespace Backlight.Api {
             try {
                 var entityPayload = await streamSerializer.EntityPayloadFrom(httpContext.Request.Body);
                 var service = applicationBuilder.ApplicationServices.GetService<BacklightService>();
-                var entityIsConfigured = service.IsEntityConfiguredFor(entityPayload.TypeName);
-                if (!entityIsConfigured) return await EntityIsNotConfiguredResponse(httpContext);
                 if (httpMethod == HttpMethods.Put) return await Create(entityPayload, service, httpContext);
                 if (httpMethod == HttpMethods.Get) return await Read(entityPayload, service, httpContext);
                 if (httpMethod == HttpMethods.Post) return await Update(entityPayload, service, httpContext);
@@ -35,6 +33,8 @@ namespace Backlight.Api {
                 return await EntityDeserializationErrorResponse(httpContext);
             } catch (EntityProviderIsNotAvailableException exception) {
                 return await EntityProviderIsNotAvailableResponse(httpContext);
+            } catch (EntityIsNotConfiguredException exception) {
+                return await EntityIsNotConfiguredResponse(httpContext);
             }
             return ApiResult.ERROR;
         }

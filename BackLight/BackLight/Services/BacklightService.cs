@@ -10,10 +10,6 @@ namespace Backlight.Services {
             Options = options;
         }
 
-        public virtual bool IsEntityConfiguredFor(string entity) {
-            return Options.ProvidersForType.Keys.Any(entityType => entityType.Name.Equals(entity));
-        }
-
         public virtual Action<string> CreateProviderFor(string entity) {
             var type = ProviderForTypeFrom(entity);
             if (!Options.ProvidersForType[type].CanCreate()) throw new EntityProviderIsNotAvailableException();
@@ -43,7 +39,9 @@ namespace Backlight.Services {
         }
 
         private Type ProviderForTypeFrom(string entity) {
-            return Options.ProvidersForType.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            var providerForTypeFrom = Options.ProvidersForType.Keys.FirstOrDefault(entityType => entityType.Name.Equals(entity));
+            if (providerForTypeFrom == null) throw new EntityIsNotConfiguredException();
+            return providerForTypeFrom;
         }
     }
 }
