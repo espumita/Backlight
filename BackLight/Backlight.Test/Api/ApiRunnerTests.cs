@@ -61,7 +61,7 @@ namespace Backlight.Test.Api {
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("TypeName deserialization error");
+            responseBody.Should().Be("Enity deserialization error");
         }
 
         [Test, TestCaseSource("AllowedMethods")]
@@ -74,7 +74,7 @@ namespace Backlight.Test.Api {
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("TypeName is not configured");
+            responseBody.Should().Be("Enity is not configured");
         }
 
         [Test, TestCaseSource("AllowedMethods")]
@@ -91,7 +91,7 @@ namespace Backlight.Test.Api {
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("TypeName provider is not available");
+            responseBody.Should().Be("Enity provider is not available");
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace Backlight.Test.Api {
             createProviderDelegate.Received().Invoke(ASerializedEntity);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("TypeName created");
+            responseBody.Should().Be("Enity created");
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace Backlight.Test.Api {
             updateProviderDelegate.Received().Invoke("TODOEntityId", ASerializedEntity);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("TypeName updated");
+            responseBody.Should().Be("Enity updated");
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace Backlight.Test.Api {
             deleteProvider.Received().Delete<UserEntity>(ANewEntityId);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("TypeName deleted");
+            responseBody.Should().Be("Enity deleted");
         }
 
         public static IEnumerable<string> NotAllowedMethods() {
