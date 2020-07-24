@@ -7,7 +7,6 @@ using Backlight.Exceptions;
 using Backlight.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Backlight.Api {
@@ -23,44 +22,41 @@ namespace Backlight.Api {
         public async Task<ApiResult> Run(HttpContext httpContext) {
             var httpMethod = httpContext.Request.Method;
             if (IsNotAllowed(httpMethod)) return await MethodNotAllowedResponse(httpContext);
-     
-            var entity = string.Empty;
-            
             try {
-                entity = await streamSerializer.EntityFrom(httpContext.Request.Body);
-            } catch (EntityDeserializationException exception) {
-                return await EntityDeserializationErrorResponse(httpContext);
-            }
-            var service = applicationBuilder.ApplicationServices.GetService<BacklightService>();
-            var entityIsConfigured = service.IsEntityConfiguredFor(entity);
-            if (!entityIsConfigured) return await EntityIsNotConfiguredResponse(httpContext);
-            if (httpMethod == HttpMethods.Put) {
-                if (!service.CanCreate(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
+                var entity = await streamSerializer.EntityFrom(httpContext.Request.Body);
+                var service = applicationBuilder.ApplicationServices.GetService<BacklightService>();
+                var entityIsConfigured = service.IsEntityConfiguredFor(entity);
+                if (!entityIsConfigured) return await EntityIsNotConfiguredResponse(httpContext);
+                if (httpMethod == HttpMethods.Put) {
+                    if (!service.CanCreate(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
                     var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
                     var create = service.CreateProviderFor(entity);
                     create(entityPayload);
                     return await OkResponse(SuccessMessages.EntityCreated, httpContext);
-            }
-            if (httpMethod == HttpMethods.Get) {
-                if (!service.CanRead(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
+                }
+                if (httpMethod == HttpMethods.Get) {
+                    if (!service.CanRead(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
                     var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
                     var read = service.ReaderProviderFor(entity);
                     var serializedEntity = read(entityPayload);
                     return await OkResponse(serializedEntity, httpContext);
-            }
-            if (httpMethod == HttpMethods.Post) {
-                if (!service.CanUpdate(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
+                }
+                if (httpMethod == HttpMethods.Post) {
+                    if (!service.CanUpdate(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
                     var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
                     var update = service.UpdateProviderFor(entity);
                     update("TODOEntityId", entityPayload);
                     return await OkResponse(SuccessMessages.EntityUpdated, httpContext);
-            }
-            if (httpMethod == HttpMethods.Delete) {
-                if (!service.CanDelete(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
+                }
+                if (httpMethod == HttpMethods.Delete) {
+                    if (!service.CanDelete(entity)) return await EntityProviderIsNotAvailableResponse(httpContext);
                     var entityPayload = await streamSerializer.EntityPayLoadFrom(httpContext.Request.Body);
                     var delete = service.DeleteProviderFor(entity);
                     delete(entityPayload);
                     return await OkResponse(SuccessMessages.EntityDeleted, httpContext);
+                }
+            } catch (EntityDeserializationException exception) {
+                return await EntityDeserializationErrorResponse(httpContext);
             }
             return ApiResult.ERROR;
         }
