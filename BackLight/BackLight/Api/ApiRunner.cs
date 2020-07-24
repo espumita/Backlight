@@ -33,6 +33,8 @@ namespace Backlight.Api {
                 if (httpMethod == HttpMethods.Delete) return await Delete(entityPayload, service, httpContext);
             } catch (EntityDeserializationException exception) {
                 return await EntityDeserializationErrorResponse(httpContext);
+            } catch (EntityProviderIsNotAvailableException exception) {
+                return await EntityProviderIsNotAvailableResponse(httpContext);
             }
             return ApiResult.ERROR;
         }
@@ -78,28 +80,24 @@ namespace Backlight.Api {
         }
 
         private async Task<ApiResult> Create(EntityPayload entityPayload, BacklightService service, HttpContext httpContext) {
-            if (!service.CanCreate(entityPayload.TypeName)) return await EntityProviderIsNotAvailableResponse(httpContext);
             var create = service.CreateProviderFor(entityPayload.TypeName);
             create(entityPayload.Value);
             return await OkResponse(SuccessMessages.EntityCreated, httpContext);
         }
 
         private async Task<ApiResult> Read(EntityPayload entityPayload, BacklightService service, HttpContext httpContext) {
-            if (!service.CanRead(entityPayload.TypeName)) return await EntityProviderIsNotAvailableResponse(httpContext);
             var read = service.ReaderProviderFor(entityPayload.TypeName);
             var serializedEntity = read(entityPayload.Value);
             return await OkResponse(serializedEntity, httpContext);
         }
 
         private async Task<ApiResult> Update(EntityPayload entityPayload, BacklightService service, HttpContext httpContext) {
-            if (!service.CanUpdate(entityPayload.TypeName)) return await EntityProviderIsNotAvailableResponse(httpContext);
             var update = service.UpdateProviderFor(entityPayload.TypeName);
             update("TODOEntityId", entityPayload.Value);
             return await OkResponse(SuccessMessages.EntityUpdated, httpContext);
         }
 
         private async Task<ApiResult> Delete(EntityPayload entityPayload, BacklightService service, HttpContext httpContext) {
-            if (!service.CanDelete(entityPayload.TypeName)) return await EntityProviderIsNotAvailableResponse(httpContext);
             var delete = service.DeleteProviderFor(entityPayload.TypeName);
             delete(entityPayload.Value);
             return await OkResponse(SuccessMessages.EntityDeleted, httpContext);
