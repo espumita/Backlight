@@ -11,14 +11,14 @@ namespace Backlight.Api.Serialization {
 
         private string body;
 
-        public async Task<string> EntityFrom(Stream stream) {
+        public async Task<EntityPayload> EntityPayloadFrom(Stream stream) {
             body = await GetBodyFrom(stream);
-            return EntityFrom(body);
-        }
-
-        public async Task<string> EntityPayLoadFrom(Stream stream) {
-         //   var body = await GetBodyFrom(stream);
-            return EnitytPayLoadFrom(body);
+            var typeName = TypeNameFrom(body);
+            var value = ValueFrom(body);
+            return new EntityPayload {
+                TypeName = typeName,
+                Value = value
+            };
         }
 
         private static async Task<string> GetBodyFrom(Stream bodyStream) {
@@ -31,20 +31,20 @@ namespace Backlight.Api.Serialization {
             return readToEndAsync;
         }
 
-        private static string EntityFrom(string body) {
+        private static string TypeNameFrom(string body) {
             try {
-                var backlightApiRequest = JsonSerializer.Deserialize<ApiRequest>(body);
-                return backlightApiRequest.Entity;
+                var payload = JsonSerializer.Deserialize<EntityPayload>(body);
+                return payload.TypeName;
             } catch (Exception exception) {
                 //TODO log
                 throw new EntityDeserializationException();
             }
         }
 
-        private static string EnitytPayLoadFrom(string body) {
+        private static string ValueFrom(string body) {
             try {
-                var backlightApiRequest = JsonSerializer.Deserialize<ApiRequest>(body);
-                return backlightApiRequest.PayLoad;
+                var payload = JsonSerializer.Deserialize<EntityPayload>(body);
+                return payload.Value;
             } catch (Exception exception) {
                 //TODO log
                 throw new EntityDeserializationException();

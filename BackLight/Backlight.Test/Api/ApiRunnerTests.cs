@@ -55,13 +55,13 @@ namespace Backlight.Test.Api {
         [Test, TestCaseSource("AllowedMethods")]
         public async Task get_bad_request_when_the_entity_deserialization_has_an_error(string httpMethod) {
             httpContext.Request.Method = httpMethod;
-            streamSerializer.EntityFrom(Arg.Any<Stream>()).Throws(new EntityDeserializationException());
+            streamSerializer.EntityPayloadFrom(Arg.Any<Stream>()).Throws(new EntityDeserializationException());
 
             await runner.Run(httpContext);
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("Entity deserialization error");
+            responseBody.Should().Be("TypeName deserialization error");
         }
 
         [Test, TestCaseSource("AllowedMethods")]
@@ -74,7 +74,7 @@ namespace Backlight.Test.Api {
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("Entity is not configured");
+            responseBody.Should().Be("TypeName is not configured");
         }
 
         [Test, TestCaseSource("AllowedMethods")]
@@ -91,7 +91,7 @@ namespace Backlight.Test.Api {
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("Entity provider is not available");
+            responseBody.Should().Be("TypeName provider is not available");
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace Backlight.Test.Api {
             createProviderDelegate.Received().Invoke(ASerializedEntity);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("Entity created");
+            responseBody.Should().Be("TypeName created");
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace Backlight.Test.Api {
             updateProviderDelegate.Received().Invoke("TODOEntityId", ASerializedEntity);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("Entity updated");
+            responseBody.Should().Be("TypeName updated");
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace Backlight.Test.Api {
             deleteProvider.Received().Delete<UserEntity>(ANewEntityId);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("Entity deleted");
+            responseBody.Should().Be("TypeName deleted");
         }
 
         public static IEnumerable<string> NotAllowedMethods() {
@@ -190,9 +190,11 @@ namespace Backlight.Test.Api {
             var streamReader = new StreamReader(bodyStream);
             return await streamReader.ReadToEndAsync();
         }
-        private void GivenARequestBodyWith(string entityName, string payload) {
-            streamSerializer.EntityFrom(Arg.Any<Stream>()).Returns(entityName);
-            streamSerializer.EntityPayLoadFrom(Arg.Any<Stream>()).Returns(payload);
+        private void GivenARequestBodyWith(string entityTypeName, string entityPayloadValue) {
+            streamSerializer.EntityPayloadFrom(Arg.Any<Stream>()).Returns(new EntityPayload {
+                TypeName = entityTypeName,
+                Value = entityPayloadValue
+            });
         }
     }
 
