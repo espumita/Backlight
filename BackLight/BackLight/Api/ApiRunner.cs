@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
@@ -23,12 +24,14 @@ namespace Backlight.Api {
             var httpMethod = httpContext.Request.Method;
             if (IsNotAllowed(httpMethod)) return await MethodNotAllowedResponse(httpContext);
             try {
-                var entityPayload = await streamSerializer.EntityPayloadFrom(httpContext.Request.Body);
                 var service = applicationBuilder.ApplicationServices.GetService<BacklightService>();
-                if (httpMethod == HttpMethods.Put) return await Create(entityPayload, service, httpContext);
-                if (httpMethod == HttpMethods.Get) return await Read(entityPayload, service, httpContext);
-                if (httpMethod == HttpMethods.Post) return await Update(entityPayload, service, httpContext);
-                if (httpMethod == HttpMethods.Delete) return await Delete(entityPayload, service, httpContext);
+                var entityPayload = await streamSerializer.EntityPayloadFrom(httpContext.Request.Body);
+                var assembly = service.GetsAssemblyFor(entityPayload.TypeName);
+                var type = assembly.GetType(entityPayload.TypeName);
+                if (httpMethod == HttpMethods.Put) return await Create(entityPayload, service, httpContext, type);
+                if (httpMethod == HttpMethods.Get) return await Read(entityPayload, service, httpContext, type);
+                if (httpMethod == HttpMethods.Post) return await Update(entityPayload, service, httpContext, type);
+                if (httpMethod == HttpMethods.Delete) return await Delete(entityPayload, service, httpContext, type);
             } catch (EntityDeserializationException exception) {
                 return await EntityDeserializationErrorResponse(httpContext);
             } catch (EntityProviderIsNotAvailableException exception) {
@@ -79,26 +82,26 @@ namespace Backlight.Api {
             await httpContext.Response.WriteAsync(responseBody, Encoding.UTF8);
         }
 
-        private async Task<ApiResult> Create(EntityPayload entityPayload, BacklightService service, HttpContext httpContext) {
-            var create = service.CreateProviderFor(entityPayload.TypeName);
+        private async Task<ApiResult> Create(EntityPayload entityPayload, BacklightService service, HttpContext httpContext, Type type) {
+            var create = service.CreateProviderFor(type);
             create(entityPayload.Value);
             return await OkResponse(SuccessMessages.EntityCreated, httpContext);
         }
 
-        private async Task<ApiResult> Read(EntityPayload entityPayload, BacklightService service, HttpContext httpContext) {
-            var read = service.ReaderProviderFor(entityPayload.TypeName);
+        private async Task<ApiResult> Read(EntityPayload entityPayload, BacklightService service, HttpContext httpContext, Type type) {
+            var read = service.ReaderProviderFor(type);
             var serializedEntity = read(entityPayload.Value);
             return await OkResponse(serializedEntity, httpContext);
         }
 
-        private async Task<ApiResult> Update(EntityPayload entityPayload, BacklightService service, HttpContext httpContext) {
-            var update = service.UpdateProviderFor(entityPayload.TypeName);
+        private async Task<ApiResult> Update(EntityPayload entityPayload, BacklightService service, HttpContext httpContext, Type type) {
+            var update = service.UpdateProviderFor(type);
             update("TODOEntityId", entityPayload.Value);
             return await OkResponse(SuccessMessages.EntityUpdated, httpContext);
         }
 
-        private async Task<ApiResult> Delete(EntityPayload entityPayload, BacklightService service, HttpContext httpContext) {
-            var delete = service.DeleteProviderFor(entityPayload.TypeName);
+        private async Task<ApiResult> Delete(EntityPayload entityPayload, BacklightService service, HttpContext httpContext, Type type) {
+            var delete = service.DeleteProviderFor(type);
             delete(entityPayload.Value);
             return await OkResponse(SuccessMessages.EntityDeleted, httpContext);
         }
