@@ -12,30 +12,30 @@ namespace Backlight.Services {
         }
 
         public virtual Action<string> CreateProviderFor(Type type) {
-            var type2 = ProviderForTypeFrom(type);
-            if (!Options.ProvidersForType[type2].CanCreate()) throw new EntityProviderIsNotAvailableException();
-            var providersConfiguration = Options.ProvidersForType[type2];
+            CheckIfEntityIsConfiguredFor(type);
+            if (!Options.ProvidersForType[type].CanCreate()) throw new EntityProviderIsNotAvailableException();
+            var providersConfiguration = Options.ProvidersForType[type];
             return providersConfiguration.CreateDelegate;
         }
 
         public virtual Func<string, string> ReaderProviderFor(Type type) {
-            var type2 = ProviderForTypeFrom(type);
-            if (!Options.ProvidersForType[type2].CanRead()) throw new EntityProviderIsNotAvailableException();
-            var backlightServicesProviderOptions = Options.ProvidersForType[type2];
+            CheckIfEntityIsConfiguredFor(type);
+            if (!Options.ProvidersForType[type].CanRead()) throw new EntityProviderIsNotAvailableException();
+            var backlightServicesProviderOptions = Options.ProvidersForType[type];
             return backlightServicesProviderOptions.ReadDelegate;
         }
 
         public virtual Action<string, string> UpdateProviderFor(Type type) {
-            var type2 = ProviderForTypeFrom(type);
-            if (!Options.ProvidersForType[type2].CanUpdate()) throw new EntityProviderIsNotAvailableException();
-            var backlightServicesProviderOptions = Options.ProvidersForType[type2];
+            CheckIfEntityIsConfiguredFor(type);
+            if (!Options.ProvidersForType[type].CanUpdate()) throw new EntityProviderIsNotAvailableException();
+            var backlightServicesProviderOptions = Options.ProvidersForType[type];
             return backlightServicesProviderOptions.UpdateDelegate;
         }
 
         public virtual Action<string> DeleteProviderFor(Type type) {
-            var type2 = ProviderForTypeFrom(type);
-            if (!Options.ProvidersForType[type2].CanDelete()) throw new EntityProviderIsNotAvailableException();
-            var backlightServicesProviderOptions = Options.ProvidersForType[type2];
+            CheckIfEntityIsConfiguredFor(type);
+            if (!Options.ProvidersForType[type].CanDelete()) throw new EntityProviderIsNotAvailableException();
+            var backlightServicesProviderOptions = Options.ProvidersForType[type];
             return backlightServicesProviderOptions.DeleteDelegate;
         }
 
@@ -43,10 +43,9 @@ namespace Backlight.Services {
             return Options.AssemblyForType[entityFullName];
         }
 
-        private Type ProviderForTypeFrom(Type type) {
-            var providerForTypeFrom = Options.ProvidersForType.Keys.FirstOrDefault(entityType => entityType == type);
-            if (providerForTypeFrom == null) throw new EntityIsNotConfiguredException();
-            return providerForTypeFrom;
+        private void CheckIfEntityIsConfiguredFor(Type type) {
+            var isEntityConfigured = Options.ProvidersForType.Keys.Contains(type);
+            if (!isEntityConfigured) throw new EntityIsNotConfiguredException();
         }
     }
 }
