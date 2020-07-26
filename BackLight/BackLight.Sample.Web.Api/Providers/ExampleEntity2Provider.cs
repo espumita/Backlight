@@ -1,14 +1,15 @@
 using System;
+using System.Threading.Tasks;
 using Backlight.Providers;
 
 namespace Backlight.Sample.Web.Api.Providers {
     public class ExampleEntity2Provider : CRUDProvider {
 
-        public void Create<T>(T entity) {
+        public async Task Create<T>(T entity) {
             Console.WriteLine("Created Entity2");
         }
 
-        public T Read<T>(string entityId) {
+        public async Task<T> Read<T>(string entityId) {
             Console.WriteLine("Readed Entity2");
             return default;
         }

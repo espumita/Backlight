@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Backlight.Api.Serialization;
 using Backlight.Exceptions;
 
@@ -11,18 +12,20 @@ namespace Backlight.Services {
             Options = options;
         }
 
-        public virtual Action<string> CreateProviderFor(EntityPayload entityPayload) {
+        public virtual async Task Create(EntityPayload entityPayload) {
             var type = TryToGetConfiguredTypeFrom(entityPayload.TypeName);
             if (!Options.ProvidersForType[type].CanCreate()) throw new EntityProviderIsNotAvailableException();
             var providersConfiguration = Options.ProvidersForType[type];
-            return providersConfiguration.CreateDelegate;
+            var create = providersConfiguration.CreateDelegate;
+            await create(entityPayload.Value);
         }
 
-        public virtual Func<string, string> ReaderProviderFor(EntityPayload entityPayload) {
+        public virtual async Task<string> Read(EntityPayload entityPayload) {
             var type = TryToGetConfiguredTypeFrom(entityPayload.TypeName);
             if (!Options.ProvidersForType[type].CanRead()) throw new EntityProviderIsNotAvailableException();
             var backlightServicesProviderOptions = Options.ProvidersForType[type];
-            return backlightServicesProviderOptions.ReadDelegate;
+            var read = backlightServicesProviderOptions.ReadDelegate;
+            return await read(entityPayload.Value);
         }
 
         public virtual Action<string, string> UpdateProviderFor(EntityPayload entityPayload) {

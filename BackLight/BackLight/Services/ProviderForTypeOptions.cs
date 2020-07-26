@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Backlight.Exceptions;
 using Backlight.Providers;
 
@@ -8,8 +9,8 @@ namespace Backlight.Services {
         public ReadProvider Read { get; private set; }
         public UpdateProvider Update { get; private set; }
         public DeleteProvider Delete { get; private set; }
-        public Action<string> CreateDelegate { get; private set; }
-        public Func<string, string> ReadDelegate { get; private set; }
+        public Func<string, Task> CreateDelegate { get; private set; }
+        public Func<string, Task<string>> ReadDelegate { get; private set; }
         public Action<string, string> UpdateDelegate { get; private set; }
         public Action<string> DeleteDelegate { get; private set; }
 
@@ -70,15 +71,15 @@ namespace Backlight.Services {
         }
 
         private void RegisterCreationDelegationFor<T>(EntitySerializer entitySerializer) {
-            CreateDelegate = entityPayload => {
+            CreateDelegate = async entityPayload => {
                 var entity = entitySerializer.Deserialize<T>(entityPayload);
-                Create.Create(entity);
+                await Create.Create(entity);
             };
         }
 
         private void RegisterReadDelegationFor<T>(EntitySerializer entitySerializer) {
-            ReadDelegate = entityId => {
-                var entity = Read.Read<T>(entityId);
+            ReadDelegate = async entityId => {
+                var entity = await Read.Read<T>(entityId);
                 return entitySerializer.Serialize(entity);
             };
         }

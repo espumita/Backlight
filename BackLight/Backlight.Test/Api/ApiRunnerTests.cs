@@ -63,9 +63,13 @@ namespace Backlight.Test.Api {
         [Test, TestCaseSource("AllowedMethods")]
         public async Task get_bad_request_when_entity_type_is_not_configured(string httpMethod) {
             httpContext.Request.Method = httpMethod;
-            GivenARequestBodyWith(AEntityName, string.Empty);
-            backlightService.CreateProviderFor(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
-            backlightService.ReaderProviderFor(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
+            string entityPayloadValue = string.Empty;
+            GivenARequestBodyWith(new EntityPayload {
+                TypeName = AEntityName,
+                Value = entityPayloadValue
+            });
+            backlightService.Create(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
+            backlightService.Read(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
             backlightService.UpdateProviderFor(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
             backlightService.DeleteProviderFor(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
 
@@ -79,9 +83,12 @@ namespace Backlight.Test.Api {
         [Test, TestCaseSource("AllowedMethods")]
         public async Task get_bad_request_when_entity_provider_available(string httpMethod) {
             httpContext.Request.Method = httpMethod;
-            GivenARequestBodyWith(AEntityName, "");
-            backlightService.CreateProviderFor(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
-            backlightService.ReaderProviderFor(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
+            GivenARequestBodyWith(new EntityPayload {
+                TypeName = AEntityName,
+                Value = ""
+            });
+            backlightService.Create(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
+            backlightService.Read(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
             backlightService.UpdateProviderFor(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
             backlightService.DeleteProviderFor(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
 
@@ -93,29 +100,33 @@ namespace Backlight.Test.Api {
         }
 
         [Test]
-        public async Task execute_create_entity_provider() {
+        public async Task execute_service_create_entity() {
             var httpMethod = HttpMethods.Put;
             httpContext.Request.Method = httpMethod;
-            GivenARequestBodyWith(AEntityName, ASerializedEntity);
-            var createProviderDelegate = Substitute.For<Action<string>>();
-            backlightService.CreateProviderFor(Arg.Any<EntityPayload>()).Returns(createProviderDelegate);
+            var anEntityPayLoad = new EntityPayload {
+                TypeName = AEntityName,
+                Value = ASerializedEntity
+            };
+            GivenARequestBodyWith(anEntityPayLoad);
 
             await runner.Run(httpContext);
 
-            createProviderDelegate.Received().Invoke(ASerializedEntity);
+            await backlightService.Received().Create(anEntityPayLoad);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be("Enity created");
         }
 
         [Test]
-        public async Task execute_read_entity_provider() {
+        public async Task execute_service_read_entity() {
             var httpMethod = HttpMethods.Get;
             httpContext.Request.Method = httpMethod;
-            GivenARequestBodyWith(AEntityName, ANewEntityId);
-            var readProviderDelegate = Substitute.For<Func<string, string>>();
-            readProviderDelegate.Invoke(ANewEntityId).Returns(ASerializedEntity);
-            backlightService.ReaderProviderFor(Arg.Any<EntityPayload>()).Returns(readProviderDelegate);
+            var anEntityPayLoad = new EntityPayload {
+                TypeName = AEntityName,
+                Value = ANewEntityId
+            };
+            GivenARequestBodyWith(anEntityPayLoad);
+            backlightService.Read(anEntityPayLoad).Returns(ASerializedEntity);
 
             await runner.Run(httpContext);
 
@@ -128,7 +139,10 @@ namespace Backlight.Test.Api {
         public async Task execute_update_entity_provider() {
             var httpMethod = HttpMethods.Post;
             httpContext.Request.Method = httpMethod;
-            GivenARequestBodyWith(AEntityName, ASerializedEntity);
+            GivenARequestBodyWith(new EntityPayload {
+                TypeName = AEntityName,
+                Value = ASerializedEntity
+            });
             var updateProviderDelegate = Substitute.For<Action<string, string>>();
             backlightService.UpdateProviderFor(Arg.Any<EntityPayload>()).Returns(updateProviderDelegate);
 
@@ -145,7 +159,10 @@ namespace Backlight.Test.Api {
             var httpMethod = HttpMethods.Delete;
             httpContext.Request.Method = httpMethod;
             var aUserEntity = new UserEntity { Name = "aName", Age = 23 };
-            GivenARequestBodyWith(AEntityName, ANewEntityId);
+            GivenARequestBodyWith(new EntityPayload {
+                TypeName = AEntityName,
+                Value = ANewEntityId
+            });
             var deleteProvider = Substitute.For<DeleteProvider>();
             backlightService.DeleteProviderFor(Arg.Any<EntityPayload>()).Returns((entityId) => {
                 deleteProvider.Delete<UserEntity>(entityId);
@@ -180,11 +197,9 @@ namespace Backlight.Test.Api {
             var streamReader = new StreamReader(bodyStream);
             return await streamReader.ReadToEndAsync();
         }
-        private void GivenARequestBodyWith(string entityTypeName, string entityPayloadValue) {
-            streamSerializer.EntityPayloadFrom(Arg.Any<Stream>()).Returns(new EntityPayload {
-                TypeName = entityTypeName,
-                Value = entityPayloadValue
-            });
+        private void GivenARequestBodyWith(EntityPayload entityPayload) {
+            streamSerializer.EntityPayloadFrom(Arg.Any<Stream>())
+                .Returns(entityPayload);
         }
     }
 

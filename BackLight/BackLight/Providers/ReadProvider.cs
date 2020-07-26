@@ -1,5 +1,7 @@
-﻿namespace Backlight.Providers {
+﻿using System.Threading.Tasks;
+
+namespace Backlight.Providers {
     public interface ReadProvider {
-        T Read<T>(string entityId);
+        Task<T> Read<T>(string entityId);
     }
 }

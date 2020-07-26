@@ -14,8 +14,7 @@ namespace Backlight.Api.Methods {
         }
 
         public override async Task<ApiResult> Execute(EntityPayload entityPayload) {
-            var read = service.ReaderProviderFor(entityPayload);
-            var serializedEntity = read(entityPayload.Value);
+            var serializedEntity = await service.Read(entityPayload);
             return await OkResponse(serializedEntity, httpContext);
         }
     }

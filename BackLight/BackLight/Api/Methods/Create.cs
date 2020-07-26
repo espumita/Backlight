@@ -14,8 +14,7 @@ namespace Backlight.Api.Methods {
         }
 
         public override async Task<ApiResult> Execute(EntityPayload entityPayload) {
-            var create = service.CreateProviderFor(entityPayload);
-            create(entityPayload.Value);
+            await service.Create(entityPayload);
             return await OkResponse(SuccessMessages.EntityCreated, httpContext);
         }
     }

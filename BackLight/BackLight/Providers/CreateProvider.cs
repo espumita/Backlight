@@ -1,6 +1,8 @@
-﻿namespace Backlight.Providers {
+﻿using System.Threading.Tasks;
+
+namespace Backlight.Providers {
     public interface CreateProvider {
-        void Create<T>(T entity);
+        Task Create<T>(T entity);
 
     }
 
