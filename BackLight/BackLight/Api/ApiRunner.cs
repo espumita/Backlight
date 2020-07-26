@@ -6,17 +6,14 @@ using Backlight.Api.Methods;
 using Backlight.Api.Serialization;
 using Backlight.Exceptions;
 using Backlight.Services;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
 namespace Backlight.Api {
     public class ApiRunner {
-        private readonly IApplicationBuilder applicationBuilder;
         private readonly BacklightService service;
         private readonly StreamSerializer streamSerializer;
 
-        public ApiRunner(IApplicationBuilder applicationBuilder, BacklightService service, StreamSerializer streamSerializer) {
-            this.applicationBuilder = applicationBuilder;
+        public ApiRunner(BacklightService service, StreamSerializer streamSerializer) {
             this.service = service;
             this.streamSerializer = streamSerializer;
         }

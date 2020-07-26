@@ -9,7 +9,6 @@ using Backlight.Exceptions;
 using Backlight.Providers;
 using Backlight.Services;
 using FluentAssertions;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -20,7 +19,6 @@ namespace Backlight.Test.Api {
         private const string AEntityName = nameof(UserEntity);
         private const string ANewEntityId = "aNewEntityId";
         private const string ASerializedEntity = "aSerializedEntity";
-        private IApplicationBuilder applicationBuilder;
         private ApiRunner runner;
         private DefaultHttpContext httpContext;
         private BacklightService backlightService;
@@ -28,13 +26,12 @@ namespace Backlight.Test.Api {
 
         [SetUp]
         public void SetUp() {
-            applicationBuilder = Substitute.For<IApplicationBuilder>();
             backlightService = Substitute.For<BacklightService>(new object[] { null });
             httpContext = new DefaultHttpContext();
             httpContext.Response.Body = new MemoryStream();
             streamSerializer = Substitute.For<StreamSerializer>();
 
-            runner = new ApiRunner(applicationBuilder, backlightService, streamSerializer);
+            runner = new ApiRunner(backlightService, streamSerializer);
         }
 
         [Test, TestCaseSource("NotAllowedMethods")]

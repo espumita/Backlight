@@ -12,19 +12,21 @@ namespace Backlight.Middleware {
             if (setupAction != null) {
                 setupAction(configuration);
             }
-            var service = GetBacklightServiceFrom(applicationBuilder);
             return applicationBuilder.UseMiddleware<BacklightMiddleware>(configuration, new IndexHtmlLoader())
-                .Map($"/{configuration.RoutePrefix}/api", ConfigureApiEndpointRunner(service));
+                .Map($"/{configuration.RoutePrefix}/api", ConfigureApiEndpointRunner());
+        }
+
+        private static Action<IApplicationBuilder> ConfigureApiEndpointRunner() {
+            return applicationBuilder => {
+            var service = GetBacklightServiceFrom(applicationBuilder);
+            applicationBuilder.Run(async httpContext => {
+                    await new ApiRunner(service, new JsonStreamSerializer()).Run(httpContext);
+                });
+            };
         }
 
         private static BacklightService GetBacklightServiceFrom(IApplicationBuilder applicationBuilder) {
             return (BacklightService) applicationBuilder.ApplicationServices.GetService(typeof(BacklightService));
-        }
-
-        private static Action<IApplicationBuilder> ConfigureApiEndpointRunner(BacklightService service) {
-            return applicationBuilder => applicationBuilder.Run(async httpContext => {
-                await new ApiRunner(applicationBuilder, service, new JsonStreamSerializer()).Run(httpContext);
-            });
         }
 
     }
