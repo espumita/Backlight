@@ -63,19 +63,7 @@ namespace Backlight.Middleware {
             response.ContentType = "text/html;charset=utf-8";
             var rawIndexHtml = await idexHtmlLoader.LoadRawWith(configuration.IndexHtmlDocumentTitle);
             await response.WriteAsync(rawIndexHtml, Encoding.UTF8);
-            //var responseStream = await ResponseBodyStreamWith(rawIndexHtml);
-           // response.Body = responseStream;// TODO FIX TEST READ BODY
         }
 
-        //private async Task<Stream> ResponseBodyStreamWith(string responseBody) {
-        //    var bodyStream = new MemoryStream();
-        //    var streamWriter = new StreamWriter(bodyStream);
-        //    await streamWriter.WriteAsync(responseBody);
-        //    await streamWriter.FlushAsync();
-        //    bodyStream.Seek(0, SeekOrigin.Begin);
-        //    return bodyStream;
-        //}
-
     }
-
 }
