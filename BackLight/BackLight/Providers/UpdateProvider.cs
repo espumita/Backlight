@@ -1,5 +1,7 @@
-﻿namespace Backlight.Providers {
+﻿using System.Threading.Tasks;
+
+namespace Backlight.Providers {
     public interface UpdateProvider {
-        void Update<T>(string entityId, T entity);
+        Task Update<T>(string entityId, T entity);
     }
 }

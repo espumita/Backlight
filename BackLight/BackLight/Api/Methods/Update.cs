@@ -14,8 +14,7 @@ namespace Backlight.Api.Methods {
         }
 
         public override async Task<ApiResult> Execute(EntityPayload entityPayload) {
-            var update = service.UpdateProviderFor(entityPayload);
-            update("TODOEntityId", entityPayload.Value);
+            await service.Update(entityPayload);
             return await OkResponse(SuccessMessages.EntityUpdated, httpContext);
         }
     }

@@ -14,11 +14,11 @@ namespace Backlight.Sample.Web.Api.Providers {
             return default;
         }
 
-        public void Update<T>(string entityId, T entity) {
+        public async Task Update<T>(string entityId, T entity) {
             Console.WriteLine("Updated Entity2");
         }
 
-        public void Delete<T>(string entityId) {
+        public async Task Delete<T>(string entityId) {
             Console.WriteLine("Deleted Entity2");
         }
     }

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Backlight.Api;
 using Backlight.Api.Serialization;
 using Backlight.Exceptions;
-using Backlight.Providers;
 using Backlight.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -67,8 +65,8 @@ namespace Backlight.Test.Api {
             });
             backlightService.Create(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
             backlightService.Read(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
-            backlightService.UpdateProviderFor(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
-            backlightService.DeleteProviderFor(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
+            backlightService.Update(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
+            backlightService.Delete(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
 
             await runner.Run(httpContext);
 
@@ -86,8 +84,8 @@ namespace Backlight.Test.Api {
             });
             backlightService.Create(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
             backlightService.Read(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
-            backlightService.UpdateProviderFor(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
-            backlightService.DeleteProviderFor(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
+            backlightService.Update(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
+            backlightService.Delete(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
 
             await runner.Run(httpContext);
 
@@ -100,15 +98,15 @@ namespace Backlight.Test.Api {
         public async Task execute_service_create_entity() {
             var httpMethod = HttpMethods.Put;
             httpContext.Request.Method = httpMethod;
-            var anEntityPayLoad = new EntityPayload {
+            var anEntityPayload = new EntityPayload {
                 TypeName = AEntityName,
                 Value = ASerializedEntity
             };
-            GivenARequestBodyWith(anEntityPayLoad);
+            GivenARequestBodyWith(anEntityPayload);
 
             await runner.Run(httpContext);
 
-            await backlightService.Received().Create(anEntityPayLoad);
+            await backlightService.Received().Create(anEntityPayload);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be("Enity created");
@@ -133,19 +131,18 @@ namespace Backlight.Test.Api {
         }
 
         [Test]
-        public async Task execute_update_entity_provider() {
+        public async Task execute_service_update_entity() {
             var httpMethod = HttpMethods.Post;
             httpContext.Request.Method = httpMethod;
-            GivenARequestBodyWith(new EntityPayload {
+            var anEntityPayload = new EntityPayload {
                 TypeName = AEntityName,
                 Value = ASerializedEntity
-            });
-            var updateProviderDelegate = Substitute.For<Action<string, string>>();
-            backlightService.UpdateProviderFor(Arg.Any<EntityPayload>()).Returns(updateProviderDelegate);
+            };
+            GivenARequestBodyWith(anEntityPayload);
 
             await runner.Run(httpContext);
 
-            updateProviderDelegate.Received().Invoke("TODOEntityId", ASerializedEntity);
+            await backlightService.Received().Update(anEntityPayload);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be("Enity updated");
@@ -155,19 +152,15 @@ namespace Backlight.Test.Api {
         public async Task execute_delete_entity_provider() {
             var httpMethod = HttpMethods.Delete;
             httpContext.Request.Method = httpMethod;
-            var aUserEntity = new UserEntity { Name = "aName", Age = 23 };
-            GivenARequestBodyWith(new EntityPayload {
+            var anEntityPayload = new EntityPayload {
                 TypeName = AEntityName,
                 Value = ANewEntityId
-            });
-            var deleteProvider = Substitute.For<DeleteProvider>();
-            backlightService.DeleteProviderFor(Arg.Any<EntityPayload>()).Returns((entityId) => {
-                deleteProvider.Delete<UserEntity>(entityId);
-            });
+            };
+            GivenARequestBodyWith(anEntityPayload);
 
             await runner.Run(httpContext);
 
-            deleteProvider.Received().Delete<UserEntity>(ANewEntityId);
+            await backlightService.Received().Delete(anEntityPayload);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be("Enity deleted");

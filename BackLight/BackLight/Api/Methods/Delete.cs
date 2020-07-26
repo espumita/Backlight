@@ -14,8 +14,7 @@ namespace Backlight.Api.Methods {
         }
 
         public override async Task<ApiResult> Execute(EntityPayload entityPayload) {
-            var delete = service.DeleteProviderFor(entityPayload);
-            delete(entityPayload.Value);
+            await service.Delete(entityPayload);
             return await OkResponse(SuccessMessages.EntityDeleted, httpContext);
         }
     }

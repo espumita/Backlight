@@ -28,18 +28,20 @@ namespace Backlight.Services {
             return await read(entityPayload.Value);
         }
 
-        public virtual Action<string, string> UpdateProviderFor(EntityPayload entityPayload) {
+        public virtual async Task Update(EntityPayload entityPayload) {
             var type = TryToGetConfiguredTypeFrom(entityPayload.TypeName);
             if (!Options.ProvidersForType[type].CanUpdate()) throw new EntityProviderIsNotAvailableException();
             var backlightServicesProviderOptions = Options.ProvidersForType[type];
-            return backlightServicesProviderOptions.UpdateDelegate;
+            var update = backlightServicesProviderOptions.UpdateDelegate;
+            await update("TODOEntityId", entityPayload.Value);
         }
 
-        public virtual Action<string> DeleteProviderFor(EntityPayload entityPayload) {
+        public virtual async Task Delete(EntityPayload entityPayload) {
             var type = TryToGetConfiguredTypeFrom(entityPayload.TypeName);
             if (!Options.ProvidersForType[type].CanDelete()) throw new EntityProviderIsNotAvailableException();
             var backlightServicesProviderOptions = Options.ProvidersForType[type];
-            return backlightServicesProviderOptions.DeleteDelegate;
+            var delete = backlightServicesProviderOptions.DeleteDelegate;
+            await delete(entityPayload.Value);
         }
 
         private Type TryToGetConfiguredTypeFrom(string typeName) {

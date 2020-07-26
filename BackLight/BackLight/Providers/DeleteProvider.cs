@@ -1,5 +1,7 @@
-﻿namespace Backlight.Providers {
+﻿using System.Threading.Tasks;
+
+namespace Backlight.Providers {
     public interface DeleteProvider {
-        void Delete<T>(string entityId);
+        Task Delete<T>(string entityId);
     }
 }

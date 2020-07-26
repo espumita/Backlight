@@ -13,7 +13,7 @@ namespace Backlight.Sample.Web.Api.Providers {
             return default;
         }
 
-        public void Update<T>(string entityId, T entity) {
+        public async Task Update<T>(string entityId, T entity) {
             Console.WriteLine("Updated TypeName");
         }
     }

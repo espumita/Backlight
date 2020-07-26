@@ -11,8 +11,8 @@ namespace Backlight.Services {
         public DeleteProvider Delete { get; private set; }
         public Func<string, Task> CreateDelegate { get; private set; }
         public Func<string, Task<string>> ReadDelegate { get; private set; }
-        public Action<string, string> UpdateDelegate { get; private set; }
-        public Action<string> DeleteDelegate { get; private set; }
+        public Func<string, string, Task> UpdateDelegate { get; private set; }
+        public Func<string, Task> DeleteDelegate { get; private set; }
 
         public IProviderForTypeOptions AddCreate(CreateProvider createProvider) {
             if (Create != null) throw new CannotConfigureTheSameProviderTwiceException();
@@ -85,15 +85,15 @@ namespace Backlight.Services {
         }
 
         private void RegisterUpdateDelegationFor<T>(EntitySerializer entitySerializer) {
-            UpdateDelegate = (entityId, entityPayload) => {
+            UpdateDelegate = async (entityId, entityPayload) => {
                 var entity = entitySerializer.Deserialize<T>(entityPayload);
-                Update.Update(entityId, entity);
+                await Update.Update(entityId, entity);
             };
         }
 
         private void RegisterDeleteDelegationFor<T>() {
-            DeleteDelegate = entityId => {
-                Delete.Delete<T>(entityId);
+            DeleteDelegate = async entityId => {
+                await Delete.Delete<T>(entityId);
             };
         }
 
