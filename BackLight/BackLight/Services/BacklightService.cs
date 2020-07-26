@@ -37,16 +37,17 @@ namespace Backlight.Services {
         }
 
         private Type TryToGetConfiguredTypeFrom(string typeName) {
-            var isEntityConfigured = Options.AssemblyForType.Keys.Contains(typeName);
+            var isEntityConfigured = Options.ProvidersForType.Keys.Any(type  => type.FullName.Equals(typeName));
             if (!isEntityConfigured) throw new EntityIsNotConfiguredException();
-            var assembly = Options.AssemblyForType[typeName];
-            return assembly.GetType(typeName);
+            var typeForName = Options.ProvidersForType.Keys.FirstOrDefault(type => type.FullName.Equals(typeName));
+            return typeForName;
         }
 
         private Func<string, Task> TryToGetCreateDelegateForType(Type type) {
             if (!Options.ProvidersForType[type].CanCreate()) throw new EntityProviderIsNotAvailableException();
             return Options.ProvidersForType[type].CreateDelegate;
         }
+
         private Func<string, Task<string>> TryToGetReadDelegateForType(Type type) {
             if (!Options.ProvidersForType[type].CanRead()) throw new EntityProviderIsNotAvailableException();
             return Options.ProvidersForType[type].ReadDelegate;
