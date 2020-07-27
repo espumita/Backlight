@@ -5,8 +5,9 @@ using Backlight.Providers;
 namespace Backlight.Sample.Web.Api.Providers {
     public class ExampleEntity2Provider : CRUDProvider {
 
-        public async Task Create<T>(T entity) {
+        public async Task<string> Create<T>(T entity) {
             Console.WriteLine("Created Entity2");
+            return Guid.NewGuid().ToString();
         }
 
         public async Task<T> Read<T>(string entityId) {

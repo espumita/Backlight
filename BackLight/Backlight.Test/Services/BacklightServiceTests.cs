@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Backlight.Api.Serialization;
 using Backlight.Providers;
 using Backlight.Services;
 using FluentAssertions;
@@ -28,9 +27,8 @@ namespace Backlight.Test.Services {
             var provider = Substitute.For<CreateProvider>();
             options.For<UserEntity>().AddCreate(provider);
             serializer.Deserialize<UserEntity>(ASerializedEntity).Returns(aUserEntity);
-            var anEntityPayload = AnEntityPayloadWith(AEntityName, ASerializedEntity);
             
-            await ServiceWith(options).Create(anEntityPayload);
+            await ServiceWith(options).Create(AEntityName, ASerializedEntity);
 
             await provider.Received().Create(aUserEntity);
         }
@@ -41,9 +39,8 @@ namespace Backlight.Test.Services {
             options.For<UserEntity>().AddRead(provider);
             provider.Read<UserEntity>(AnEntityId).Returns(aUserEntity);
             serializer.Serialize(aUserEntity).Returns(ASerializedEntity);
-            var anEntityPayload = AnEntityPayloadWith(AEntityName, AnEntityId);
             
-            var readedEntity = await ServiceWith(options).Read(anEntityPayload);
+            var readedEntity = await ServiceWith(options).Read(AEntityName, AnEntityId);
 
             readedEntity.Should().Be(ASerializedEntity);
         }
@@ -53,33 +50,24 @@ namespace Backlight.Test.Services {
             var provider = Substitute.For<UpdateProvider>();
             options.For<UserEntity>().AddUpdate(provider);
             serializer.Deserialize<UserEntity>(ASerializedEntity).Returns(aUserEntity);
-            var anEntityPayload = AnEntityPayloadWith(AEntityName, ASerializedEntity);
 
-            await ServiceWith(options).Update(anEntityPayload);
+            await ServiceWith(options).Update(AEntityName, AnEntityId, ASerializedEntity);
 
-            await provider.Received().Update("TODOEntityId", aUserEntity);
+            await provider.Received().Update(AnEntityId, aUserEntity);
         }
 
         [Test]
         public async Task use_provider_on_delete() {
             var provider = Substitute.For<DeleteProvider>();
             options.For<UserEntity>().AddDelete(provider);
-            var anEntityPayload = AnEntityPayloadWith(AEntityName, AnEntityId);
 
-            await ServiceWith(options).Delete(anEntityPayload);
+            await ServiceWith(options).Delete(AEntityName, AnEntityId);
 
             await provider.Received().Delete<UserEntity>(AnEntityId);
         }
 
         private BacklightService ServiceWith(ServiceOptions options) {
             return new BacklightService(options);
-        }
-
-        private EntityPayload AnEntityPayloadWith(string typeName, string value) {
-            return new EntityPayload {
-                TypeName = typeName,
-                Value = value
-            };
         }
 
     }

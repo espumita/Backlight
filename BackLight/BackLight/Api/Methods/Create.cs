@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Backlight.Api.Serialization;
 using Backlight.Services;
 using Microsoft.AspNetCore.Http;
@@ -13,9 +14,9 @@ namespace Backlight.Api.Methods {
             this.httpContext = httpContext;
         }
 
-        public override async Task<ApiResult> Execute(EntityPayload entityPayload) {
-            await service.Create(entityPayload);
-            return await OkResponse(SuccessMessages.EntityCreated, httpContext);
+        public async Task<ApiResult> Execute(string entityTypeName, string entityPayload) {
+            var entityId = await service.Create(entityTypeName, entityPayload);
+            return await OkResponse($"{SuccessMessages.EntityCreated} with id: {entityId}", httpContext);
         }
     }
 

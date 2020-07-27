@@ -9,7 +9,7 @@ namespace Backlight.Services {
         public ReadProvider Read { get; private set; }
         public UpdateProvider Update { get; private set; }
         public DeleteProvider Delete { get; private set; }
-        public Func<string, Task> CreateDelegate { get; private set; }
+        public Func<string, Task<string>> CreateDelegate { get; private set; }
         public Func<string, Task<string>> ReadDelegate { get; private set; }
         public Func<string, string, Task> UpdateDelegate { get; private set; }
         public Func<string, Task> DeleteDelegate { get; private set; }
@@ -73,7 +73,7 @@ namespace Backlight.Services {
         private void RegisterCreationDelegationFor<T>(EntitySerializer entitySerializer) {
             CreateDelegate = async entityPayload => {
                 var entity = entitySerializer.Deserialize<T>(entityPayload);
-                await Create.Create(entity);
+                return await Create.Create(entity);
             };
         }
 

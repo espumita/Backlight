@@ -21,8 +21,14 @@ namespace Backlight.Api {
         public async Task<ApiResult> Run(HttpContext httpContext) {
             if (IsNotAllowed(httpContext.Request.Method)) return await MethodNotAllowedResponse(httpContext);
             try {
+                var entityId = TryToGetEntityIdFrom(httpContext.Request);
                 var entityPayload = await streamSerializer.EntityPayloadFrom(httpContext.Request.Body);
-                return await ApiMethodFor(httpContext).Execute(entityPayload);
+                return await (httpContext.Request.Method switch {
+                    var method when method.Equals(HttpMethods.Put) => new Create(service, httpContext).Execute(entityPayload.TypeName, entityPayload.PayLoad),
+                    var method when method.Equals(HttpMethods.Get) => new Read(service, httpContext).Execute(entityPayload.TypeName, entityId),
+                    var method when method.Equals(HttpMethods.Post) => new Update(service, httpContext).Execute(entityPayload.TypeName, entityId, entityPayload.PayLoad),
+                    var method when method.Equals(HttpMethods.Delete) => new Delete(service, httpContext).Execute(entityPayload.TypeName, entityId)
+                });
             } catch (EntityDeserializationException) {
                 return await EntityDeserializationErrorResponse(httpContext);
             } catch (EntityProviderIsNotAvailableException) {
@@ -45,6 +51,12 @@ namespace Backlight.Api {
         private async Task<ApiResult> MethodNotAllowedResponse(HttpContext httpContext) {
             await ResponseWith(HttpStatusCode.MethodNotAllowed, ErrorMessages.MethodNotAllowed, httpContext);
             return ApiResult.ERROR;
+        }
+
+        private static string TryToGetEntityIdFrom(HttpRequest request) {
+            if (request.Method == HttpMethods.Put) return string.Empty;
+            var pathParts = request.Path.Value.Split('/');
+            return pathParts[1];
         }
 
         private ApiMethod ApiMethodFor(HttpContext httpContext) {

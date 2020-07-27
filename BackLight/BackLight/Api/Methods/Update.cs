@@ -13,8 +13,8 @@ namespace Backlight.Api.Methods {
             this.httpContext = httpContext;
         }
 
-        public override async Task<ApiResult> Execute(EntityPayload entityPayload) {
-            await service.Update(entityPayload);
+        public async Task<ApiResult> Execute(string entityTypeName, string entityId, string entityPayload) {
+            await service.Update(entityTypeName, entityId, entityPayload);
             return await OkResponse(SuccessMessages.EntityUpdated, httpContext);
         }
     }

@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Backlight.Api.Serialization;
 using Backlight.Services;
 using Microsoft.AspNetCore.Http;
 
@@ -13,8 +12,8 @@ namespace Backlight.Api.Methods {
             this.httpContext = httpContext;
         }
 
-        public override async Task<ApiResult> Execute(EntityPayload entityPayload) {
-            await service.Delete(entityPayload);
+        public async Task<ApiResult> Execute(string entityTypeName, string entityId) {
+            await service.Delete(entityTypeName, entityId);
             return await OkResponse(SuccessMessages.EntityDeleted, httpContext);
         }
     }

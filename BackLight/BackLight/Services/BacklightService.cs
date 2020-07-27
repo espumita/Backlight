@@ -12,28 +12,28 @@ namespace Backlight.Services {
             Options = options;
         }
 
-        public virtual async Task Create(EntityPayload entityPayload) {
-            var type = TryToGetConfiguredTypeFrom(entityPayload.TypeName);
+        public virtual async Task<string> Create(string entityTypeName, string entityPayload) {
+            var type = TryToGetConfiguredTypeFrom(entityTypeName);
             var createDelegate = TryToGetCreateDelegateForType(type);
-            await createDelegate(entityPayload.Value);
+            return await createDelegate(entityPayload);
         }
 
-        public virtual async Task<string> Read(EntityPayload entityPayload) {
-            var type = TryToGetConfiguredTypeFrom(entityPayload.TypeName);
+        public virtual async Task<string> Read(string entityTypeName, string entityId) {
+            var type = TryToGetConfiguredTypeFrom(entityTypeName);
             var readDelegate = TryToGetReadDelegateForType(type);
-            return await readDelegate(entityPayload.Value);
+            return await readDelegate(entityId);
         }
 
-        public virtual async Task Update(EntityPayload entityPayload) {
-            var type = TryToGetConfiguredTypeFrom(entityPayload.TypeName);
+        public virtual async Task Update(string entityTypeName, string entityId, string entityPayload) {
+            var type = TryToGetConfiguredTypeFrom(entityTypeName);
             var updateDelegate = TryToGetUpdateDelegateForType(type);
-            await updateDelegate("TODOEntityId", entityPayload.Value);
+            await updateDelegate(entityId, entityPayload);
         }
 
-        public virtual async Task Delete(EntityPayload entityPayload) {
-            var type = TryToGetConfiguredTypeFrom(entityPayload.TypeName);
+        public virtual async Task Delete(string entityTypeName, string entityId) {
+            var type = TryToGetConfiguredTypeFrom(entityTypeName);
             var deleteDelegate = TryToGetDeleteDelegateForType(type);
-            await deleteDelegate(entityPayload.Value);
+            await deleteDelegate(entityId);
         }
 
         private Type TryToGetConfiguredTypeFrom(string typeName) {
@@ -43,7 +43,7 @@ namespace Backlight.Services {
             return typeForName;
         }
 
-        private Func<string, Task> TryToGetCreateDelegateForType(Type type) {
+        private Func<string, Task<string>> TryToGetCreateDelegateForType(Type type) {
             if (!Options.ProvidersForType[type].CanCreate()) throw new EntityProviderIsNotAvailableException();
             return Options.ProvidersForType[type].CreateDelegate;
         }

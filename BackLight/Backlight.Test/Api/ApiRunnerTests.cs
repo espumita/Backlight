@@ -15,7 +15,7 @@ using NUnit.Framework;
 namespace Backlight.Test.Api {
     public class ApiRunnerTests {
         private string AEntityName = typeof(UserEntity).FullName;
-        private const string ANewEntityId = "aNewEntityId";
+        private const string AnEntityId = "anEntityId";
         private const string ASerializedEntity = "aSerializedEntity";
         private ApiRunner runner;
         private DefaultHttpContext httpContext;
@@ -26,6 +26,7 @@ namespace Backlight.Test.Api {
         public void SetUp() {
             backlightService = Substitute.For<BacklightService>(new object[] { null });
             httpContext = new DefaultHttpContext();
+            httpContext.Request.Path = $"/{AnEntityId}";
             httpContext.Response.Body = new MemoryStream();
             streamSerializer = Substitute.For<StreamSerializer>();
 
@@ -61,12 +62,12 @@ namespace Backlight.Test.Api {
             string entityPayloadValue = string.Empty;
             GivenARequestBodyWith(new EntityPayload {
                 TypeName = AEntityName,
-                Value = entityPayloadValue
+                PayLoad = entityPayloadValue
             });
-            backlightService.Create(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
-            backlightService.Read(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
-            backlightService.Update(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
-            backlightService.Delete(Arg.Any<EntityPayload>()).Throws<EntityIsNotConfiguredException>();
+            backlightService.Create(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityIsNotConfiguredException>();
+            backlightService.Read(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityIsNotConfiguredException>();
+            backlightService.Update(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>()).Throws<EntityIsNotConfiguredException>();
+            backlightService.Delete(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityIsNotConfiguredException>();
 
             await runner.Run(httpContext);
 
@@ -80,12 +81,12 @@ namespace Backlight.Test.Api {
             httpContext.Request.Method = httpMethod;
             GivenARequestBodyWith(new EntityPayload {
                 TypeName = AEntityName,
-                Value = ""
+                PayLoad = ""
             });
-            backlightService.Create(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
-            backlightService.Read(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
-            backlightService.Update(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
-            backlightService.Delete(Arg.Any<EntityPayload>()).Throws<EntityProviderIsNotAvailableException>();
+            backlightService.Create(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityProviderIsNotAvailableException>();
+            backlightService.Read(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityProviderIsNotAvailableException>();
+            backlightService.Update(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>()).Throws<EntityProviderIsNotAvailableException>();
+            backlightService.Delete(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityProviderIsNotAvailableException>();
 
             await runner.Run(httpContext);
 
@@ -100,28 +101,28 @@ namespace Backlight.Test.Api {
             httpContext.Request.Method = httpMethod;
             var anEntityPayload = new EntityPayload {
                 TypeName = AEntityName,
-                Value = ASerializedEntity
+                PayLoad = ASerializedEntity
             };
             GivenARequestBodyWith(anEntityPayload);
+            backlightService.Create(AEntityName, ASerializedEntity).Returns(AnEntityId);
 
             await runner.Run(httpContext);
 
-            await backlightService.Received().Create(anEntityPayload);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("Enity created");
+            responseBody.Should().Be($"Enity created with id: {AnEntityId}");
         }
 
         [Test]
         public async Task execute_service_read_entity() {
             var httpMethod = HttpMethods.Get;
             httpContext.Request.Method = httpMethod;
+            httpContext.Request.Path = $"/{AnEntityId}";
             var anEntityPayLoad = new EntityPayload {
-                TypeName = AEntityName,
-                Value = ANewEntityId
+                TypeName = AEntityName
             };
             GivenARequestBodyWith(anEntityPayLoad);
-            backlightService.Read(anEntityPayLoad).Returns(ASerializedEntity);
+            backlightService.Read(AEntityName, AnEntityId).Returns(ASerializedEntity);
 
             await runner.Run(httpContext);
 
@@ -134,15 +135,16 @@ namespace Backlight.Test.Api {
         public async Task execute_service_update_entity() {
             var httpMethod = HttpMethods.Post;
             httpContext.Request.Method = httpMethod;
+            httpContext.Request.Path = $"/{AnEntityId}";
             var anEntityPayload = new EntityPayload {
                 TypeName = AEntityName,
-                Value = ASerializedEntity
+                PayLoad = ASerializedEntity
             };
             GivenARequestBodyWith(anEntityPayload);
 
             await runner.Run(httpContext);
 
-            await backlightService.Received().Update(anEntityPayload);
+            await backlightService.Received().Update(AEntityName, AnEntityId, ASerializedEntity);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be("Enity updated");
@@ -152,15 +154,15 @@ namespace Backlight.Test.Api {
         public async Task execute_delete_entity_provider() {
             var httpMethod = HttpMethods.Delete;
             httpContext.Request.Method = httpMethod;
+            httpContext.Request.Path = $"/{AnEntityId}";
             var anEntityPayload = new EntityPayload {
-                TypeName = AEntityName,
-                Value = ANewEntityId
+                TypeName = AEntityName
             };
             GivenARequestBodyWith(anEntityPayload);
 
             await runner.Run(httpContext);
 
-            await backlightService.Received().Delete(anEntityPayload);
+            await backlightService.Received().Delete(AEntityName, AnEntityId);
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
             responseBody.Should().Be("Enity deleted");

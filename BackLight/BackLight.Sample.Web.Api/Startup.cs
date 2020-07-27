@@ -41,11 +41,11 @@ namespace Backlight.Sample.Web.Api {
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
-            app.UseBacklight(configuration => {
-                configuration.RoutePrefix = "back";
-            });
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
+            });
+            app.UseBacklight(configuration => {
+                configuration.RoutePrefix = "back";
             });
         }
     }

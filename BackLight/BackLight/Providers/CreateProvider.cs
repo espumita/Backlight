@@ -2,7 +2,7 @@
 
 namespace Backlight.Providers {
     public interface CreateProvider {
-        Task Create<T>(T entity);
+        Task<string> Create<T>(T entity);
 
     }
 

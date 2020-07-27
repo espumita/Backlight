@@ -15,7 +15,7 @@ namespace Backlight.Api.Serialization {
             var value = ValueFrom(body);
             return new EntityPayload {
                 TypeName = typeName,
-                Value = value
+                PayLoad = value
             };
         }
 
@@ -42,7 +42,7 @@ namespace Backlight.Api.Serialization {
         private static string ValueFrom(string body) {
             try {
                 var payload = JsonSerializer.Deserialize<EntityPayload>(body);
-                return payload.Value;
+                return payload.PayLoad;
             } catch (Exception exception) {
                 //TODO log
                 throw new EntityDeserializationException();
