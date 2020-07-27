@@ -14,7 +14,7 @@ using NUnit.Framework;
 
 namespace Backlight.Test.Api {
     public class ApiRunnerTests {
-        private const string AEntityName = nameof(UserEntity);
+        private string AEntityName = typeof(UserEntity).FullName;
         private const string ANewEntityId = "aNewEntityId";
         private const string ASerializedEntity = "aSerializedEntity";
         private ApiRunner runner;
