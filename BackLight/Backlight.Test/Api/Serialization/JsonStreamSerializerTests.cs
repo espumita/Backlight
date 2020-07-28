@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Backlight.Api.Serialization;
+using Backlight.Exceptions;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -25,6 +27,19 @@ namespace Backlight.Test.Api.Serialization {
 
             entityPayload.TypeName.Should().Be(aUserEntity.GetType().FullName);
             entityPayload.PayLoad.Should().Be(JsonSerializer.Serialize(aUserEntity));
+        }
+
+        [Test]
+        public async Task throw_an_exception_when_there_is_an_error_with_the_type_deserialization() {
+            var entityRequestBody = new EntityRequestBody {
+                PayLoad = JsonSerializer.Serialize(aUserEntity)
+            };
+            var rawEntity = JsonSerializer.Serialize(entityRequestBody);
+            var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(rawEntity));
+
+           Func<Task> action = async () => await serializer.EntityRequestBodyFrom(memoryStream);
+
+           await action.Should().ThrowAsync<EntityDeserializationException>();
         }
 
         private string GivenASerializedEntiyPayload(UserEntity userEntity) {

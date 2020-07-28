@@ -30,13 +30,15 @@ namespace Backlight.Api.Serialization {
         }
 
         private static string TypeNameFrom(string body) {
+            EntityRequestBody entityRequestBody;
             try {
-                var entityRequestBody = JsonSerializer.Deserialize<EntityRequestBody>(body);
-                return entityRequestBody.TypeName;
+                entityRequestBody = JsonSerializer.Deserialize<EntityRequestBody>(body);
             } catch (Exception exception) {
                 //TODO log
                 throw new EntityDeserializationException();
             }
+            if (string.IsNullOrEmpty(entityRequestBody.TypeName)) throw new EntityDeserializationException();
+            return entityRequestBody.TypeName;
         }
 
         private static string PayloadFrom(string body) {
