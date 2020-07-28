@@ -9,13 +9,13 @@ namespace Backlight.Api.Serialization {
 
         private string body;
 
-        public async Task<EntityPayload> EntityPayloadFrom(Stream stream) {
+        public async Task<EntityRequestBody> EntityRequestBodyFrom(Stream stream) {
             body = await GetBodyFrom(stream);
             var typeName = TypeNameFrom(body);
-            var value = ValueFrom(body);
-            return new EntityPayload {
+            var payLoad = PayloadFrom(body);
+            return new EntityRequestBody {
                 TypeName = typeName,
-                PayLoad = value
+                PayLoad = payLoad
             };
         }
 
@@ -24,25 +24,25 @@ namespace Backlight.Api.Serialization {
             await bodyStream.CopyToAsync(memoryStream);
             var streamReader = new StreamReader(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            var readToEndAsync = await streamReader.ReadToEndAsync();
+            var rawBody = await streamReader.ReadToEndAsync();
             streamReader.Close();
-            return readToEndAsync;
+            return rawBody;
         }
 
         private static string TypeNameFrom(string body) {
             try {
-                var payload = JsonSerializer.Deserialize<EntityPayload>(body);
-                return payload.TypeName;
+                var entityRequestBody = JsonSerializer.Deserialize<EntityRequestBody>(body);
+                return entityRequestBody.TypeName;
             } catch (Exception exception) {
                 //TODO log
                 throw new EntityDeserializationException();
             }
         }
 
-        private static string ValueFrom(string body) {
+        private static string PayloadFrom(string body) {
             try {
-                var payload = JsonSerializer.Deserialize<EntityPayload>(body);
-                return payload.PayLoad;
+                var entityRequestBody = JsonSerializer.Deserialize<EntityRequestBody>(body);
+                return entityRequestBody.PayLoad;
             } catch (Exception exception) {
                 //TODO log
                 throw new EntityDeserializationException();

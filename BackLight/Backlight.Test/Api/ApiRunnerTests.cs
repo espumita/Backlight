@@ -48,7 +48,7 @@ namespace Backlight.Test.Api {
         [Test, TestCaseSource("AllowedMethods")]
         public async Task get_bad_request_when_the_entity_deserialization_has_an_error(string httpMethod) {
             httpContext.Request.Method = httpMethod;
-            streamSerializer.EntityPayloadFrom(Arg.Any<Stream>()).Throws(new EntityDeserializationException());
+            streamSerializer.EntityRequestBodyFrom(Arg.Any<Stream>()).Throws(new EntityDeserializationException());
 
             await runner.Run(httpContext);
 
@@ -60,10 +60,9 @@ namespace Backlight.Test.Api {
         [Test, TestCaseSource("AllowedMethods")]
         public async Task get_bad_request_when_entity_type_is_not_configured(string httpMethod) {
             httpContext.Request.Method = httpMethod;
-            string entityPayloadValue = string.Empty;
-            GivenARequestBodyWith(new EntityPayload {
+            GivenARequestBodyWith(new EntityRequestBody {
                 TypeName = AEntityName,
-                PayLoad = entityPayloadValue
+                PayLoad = string.Empty
             });
             backlightService.Create(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityIsNotConfiguredException>();
             backlightService.Read(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityIsNotConfiguredException>();
@@ -80,7 +79,7 @@ namespace Backlight.Test.Api {
         [Test, TestCaseSource("AllowedMethods")]
         public async Task get_bad_request_when_entity_provider_available(string httpMethod) {
             httpContext.Request.Method = httpMethod;
-            GivenARequestBodyWith(new EntityPayload {
+            GivenARequestBodyWith(new EntityRequestBody {
                 TypeName = AEntityName
             });
             backlightService.Create(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityProviderIsNotAvailableException>();
@@ -112,7 +111,7 @@ namespace Backlight.Test.Api {
             var httpMethod = HttpMethods.Put;
             httpContext.Request.Path = string.Empty;
             httpContext.Request.Method = httpMethod;
-            var anEntityPayload = new EntityPayload {
+            var anEntityPayload = new EntityRequestBody {
                 TypeName = AEntityName,
                 PayLoad = ASerializedEntity
             };
@@ -131,7 +130,7 @@ namespace Backlight.Test.Api {
             var httpMethod = HttpMethods.Get;
             httpContext.Request.Method = httpMethod;
             httpContext.Request.Path = $"/{AnEntityId}";
-            var anEntityPayLoad = new EntityPayload {
+            var anEntityPayLoad = new EntityRequestBody {
                 TypeName = AEntityName
             };
             GivenARequestBodyWith(anEntityPayLoad);
@@ -149,7 +148,7 @@ namespace Backlight.Test.Api {
             var httpMethod = HttpMethods.Post;
             httpContext.Request.Method = httpMethod;
             httpContext.Request.Path = $"/{AnEntityId}";
-            var anEntityPayload = new EntityPayload {
+            var anEntityPayload = new EntityRequestBody {
                 TypeName = AEntityName,
                 PayLoad = ASerializedEntity
             };
@@ -168,7 +167,7 @@ namespace Backlight.Test.Api {
             var httpMethod = HttpMethods.Delete;
             httpContext.Request.Method = httpMethod;
             httpContext.Request.Path = $"/{AnEntityId}";
-            var anEntityPayload = new EntityPayload {
+            var anEntityPayload = new EntityRequestBody {
                 TypeName = AEntityName
             };
             GivenARequestBodyWith(anEntityPayload);
@@ -220,9 +219,9 @@ namespace Backlight.Test.Api {
             var streamReader = new StreamReader(bodyStream);
             return await streamReader.ReadToEndAsync();
         }
-        private void GivenARequestBodyWith(EntityPayload entityPayload) {
-            streamSerializer.EntityPayloadFrom(Arg.Any<Stream>())
-                .Returns(entityPayload);
+        private void GivenARequestBodyWith(EntityRequestBody entityRequestBody) {
+            streamSerializer.EntityRequestBodyFrom(Arg.Any<Stream>())
+                .Returns(entityRequestBody);
         }
     }
 

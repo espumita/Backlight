@@ -23,12 +23,12 @@ namespace Backlight.Api {
             if (IsNotAllowed(httpContext.Request.Method)) return await MethodNotAllowedResponse(httpContext);
             try {
                 var entityId = TryToGetEntityIdFrom(httpContext.Request);
-                var entityPayload = await streamSerializer.EntityPayloadFrom(httpContext.Request.Body);
+                var entityRequestBody = await streamSerializer.EntityRequestBodyFrom(httpContext.Request.Body);
                 return await (httpContext.Request.Method switch {
-                    var method when method.Equals(HttpMethods.Put) => new Create(service, httpContext).Execute(entityPayload.TypeName, entityPayload.PayLoad),
-                    var method when method.Equals(HttpMethods.Get) => new Read(service, httpContext).Execute(entityPayload.TypeName, entityId),
-                    var method when method.Equals(HttpMethods.Post) => new Update(service, httpContext).Execute(entityPayload.TypeName, entityId, entityPayload.PayLoad),
-                    var method when method.Equals(HttpMethods.Delete) => new Delete(service, httpContext).Execute(entityPayload.TypeName, entityId)
+                    var method when method.Equals(HttpMethods.Put) => new Create(service, httpContext).Execute(entityRequestBody.TypeName, entityRequestBody.PayLoad),
+                    var method when method.Equals(HttpMethods.Get) => new Read(service, httpContext).Execute(entityRequestBody.TypeName, entityId),
+                    var method when method.Equals(HttpMethods.Post) => new Update(service, httpContext).Execute(entityRequestBody.TypeName, entityId, entityRequestBody.PayLoad),
+                    var method when method.Equals(HttpMethods.Delete) => new Delete(service, httpContext).Execute(entityRequestBody.TypeName, entityId)
                 });
             } catch (EntityDeserializationException) {
                 return await EntityDeserializationErrorResponse(httpContext);
