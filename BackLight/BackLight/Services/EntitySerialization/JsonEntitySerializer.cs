@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Backlight.Services {
+namespace Backlight.Services.EntitySerialization {
     public class JsonEntitySerializer : EntitySerializer {
 
         public string Serialize<T>(T entity) {

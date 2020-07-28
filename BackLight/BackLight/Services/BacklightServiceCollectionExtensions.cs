@@ -1,4 +1,5 @@
 ﻿using System;
+using Backlight.Services.EntitySerialization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Backlight.Services {

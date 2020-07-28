@@ -39,7 +39,7 @@ namespace Backlight.Test.Api.Serialization {
 
            Func<Task> action = async () => await serializer.EntityRequestBodyFrom(aStream);
 
-           await action.Should().ThrowAsync<EntityDeserializationException>();
+           await action.Should().ThrowAsync<EntityRequestBodyDeserializationException>();
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace Backlight.Test.Api.Serialization {
 
             Func<Task> action = async () => await serializer.EntityRequestBodyFrom(aStream);
 
-            await action.Should().ThrowAsync<EntityDeserializationException>();
+            await action.Should().ThrowAsync<EntityRequestBodyDeserializationException>();
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace Backlight.Test.Api.Serialization {
 
             Func<Task> action = async () => await serializer.EntityRequestBodyFrom(anEmptyStream);
 
-            await action.Should().ThrowAsync<EntityDeserializationException>();
+            await action.Should().ThrowAsync<EntityRequestBodyDeserializationException>();
         }
 
         private string GivenASerializedEntiyPayload(UserEntity userEntity) {

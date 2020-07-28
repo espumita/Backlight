@@ -46,9 +46,9 @@ namespace Backlight.Test.Api {
         }
 
         [Test, TestCaseSource("AllowedMethods")]
-        public async Task get_bad_request_when_the_entity_deserialization_has_an_error(string httpMethod) {
+        public async Task get_bad_request_when_the_entity_request_body_deserialization_has_an_error(string httpMethod) {
             httpContext.Request.Method = httpMethod;
-            streamSerializer.EntityRequestBodyFrom(Arg.Any<Stream>()).Throws(new EntityDeserializationException());
+            streamSerializer.EntityRequestBodyFrom(Arg.Any<Stream>()).Throws(new EntityRequestBodyDeserializationException());
 
             await runner.Run(httpContext);
 

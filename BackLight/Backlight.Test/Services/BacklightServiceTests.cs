@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Backlight.Providers;
 using Backlight.Services;
+using Backlight.Services.EntitySerialization;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;

@@ -30,7 +30,7 @@ namespace Backlight.Api {
                     var method when method.Equals(HttpMethods.Post) => new Update(service, httpContext).Execute(entityRequestBody.TypeName, entityId, entityRequestBody.PayLoad),
                     var method when method.Equals(HttpMethods.Delete) => new Delete(service, httpContext).Execute(entityRequestBody.TypeName, entityId)
                 });
-            } catch (EntityDeserializationException) {
+            } catch (EntityRequestBodyDeserializationException) {
                 return await EntityDeserializationErrorResponse(httpContext);
             } catch (EntityIdCanNotBeSerializedFromPathException) {
                 return await EntityIdCannotBeSerializedFromPathResponse(httpContext);

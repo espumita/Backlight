@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Backlight.Exceptions;
+using Backlight.Services.EntitySerialization;
 
 namespace Backlight.Services {
     public class ServiceOptions : IServiceOptions {

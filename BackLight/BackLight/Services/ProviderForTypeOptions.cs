@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Backlight.Exceptions;
 using Backlight.Providers;
+using Backlight.Services.EntitySerialization;
 
 namespace Backlight.Services {
     public class ProviderForTypeOptions : IProviderForTypeOptions {

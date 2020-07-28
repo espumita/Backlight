@@ -1,4 +1,4 @@
-﻿namespace Backlight.Services {
+﻿namespace Backlight.Services.EntitySerialization {
     public interface EntitySerializer {
 
         string Serialize<T>(T entity);
