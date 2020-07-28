@@ -21,9 +21,9 @@ namespace Backlight.Test.Api.Serialization {
         [Test]
         public async Task get_entity_payload_from_raw_stream() {
             var rawEntity = GivenASerializedEntiyPayload(aUserEntity);
-            var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(rawEntity));
+            var aStream = new MemoryStream(Encoding.ASCII.GetBytes(rawEntity));
 
-            var entityPayload = await serializer.EntityRequestBodyFrom(memoryStream);
+            var entityPayload = await serializer.EntityRequestBodyFrom(aStream);
 
             entityPayload.TypeName.Should().Be(aUserEntity.GetType().FullName);
             entityPayload.PayLoad.Should().Be(JsonSerializer.Serialize(aUserEntity));
@@ -35,13 +35,12 @@ namespace Backlight.Test.Api.Serialization {
                 PayLoad = JsonSerializer.Serialize(aUserEntity)
             };
             var rawEntity = JsonSerializer.Serialize(entityRequestBody);
-            var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(rawEntity));
+            var aStream = new MemoryStream(Encoding.ASCII.GetBytes(rawEntity));
 
-           Func<Task> action = async () => await serializer.EntityRequestBodyFrom(memoryStream);
+           Func<Task> action = async () => await serializer.EntityRequestBodyFrom(aStream);
 
            await action.Should().ThrowAsync<EntityDeserializationException>();
         }
-
 
         [Test]
         public async Task throw_an_exception_when_there_is_no_payload() {
@@ -49,9 +48,18 @@ namespace Backlight.Test.Api.Serialization {
                 TypeName = aUserEntity.GetType().FullName
             };
             var rawEntity = JsonSerializer.Serialize(entityRequestBody);
-            var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(rawEntity));
+            var aStream = new MemoryStream(Encoding.ASCII.GetBytes(rawEntity));
 
-            Func<Task> action = async () => await serializer.EntityRequestBodyFrom(memoryStream);
+            Func<Task> action = async () => await serializer.EntityRequestBodyFrom(aStream);
+
+            await action.Should().ThrowAsync<EntityDeserializationException>();
+        }
+
+        [Test]
+        public async Task throw_an_exception_when_there_error_during_deserialization() {
+            var anEmptyStream = new MemoryStream();
+
+            Func<Task> action = async () => await serializer.EntityRequestBodyFrom(anEmptyStream);
 
             await action.Should().ThrowAsync<EntityDeserializationException>();
         }
