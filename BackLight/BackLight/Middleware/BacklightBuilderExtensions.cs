@@ -1,8 +1,6 @@
 using System;
 using Backlight.Api;
-using Backlight.Api.Serialization;
 using Backlight.Middleware.Html;
-using Backlight.Services;
 using Microsoft.AspNetCore.Builder;
 
 namespace Backlight.Middleware {
@@ -18,15 +16,15 @@ namespace Backlight.Middleware {
 
         private static Action<IApplicationBuilder> ConfigureApiEndpointRunner() {
             return applicationBuilder => {
-            var service = GetBacklightServiceFrom(applicationBuilder);
+            var apiRunner = GetApiRunnerFrom(applicationBuilder);
             applicationBuilder.Run(async httpContext => {
-                    await new ApiRunner(service, new JsonStreamSerializer()).Run(httpContext);
+                    await apiRunner.Run(httpContext);
                 });
             };
         }
 
-        private static BacklightService GetBacklightServiceFrom(IApplicationBuilder applicationBuilder) {
-            return (BacklightService) applicationBuilder.ApplicationServices.GetService(typeof(BacklightService));
+        private static ApiRunner GetApiRunnerFrom(IApplicationBuilder applicationBuilder) {
+            return (ApiRunner) applicationBuilder.ApplicationServices.GetService(typeof(ApiRunner));
         }
 
     }

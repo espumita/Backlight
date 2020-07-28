@@ -1,4 +1,6 @@
 ﻿using System;
+using Backlight.Api;
+using Backlight.Api.Serialization;
 using Backlight.Services.EntitySerialization;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,8 +13,9 @@ namespace Backlight.Services {
             if (setupAction != null) {
                 setupAction(options);
             }
-            var backlightService = new BacklightService(options);
-            return services.AddSingleton(backlightService);
+            return services.AddSingleton(new BacklightService(options))
+                .AddSingleton<StreamSerializer>(new JsonStreamSerializer())
+                .AddSingleton<ApiRunner>();
         }
 
     }

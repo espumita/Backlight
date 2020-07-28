@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using Backlight.Api;
+using Backlight.Api.Serialization;
 using Backlight.Exceptions;
 using Backlight.Providers;
 using Backlight.Services;
@@ -26,6 +28,8 @@ namespace Backlight.Test.Services {
 
             var service = VerifyServiceOfType<BacklightService>();
             service.Options.ProvidersForType.Should().BeEmpty();
+            VerifySingletonIsConfiguredForServiceOfType<StreamSerializer>();
+            VerifySingletonIsConfiguredForServiceOfType<ApiRunner>();
         }
 
         [Test]
@@ -185,10 +189,14 @@ namespace Backlight.Test.Services {
         }
 
         private T VerifyServiceOfType<T>() {
-            var serviceDescriptor = collection.Single();
+            var serviceDescriptor = collection.FirstOrDefault(serviceDescriptor => serviceDescriptor.ServiceType == typeof(T));
             serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
-            serviceDescriptor.ServiceType.Should().Be(typeof(T));
             return (T) serviceDescriptor.ImplementationInstance;
+        }
+
+        private void VerifySingletonIsConfiguredForServiceOfType<T>() {
+            var serviceDescriptor = collection.FirstOrDefault(serviceDescriptor => serviceDescriptor.ServiceType == typeof(T));
+            serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
         }
 
         private static void VerifyOnlyCan(ProviderForTypeOptions providerForType, bool create = false, bool read = false, bool update = false, bool delete = false) {
