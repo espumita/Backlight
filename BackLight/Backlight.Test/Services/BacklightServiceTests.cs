@@ -27,10 +27,11 @@ namespace Backlight.Test.Services {
             var provider = Substitute.For<CreateProvider>();
             options.For<UserEntity>().AddCreate(provider);
             serializer.Deserialize<UserEntity>(ASerializedEntity).Returns(aUserEntity);
-            
-            await ServiceWith(options).Create(AEntityName, ASerializedEntity);
+            provider.Create(aUserEntity).Returns(AnEntityId);
 
-            await provider.Received().Create(aUserEntity);
+            var entityId = await ServiceWith(options).Create(AEntityName, ASerializedEntity);
+
+            entityId.Should().Be(AnEntityId);
         }
 
         [Test]
