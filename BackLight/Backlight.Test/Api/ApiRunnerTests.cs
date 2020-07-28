@@ -94,6 +94,24 @@ namespace Backlight.Test.Api {
             responseBody.Should().Be("Enity provider is not available");
         }
 
+        [Test, TestCaseSource("AllowedMethods")]
+        public async Task get_bad_request_when_entity_deserialization_throws_an_exception(string httpMethod) {
+            httpContext.Request.Method = httpMethod;
+            GivenARequestBodyWith(new EntityRequestBody {
+                TypeName = AEntityName
+            });
+            backlightService.Create(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityDeserializationException>();
+            backlightService.Read(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityDeserializationException>();
+            backlightService.Update(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>()).Throws<EntityDeserializationException>();
+            backlightService.Delete(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityDeserializationException>();
+
+            await runner.Run(httpContext);
+
+            httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
+            responseBody.Should().Be("Enity payload deserialization error");
+        }
+
         [Test, TestCaseSource("BadPathsWithMethods")]
         public async Task get_bad_request_when_request_has_bad_path((string httpMethod, string path) testCaseSource) {
             httpContext.Request.Method = testCaseSource.httpMethod;

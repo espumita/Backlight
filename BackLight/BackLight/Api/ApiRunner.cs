@@ -31,13 +31,15 @@ namespace Backlight.Api {
                     var method when method.Equals(HttpMethods.Delete) => new Delete(service, httpContext).Execute(entityRequestBody.TypeName, entityId)
                 });
             } catch (EntityRequestBodyDeserializationException) {
-                return await EntityDeserializationErrorResponse(httpContext);
+                return await EntityRequestBodyDeserializationErrorResponse(httpContext);
             } catch (EntityIdCanNotBeSerializedFromPathException) {
                 return await EntityIdCannotBeSerializedFromPathResponse(httpContext);
             } catch (EntityProviderIsNotAvailableException) {
                 return await EntityProviderIsNotAvailableResponse(httpContext);
             } catch (EntityIsNotConfiguredException) {
                 return await EntityIsNotConfiguredResponse(httpContext);
+            } catch (EntityDeserializationException) {
+                return await EntityPayloadDeserializationErrorResponse(httpContext);
             }
         }
 
@@ -71,7 +73,7 @@ namespace Backlight.Api {
             };
         }
 
-        private async Task<ApiResult> EntityDeserializationErrorResponse(HttpContext httpContext) {
+        private async Task<ApiResult> EntityRequestBodyDeserializationErrorResponse(HttpContext httpContext) {
             await ResponseWith(HttpStatusCode.BadRequest, ErrorMessages.EntityDeserializationError, httpContext);
             return ApiResult.ERROR;
         }
@@ -83,6 +85,10 @@ namespace Backlight.Api {
 
         private async Task<ApiResult> EntityIsNotConfiguredResponse(HttpContext httpContext) {
             await ResponseWith(HttpStatusCode.BadRequest, ErrorMessages.EntityIsNotConfigured, httpContext);
+            return ApiResult.ERROR;
+        }
+        private async Task<ApiResult> EntityPayloadDeserializationErrorResponse(HttpContext httpContext) {
+            await ResponseWith(HttpStatusCode.BadRequest, ErrorMessages.EntityPayloadDeserializationError, httpContext);
             return ApiResult.ERROR;
         }
 
