@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Text.Json;
+using Backlight.Exceptions;
 
 namespace Backlight.Services.EntitySerialization {
     public class JsonEntitySerializer : EntitySerializer {
@@ -8,7 +10,11 @@ namespace Backlight.Services.EntitySerialization {
         }
 
         public T Deserialize<T>(string entityPayload) {
-            return JsonSerializer.Deserialize<T>(entityPayload);
+            try {
+                return JsonSerializer.Deserialize<T>(entityPayload);
+            } catch (Exception) {
+                throw new EntityDeserializationException();
+            }
         }
     }
 }
