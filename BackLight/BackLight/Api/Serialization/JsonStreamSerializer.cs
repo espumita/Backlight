@@ -11,12 +11,7 @@ namespace Backlight.Api.Serialization {
 
         public async Task<EntityRequestBody> EntityRequestBodyFrom(Stream stream) {
             body = await GetBodyFrom(stream);
-            var typeName = TypeNameFrom(body);
-            var payLoad = PayloadFrom(body);
-            return new EntityRequestBody {
-                TypeName = typeName,
-                PayLoad = payLoad
-            };
+            return TryToGetEntityRequestBodyFrom(body);
         }
 
         private static async Task<string> GetBodyFrom(Stream bodyStream) {
@@ -29,7 +24,7 @@ namespace Backlight.Api.Serialization {
             return rawBody;
         }
 
-        private static string TypeNameFrom(string body) {
+        private static EntityRequestBody TryToGetEntityRequestBodyFrom(string body) {
             EntityRequestBody entityRequestBody;
             try {
                 entityRequestBody = JsonSerializer.Deserialize<EntityRequestBody>(body);
@@ -38,17 +33,8 @@ namespace Backlight.Api.Serialization {
                 throw new EntityDeserializationException();
             }
             if (string.IsNullOrEmpty(entityRequestBody.TypeName)) throw new EntityDeserializationException();
-            return entityRequestBody.TypeName;
-        }
-
-        private static string PayloadFrom(string body) {
-            try {
-                var entityRequestBody = JsonSerializer.Deserialize<EntityRequestBody>(body);
-                return entityRequestBody.PayLoad;
-            } catch (Exception exception) {
-                //TODO log
-                throw new EntityDeserializationException();
-            }
+            if (string.IsNullOrEmpty(entityRequestBody.PayLoad)) throw new EntityDeserializationException();
+            return entityRequestBody;
         }
 
     }

@@ -30,7 +30,7 @@ namespace Backlight.Test.Api.Serialization {
         }
 
         [Test]
-        public async Task throw_an_exception_when_there_is_an_error_with_the_type_deserialization() {
+        public async Task throw_an_exception_when_there_is_no_type() {
             var entityRequestBody = new EntityRequestBody {
                 PayLoad = JsonSerializer.Serialize(aUserEntity)
             };
@@ -40,6 +40,20 @@ namespace Backlight.Test.Api.Serialization {
            Func<Task> action = async () => await serializer.EntityRequestBodyFrom(memoryStream);
 
            await action.Should().ThrowAsync<EntityDeserializationException>();
+        }
+
+
+        [Test]
+        public async Task throw_an_exception_when_there_is_no_payload() {
+            var entityRequestBody = new EntityRequestBody {
+                TypeName = aUserEntity.GetType().FullName
+            };
+            var rawEntity = JsonSerializer.Serialize(entityRequestBody);
+            var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(rawEntity));
+
+            Func<Task> action = async () => await serializer.EntityRequestBodyFrom(memoryStream);
+
+            await action.Should().ThrowAsync<EntityDeserializationException>();
         }
 
         private string GivenASerializedEntiyPayload(UserEntity userEntity) {
