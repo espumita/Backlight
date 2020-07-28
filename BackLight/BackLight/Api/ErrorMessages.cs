@@ -5,5 +5,6 @@ namespace Backlight.Api {
         public static string EntityDeserializationError { get; } = "Enity deserialization error";
         public static string EntityIsNotConfigured { get; } = "Enity is not configured";
         public static string EntityProviderIsNotAvailable { get; } = "Enity provider is not available";
+        public static string EntityIdCannotBeDeserializedFromPathError { get; } = "Error in entity id path";
     }
 }

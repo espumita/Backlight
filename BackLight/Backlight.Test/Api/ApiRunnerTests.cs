@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Backlight.Api;
@@ -80,8 +81,7 @@ namespace Backlight.Test.Api {
         public async Task get_bad_request_when_entity_provider_available(string httpMethod) {
             httpContext.Request.Method = httpMethod;
             GivenARequestBodyWith(new EntityPayload {
-                TypeName = AEntityName,
-                PayLoad = ""
+                TypeName = AEntityName
             });
             backlightService.Create(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityProviderIsNotAvailableException>();
             backlightService.Read(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityProviderIsNotAvailableException>();
@@ -95,9 +95,22 @@ namespace Backlight.Test.Api {
             responseBody.Should().Be("Enity provider is not available");
         }
 
+        [Test, TestCaseSource("BadPathsWithMethods")]
+        public async Task get_bad_request_when_request_has_bad_path((string httpMethod, string path) testCaseSource) {
+            httpContext.Request.Method = testCaseSource.httpMethod;
+            httpContext.Request.Path = testCaseSource.path;
+
+            await runner.Run(httpContext);
+
+            httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
+            responseBody.Should().Be("Error in entity id path");
+        }
+
         [Test]
         public async Task execute_service_create_entity() {
             var httpMethod = HttpMethods.Put;
+            httpContext.Request.Path = string.Empty;
             httpContext.Request.Method = httpMethod;
             var anEntityPayload = new EntityPayload {
                 TypeName = AEntityName,
@@ -181,6 +194,24 @@ namespace Backlight.Test.Api {
             yield return HttpMethods.Get;
             yield return HttpMethods.Post;
             yield return HttpMethods.Delete;
+        }
+
+        public static IEnumerable<(string httpMethod, string path)> BadPathsWithMethods() {
+            return new List<string> {
+                HttpMethods.Get,
+                HttpMethods.Post,
+                HttpMethods.Delete
+            }.SelectMany(method => {
+                return BadPaths().Select(path => (method, path));
+            });
+        }
+
+        private static IEnumerable<string> BadPaths() {
+            yield return "/";
+            yield return "//";
+            yield return $"/{AnEntityId}/";
+            yield return $"/{AnEntityId}/{AnEntityId}";
+            yield return string.Empty;
         }
 
         private static async Task<string> ReadBodyFrom(Stream bodyStream) {

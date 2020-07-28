@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Backlight.Api.Methods;
 using Backlight.Api.Serialization;
@@ -31,6 +32,8 @@ namespace Backlight.Api {
                 });
             } catch (EntityDeserializationException) {
                 return await EntityDeserializationErrorResponse(httpContext);
+            } catch (EntityIdCanNotBeSerializedFromPathException) {
+                return await EntityIdCannotBeSerializedFromPathResponse(httpContext);
             } catch (EntityProviderIsNotAvailableException) {
                 return await EntityProviderIsNotAvailableResponse(httpContext);
             } catch (EntityIsNotConfiguredException) {
@@ -55,8 +58,8 @@ namespace Backlight.Api {
 
         private static string TryToGetEntityIdFrom(HttpRequest request) {
             if (request.Method == HttpMethods.Put) return string.Empty;
-            var pathParts = request.Path.Value.Split('/');
-            return pathParts[1];
+            if (!Regex.IsMatch(request.Path.Value, "^/([\\w\\.\\-]+)$")) throw new EntityIdCanNotBeSerializedFromPathException();
+            return request.Path.Value.Split('/')[1];
         }
 
         private ApiMethod ApiMethodFor(HttpContext httpContext) {
@@ -70,6 +73,11 @@ namespace Backlight.Api {
 
         private async Task<ApiResult> EntityDeserializationErrorResponse(HttpContext httpContext) {
             await ResponseWith(HttpStatusCode.BadRequest, ErrorMessages.EntityDeserializationError, httpContext);
+            return ApiResult.ERROR;
+        }
+
+        private async Task<ApiResult> EntityIdCannotBeSerializedFromPathResponse(HttpContext httpContext) {
+            await ResponseWith(HttpStatusCode.BadRequest, ErrorMessages.EntityIdCannotBeDeserializedFromPathError, httpContext);
             return ApiResult.ERROR;
         }
 
