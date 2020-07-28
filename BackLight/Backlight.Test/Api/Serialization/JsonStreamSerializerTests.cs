@@ -43,19 +43,6 @@ namespace Backlight.Test.Api.Serialization {
         }
 
         [Test]
-        public async Task throw_an_exception_when_there_is_no_payload() {
-            var entityRequestBody = new EntityRequestBody {
-                TypeName = aUserEntity.GetType().FullName
-            };
-            var rawEntity = JsonSerializer.Serialize(entityRequestBody);
-            var aStream = new MemoryStream(Encoding.ASCII.GetBytes(rawEntity));
-
-            Func<Task> action = async () => await serializer.EntityRequestBodyFrom(aStream);
-
-            await action.Should().ThrowAsync<EntityRequestBodyDeserializationException>();
-        }
-
-        [Test]
         public async Task throw_an_exception_when_there_error_during_deserialization() {
             var anEmptyStream = new MemoryStream();
 
