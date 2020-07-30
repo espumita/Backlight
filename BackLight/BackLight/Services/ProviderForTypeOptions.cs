@@ -80,7 +80,7 @@ namespace Backlight.Services {
 
         private void RegisterReadDelegationFor<T>(EntitySerializer entitySerializer) where T : BacklightEntity {
             ReadDelegate = async entityId => {
-                var entity = (T)await Read.Read<T>(entityId);
+                var entity = (T) await Read.Read<T>(entityId);
                 return entitySerializer.Serialize(entity);
             };
         }
