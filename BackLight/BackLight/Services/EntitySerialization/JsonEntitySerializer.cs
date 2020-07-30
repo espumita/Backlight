@@ -5,7 +5,7 @@ using Backlight.Exceptions;
 namespace Backlight.Services.EntitySerialization {
     public class JsonEntitySerializer : EntitySerializer {
 
-        public string Serialize<T>(T entity) {
+        public string Serialize<T>(T entity) where T : class {
             return JsonSerializer.Serialize(entity);
         }
 

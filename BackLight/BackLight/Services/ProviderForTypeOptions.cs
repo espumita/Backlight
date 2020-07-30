@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Backlight.Exceptions;
 using Backlight.Providers;
@@ -64,7 +65,7 @@ namespace Backlight.Services {
             return Delete != null;
         }
 
-        public void RegisterDelegatesFor<T>(EntitySerializer entitySerializer) {
+        public void RegisterDelegatesFor<T>(EntitySerializer entitySerializer) where T : class, BacklightEntity {
             RegisterCreationDelegationFor<T>(entitySerializer);
             RegisterReadDelegationFor<T>(entitySerializer);
             RegisterUpdateDelegationFor<T>(entitySerializer);
@@ -78,9 +79,10 @@ namespace Backlight.Services {
             };
         }
 
-        private void RegisterReadDelegationFor<T>(EntitySerializer entitySerializer) {
+        private void RegisterReadDelegationFor<T>(EntitySerializer entitySerializer) where T : class, BacklightEntity {
             ReadDelegate = async entityId => {
-                var entity = await Read.Read<T>(entityId);
+                var entity = (T)await Read.Read<T>(entityId);
+                var serialize = JsonSerializer.Serialize(entity);
                 return entitySerializer.Serialize(entity);
             };
         }

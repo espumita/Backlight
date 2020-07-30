@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Backlight.Providers;
+using Backlight.Sample.Web.Api.Entities;
 
 namespace Backlight.Sample.Web.Api.Providers {
     public class ExampleEntity2Provider : CRUDProvider {
@@ -10,9 +11,9 @@ namespace Backlight.Sample.Web.Api.Providers {
             return Guid.NewGuid().ToString();
         }
 
-        public async Task<T> Read<T>(string entityId) {
+        public async Task<BacklightEntity> Read<T>(string entityId) where T : class, BacklightEntity {
             Console.WriteLine("Readed Entity2");
-            return default;
+            return new ExampleEntity2();
         }
 
         public async Task Update<T>(string entityId, T entity) {

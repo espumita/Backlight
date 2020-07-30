@@ -2,6 +2,6 @@
 
 namespace Backlight.Providers {
     public interface ReadProvider {
-        Task<T> Read<T>(string entityId);
+        Task<BacklightEntity> Read<T>(string entityId) where T : class, BacklightEntity;
     }
 }

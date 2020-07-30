@@ -13,7 +13,7 @@ namespace Backlight.Services {
             ProvidersForType = new Dictionary<Type, ProviderForTypeOptions>();
         }
 
-        public IProviderForTypeOptions For<T>() {
+        public IProviderForTypeOptions For<T>() where T : class, BacklightEntity {
             CheckIfExistsConfigurationForType<T>();
             var provider = new ProviderForTypeOptions();
             provider.RegisterDelegatesFor<T>(entitySerializer);
