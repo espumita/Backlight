@@ -19,7 +19,7 @@ namespace Backlight.Sample.Web.Api {
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllers();
             var exampleEntityProvider = new ExampleEntityProvider();
-            var exampleEntit2Provider = new ExampleEntity2Provider();
+            var exampleEntity2Provider = new ExampleEntity2Provider();
             var exampleEntity3Provider = new ExampleEntity3Provider();
 
             services.AddBacklight(configuration => {
@@ -28,7 +28,7 @@ namespace Backlight.Sample.Web.Api {
                     .AddRead(exampleEntityProvider)
                     .AddUpdate(exampleEntityProvider);
                 configuration.For<ExampleEntity2>()
-                    .AddCRUD(exampleEntit2Provider);
+                    .AddCRUD(exampleEntity2Provider);
                 configuration.For<ExampleEntity3>()
                     .AddRead(exampleEntity3Provider);
             });
