@@ -11,7 +11,7 @@ namespace Backlight.Sample.Web.Api.Providers {
             return Guid.NewGuid().ToString();
         }
 
-        public async Task<BacklightEntity> Read<T>(string entityId) where T : class, BacklightEntity {
+        public async Task<BacklightEntity> Read<T>(string entityId) where T : BacklightEntity {
             Console.WriteLine($"Readed {entityId}");
             return new ExampleEntity2();
         }
