@@ -1,5 +1,5 @@
 namespace Backlight {
-    public interface BacklightEntity {
+    public class BacklightEntity {
 
     }
 }
