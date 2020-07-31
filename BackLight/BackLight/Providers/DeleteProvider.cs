@@ -2,6 +2,6 @@
 
 namespace Backlight.Providers {
     public interface DeleteProvider {
-        Task Delete<T>(string entityId);
+        Task Delete(string entityId);
     }
 }

@@ -25,7 +25,7 @@ namespace Backlight.Test.Api {
 
         [SetUp]
         public void SetUp() {
-            backlightService = Substitute.For<BacklightService>(new object[] { null });
+            backlightService = Substitute.For<BacklightService>(null, null);
             httpContext = new DefaultHttpContext();
             httpContext.Request.Path = $"/{AnEntityId}";
             httpContext.Response.Body = new MemoryStream();

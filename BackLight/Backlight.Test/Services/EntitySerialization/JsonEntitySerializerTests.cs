@@ -20,7 +20,7 @@ namespace Backlight.Test.Services.EntitySerialization {
         public void serialize() {
             var aUserEntity = new UserEntity{ Age = anAge, Name = aName};
 
-            var rawEntity = serializer.Serialize(aUserEntity);
+            var rawEntity = serializer.Serialize(aUserEntity, typeof(UserEntity));
 
             rawEntity.Should().BeEquivalentTo($"{{\"Name\":\"{aName}\",\"Age\":{anAge}}}");
         }
@@ -29,7 +29,7 @@ namespace Backlight.Test.Services.EntitySerialization {
         public void deserialize() {
             var aUserEntity = new UserEntity { Age = anAge, Name = aName };
 
-            var rawEntity = serializer.Deserialize<UserEntity>($"{{\"Name\":\"{aName}\",\"Age\":{anAge}}}");
+            var rawEntity = serializer.Deserialize($"{{\"Name\":\"{aName}\",\"Age\":{anAge}}}", typeof(UserEntity));
 
             rawEntity.Should().BeEquivalentTo(aUserEntity);
         }
@@ -37,7 +37,7 @@ namespace Backlight.Test.Services.EntitySerialization {
         [Test]
         public void deserialize_empty_entity() {
 
-            var rawEntity = serializer.Deserialize<UserEntity>("{}");
+            var rawEntity = serializer.Deserialize("{}", typeof(UserEntity));
 
             rawEntity.Should().BeEquivalentTo(new UserEntity());
         }
@@ -45,14 +45,14 @@ namespace Backlight.Test.Services.EntitySerialization {
         [Test]
         public void deserialize_only_correct_properties() {
 
-            var rawEntity = serializer.Deserialize<UserEntity>($"{{\"Another\":\"{aName}\",\"Age\":{anAge}}}");
+            var rawEntity = serializer.Deserialize($"{{\"Another\":\"{aName}\",\"Age\":{anAge}}}", typeof(UserEntity));
 
             rawEntity.Should().BeEquivalentTo(new UserEntity{ Age = anAge });
         }
 
         [Test, TestCaseSource("BadRawEntityes")]
         public void throw_an_exception_when_deserialization_goes_wrong(string rawEntity) {
-            Action action = () => serializer.Deserialize<UserEntity>(rawEntity);
+            Action action = () => serializer.Deserialize(rawEntity, typeof(UserEntity));
 
             action.Should().Throw<EntityDeserializationException>();
         }

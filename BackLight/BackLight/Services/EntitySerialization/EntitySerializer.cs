@@ -1,7 +1,9 @@
-﻿namespace Backlight.Services.EntitySerialization {
+﻿using System;
+
+namespace Backlight.Services.EntitySerialization {
     public interface EntitySerializer {
 
-        string Serialize<T>(T entity);
-        T Deserialize<T>(string entityPayload);
+        string Serialize(object entity, Type returnType);
+        object Deserialize(string entityPayload, Type returnType);
     }
 }

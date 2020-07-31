@@ -20,14 +20,14 @@ namespace Backlight.Test.Services {
         [SetUp]
         public void SetUp() {
             serializer = Substitute.For<EntitySerializer>();
-            options = new ServiceOptions(serializer);
+            options = new ServiceOptions();
         }
 
         [Test]
         public async Task use_provider_on_create() {
             var provider = Substitute.For<CreateProvider>();
             options.For<UserEntity>().AddCreate(provider);
-            serializer.Deserialize<UserEntity>(ASerializedEntity).Returns(aUserEntity);
+            serializer.Deserialize(ASerializedEntity, typeof(UserEntity)).Returns(aUserEntity);
             provider.Create(aUserEntity).Returns(AnEntityId);
 
             var entityId = await ServiceWith(options).Create(AEntityName, ASerializedEntity);
@@ -39,8 +39,8 @@ namespace Backlight.Test.Services {
         public async Task use_provider_on_read() {
             var provider = Substitute.For<ReadProvider>();
             options.For<UserEntity>().AddRead(provider);
-            provider.Read<UserEntity>(AnEntityId).Returns(aUserEntity);
-            serializer.Serialize(aUserEntity).Returns(ASerializedEntity);
+            provider.Read(AnEntityId, typeof(UserEntity)).Returns(aUserEntity);
+            serializer.Serialize(aUserEntity, typeof(UserEntity)).Returns(ASerializedEntity);
             
             var readedEntity = await ServiceWith(options).Read(AEntityName, AnEntityId);
 
@@ -51,7 +51,7 @@ namespace Backlight.Test.Services {
         public async Task use_provider_on_update() {
             var provider = Substitute.For<UpdateProvider>();
             options.For<UserEntity>().AddUpdate(provider);
-            serializer.Deserialize<UserEntity>(ASerializedEntity).Returns(aUserEntity);
+            serializer.Deserialize(ASerializedEntity, typeof(UserEntity)).Returns(aUserEntity);
 
             await ServiceWith(options).Update(AEntityName, AnEntityId, ASerializedEntity);
 
@@ -65,11 +65,11 @@ namespace Backlight.Test.Services {
 
             await ServiceWith(options).Delete(AEntityName, AnEntityId);
 
-            await provider.Received().Delete<UserEntity>(AnEntityId);
+            await provider.Received().Delete(AnEntityId);
         }
 
         private BacklightService ServiceWith(ServiceOptions options) {
-            return new BacklightService(options);
+            return new BacklightService(options, serializer);
         }
 
     }

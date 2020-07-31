@@ -11,7 +11,7 @@ namespace Backlight.Sample.Web.Api.Providers {
             return Guid.NewGuid().ToString();
         }
 
-        public async Task<BacklightEntity> Read<T>(string entityId) where T : BacklightEntity {
+        public async Task<BacklightEntity> Read<T>(string entityId, T returnType) where T : Type {
             Console.WriteLine($"Readed {entityId}");
             return new ExampleEntity2();
         }
@@ -20,7 +20,7 @@ namespace Backlight.Sample.Web.Api.Providers {
             Console.WriteLine($"Updated {entityId},{entity}");
         }
 
-        public async Task Delete<T>(string entityId) {
+        public async Task Delete(string entityId) {
             Console.WriteLine($"Deleted {entityId}");
         }
     }

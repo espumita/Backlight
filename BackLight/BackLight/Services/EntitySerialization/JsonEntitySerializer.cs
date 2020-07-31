@@ -5,13 +5,13 @@ using Backlight.Exceptions;
 namespace Backlight.Services.EntitySerialization {
     public class JsonEntitySerializer : EntitySerializer {
 
-        public string Serialize<T>(T entity) {
-            return JsonSerializer.Serialize(entity);
+        public string Serialize(object entity, Type returnType) {
+            return JsonSerializer.Serialize(entity, returnType);
         }
 
-        public T Deserialize<T>(string entityPayload) {
+        public object Deserialize(string entityPayload, Type returnType) {
             try {
-                return JsonSerializer.Deserialize<T>(entityPayload);
+                return JsonSerializer.Deserialize(entityPayload, returnType);
             } catch (Exception) {
                 throw new EntityDeserializationException();
             }

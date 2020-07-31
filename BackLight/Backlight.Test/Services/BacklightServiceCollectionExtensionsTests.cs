@@ -50,7 +50,7 @@ namespace Backlight.Test.Services {
         [Test]
         public void be_configured_with_a_read_provider() {
             var readProvider = Substitute.For<ReadProvider>();
-            readProvider.Read<UserEntity>(AnEntityId).Returns(AUserEntity);
+            readProvider.Read(AnEntityId, typeof(UserEntity)).Returns(AUserEntity);
             
             collection.AddBacklight(configuration => {
                 configuration.For<UserEntity>()

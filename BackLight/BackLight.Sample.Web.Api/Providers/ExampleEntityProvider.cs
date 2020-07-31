@@ -1,5 +1,4 @@
 using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Backlight.Providers;
 using Backlight.Sample.Web.Api.Entities;
@@ -11,7 +10,7 @@ namespace Backlight.Sample.Web.Api.Providers {
             return Guid.NewGuid().ToString();
         }
 
-        public async Task<BacklightEntity> Read<T>(string entityId) where T : BacklightEntity {
+        public async Task<BacklightEntity> Read<T>(string entityId, T returnType) where T : Type {
             Console.WriteLine($"Readed {entityId}");
             return new ExampleEntity();
         }

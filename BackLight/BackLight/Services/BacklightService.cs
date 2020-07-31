@@ -1,39 +1,46 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Backlight.Api.Serialization;
 using Backlight.Exceptions;
+using Backlight.Providers;
+using Backlight.Services.EntitySerialization;
 
 namespace Backlight.Services {
     public class BacklightService {
+        private readonly EntitySerializer entitySerializer;
         public ServiceOptions Options { get; set; }
 
-        public BacklightService(ServiceOptions options) {
+        public BacklightService(ServiceOptions options, EntitySerializer entitySerializer) {
+            this.entitySerializer = entitySerializer;
             Options = options;
         }
 
         public virtual async Task<string> Create(string entityTypeName, string entityPayload) {
             var type = TryToGetConfiguredTypeFrom(entityTypeName);
-            var createDelegate = TryToGetCreateDelegateForType(type);
-            return await createDelegate(entityPayload);
+            var createProvider = TryToGetCreateProvider(type);
+            var entity = entitySerializer.Deserialize(entityPayload, type);
+            return await createProvider.Create(entity);
         }
 
         public virtual async Task<string> Read(string entityTypeName, string entityId) {
             var type = TryToGetConfiguredTypeFrom(entityTypeName);
-            var readDelegate = TryToGetReadDelegateForType(type);
-            return await readDelegate(entityId);
+            var readProvider = TryToGetReadProviderForType(type);
+            var entity = await readProvider.Read(entityId, type);
+            return entitySerializer.Serialize(entity, type);
         }
 
         public virtual async Task Update(string entityTypeName, string entityId, string entityPayload) {
             var type = TryToGetConfiguredTypeFrom(entityTypeName);
-            var updateDelegate = TryToGetUpdateDelegateForType(type);
-            await updateDelegate(entityId, entityPayload);
+            var updateProvider = TryToGetUpdateProviderForType(type);
+            var entity = entitySerializer.Deserialize(entityPayload, type);
+            await updateProvider.Update(entityId, entity);
         }
 
         public virtual async Task Delete(string entityTypeName, string entityId) {
             var type = TryToGetConfiguredTypeFrom(entityTypeName);
-            var deleteDelegate = TryToGetDeleteDelegateForType(type);
-            await deleteDelegate(entityId);
+            var deleteDelegate = TryToGetDeleteProviderForType(type);
+            await deleteDelegate.Delete(entityId);
+
         }
 
         private Type TryToGetConfiguredTypeFrom(string typeName) {
@@ -43,24 +50,24 @@ namespace Backlight.Services {
             return typeForName;
         }
 
-        private Func<string, Task<string>> TryToGetCreateDelegateForType(Type type) {
+        private CreateProvider TryToGetCreateProvider(Type type) {
             if (!Options.ProvidersForType[type].CanCreate()) throw new EntityProviderIsNotAvailableException();
-            return Options.ProvidersForType[type].CreateDelegate;
+            return Options.ProvidersForType[type].Create;
         }
 
-        private Func<string, Task<string>> TryToGetReadDelegateForType(Type type) {
+        private ReadProvider TryToGetReadProviderForType(Type type) {
             if (!Options.ProvidersForType[type].CanRead()) throw new EntityProviderIsNotAvailableException();
-            return Options.ProvidersForType[type].ReadDelegate;
+            return Options.ProvidersForType[type].Read;
         }
 
-        private Func<string, string, Task> TryToGetUpdateDelegateForType(Type type) {
+        private UpdateProvider TryToGetUpdateProviderForType(Type type) {
             if (!Options.ProvidersForType[type].CanUpdate()) throw new EntityProviderIsNotAvailableException();
-            return Options.ProvidersForType[type].UpdateDelegate;
+            return Options.ProvidersForType[type].Update;
         }
 
-        private Func<string, Task> TryToGetDeleteDelegateForType(Type type) {
+        private DeleteProvider TryToGetDeleteProviderForType(Type type) {
             if (!Options.ProvidersForType[type].CanDelete()) throw new EntityProviderIsNotAvailableException();
-            return Options.ProvidersForType[type].DeleteDelegate;
+            return Options.ProvidersForType[type].Delete;
         }
 
     }
