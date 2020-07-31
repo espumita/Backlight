@@ -3,6 +3,6 @@ using System.Threading.Tasks;
 
 namespace Backlight.Providers {
     public interface ReadProvider {
-        Task<BacklightEntity> Read<T>(string entityId, T returnType);
+        Task<object> Read<T>(string entityId, T returnType);
     }
 }

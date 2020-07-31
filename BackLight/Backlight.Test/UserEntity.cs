@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Backlight.Test {
-    public class UserEntity : BacklightEntity {
+    public class UserEntity {
         public string Name { get; set; }
         public int Age { get; set; }
 
