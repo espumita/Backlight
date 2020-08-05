@@ -7,7 +7,8 @@ namespace Backlight.Sample.Web.Api.Providers {
     public class ExampleEntity2Provider : CRUDProvider {
 
         public async Task<string> Create<T>(T entity) {
-            Console.WriteLine($"Created {entity}");
+            var exampleEntity2 = entity as ExampleEntity2;
+            Console.WriteLine($"Created {exampleEntity2.Name}");
             return Guid.NewGuid().ToString();
         }
 
@@ -17,7 +18,8 @@ namespace Backlight.Sample.Web.Api.Providers {
         }
 
         public async Task Update<T>(string entityId, T entity) {
-            Console.WriteLine($"Updated {entityId},{entity}");
+            var exampleEntity2 = entity as ExampleEntity2;
+            Console.WriteLine($"Updated {exampleEntity2.Name} with id {entityId}");
         }
 
         public async Task Delete(string entityId) {

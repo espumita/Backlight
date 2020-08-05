@@ -6,7 +6,8 @@ using Backlight.Sample.Web.Api.Entities;
 namespace Backlight.Sample.Web.Api.Providers {
     public class ExampleEntityProvider : CreateProvider, ReadProvider, UpdateProvider {
         public async Task<string> Create<T>(T entity) {
-            Console.WriteLine($"Created {entity}");
+            var exampleEntity = entity as ExampleEntity;
+            Console.WriteLine($"Created {exampleEntity.Name}");
             return Guid.NewGuid().ToString();
         }
 
@@ -16,7 +17,8 @@ namespace Backlight.Sample.Web.Api.Providers {
         }
 
         public async Task Update<T>(string entityId, T entity) {
-            Console.WriteLine($"Updated {entityId},{entity}");
+            var exampleEntity = entity as ExampleEntity;
+            Console.WriteLine($"Updated {exampleEntity.Name} with id {entityId}");
         }
     }
 }
