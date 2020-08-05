@@ -34,10 +34,6 @@ namespace Backlight.Web.Api.e2e.Test {
             responseBody.Should().Contain("Enity created with id: ");
         }
 
-        private ByteArrayContent AContentWith(ExampleEntity2 entity) {
-            return new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(entity)));
-        }
-
         [Test]
         public async Task read() {
             var requestUri = $"/back/api/type/{AEntityName}/entity/{AnEntityId}";
@@ -50,6 +46,24 @@ namespace Backlight.Web.Api.e2e.Test {
             entity.Name.Should().Be("George Lucas");
         }
 
+        [Test]
+        public async Task update() {
+            var requestUri = $"/back/api/type/{AEntityName}/entity/{AnEntityId}";
+            var content = AContentWith(new ExampleEntity2 {
+                Name = "Ellen DeGeneres"
+            });
+
+            var response = await client.PostAsync(requestUri, content);
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseBody = await ReadBodyFrom(response.Content);
+            responseBody.Should().Be("Enity updated");
+        }
+
+        private ByteArrayContent AContentWith(ExampleEntity2 entity) {
+            return new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(entity)));
+        }
+
         private static async Task<string> ReadBodyFrom(HttpContent httpContent) {
             var memoryStream = new MemoryStream();
             await httpContent.CopyToAsync(memoryStream);
@@ -58,5 +72,6 @@ namespace Backlight.Web.Api.e2e.Test {
             var streamReader = new StreamReader(memoryStream);
             return await streamReader.ReadToEndAsync();
         }
+
     }
 }
