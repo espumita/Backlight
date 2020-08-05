@@ -60,6 +60,17 @@ namespace Backlight.Web.Api.e2e.Test {
             responseBody.Should().Be("Enity updated");
         }
 
+        [Test]
+        public async Task delete() {
+            var requestUri = $"/back/api/type/{AEntityName}/entity/{AnEntityId}";
+
+            var response = await client.DeleteAsync(requestUri);
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseBody = await ReadBodyFrom(response.Content);
+            responseBody.Should().Be("Enity deleted");
+        }
+
         private ByteArrayContent AContentWith(ExampleEntity2 entity) {
             return new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(entity)));
         }
