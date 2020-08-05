@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3FC736B9-2F19-4402-A887-E492B82841E4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{5CFF64CF-3167-4CDF-8F69-4B542C3FDF2F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backlight", "src\Backlight\Backlight.csproj", "{DAE8BB5B-76E4-4939-A35E-AC7D8A4F4140}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backlight.Test", "tests\Backlight.Test\Backlight.Test.csproj", "{44AEDF76-1609-4B2E-AAFC-A052100A23E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backlight.Sample.Web.Api", "samples\Backlight.Sample.Web.Api\Backlight.Sample.Web.Api.csproj", "{BEDFC979-B255-420D-B4F8-509DC0365BB1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backlight.Web.Api.e2e.Test", "tests\Backlight.Web.Api.e2e.Test\Backlight.Web.Api.e2e.Test.csproj", "{9F3DFCDB-796E-48EC-AEA5-148E88800521}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DAE8BB5B-76E4-4939-A35E-AC7D8A4F4140}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAE8BB5B-76E4-4939-A35E-AC7D8A4F4140}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAE8BB5B-76E4-4939-A35E-AC7D8A4F4140}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAE8BB5B-76E4-4939-A35E-AC7D8A4F4140}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44AEDF76-1609-4B2E-AAFC-A052100A23E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44AEDF76-1609-4B2E-AAFC-A052100A23E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44AEDF76-1609-4B2E-AAFC-A052100A23E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44AEDF76-1609-4B2E-AAFC-A052100A23E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEDFC979-B255-420D-B4F8-509DC0365BB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEDFC979-B255-420D-B4F8-509DC0365BB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEDFC979-B255-420D-B4F8-509DC0365BB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEDFC979-B255-420D-B4F8-509DC0365BB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F3DFCDB-796E-48EC-AEA5-148E88800521}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F3DFCDB-796E-48EC-AEA5-148E88800521}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F3DFCDB-796E-48EC-AEA5-148E88800521}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F3DFCDB-796E-48EC-AEA5-148E88800521}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{44AEDF76-1609-4B2E-AAFC-A052100A23E8} = {3FC736B9-2F19-4402-A887-E492B82841E4}
+		{BEDFC979-B255-420D-B4F8-509DC0365BB1} = {5CFF64CF-3167-4CDF-8F69-4B542C3FDF2F}
+		{9F3DFCDB-796E-48EC-AEA5-148E88800521} = {3FC736B9-2F19-4402-A887-E492B82841E4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B548E1BB-0C1C-494F-9A6B-1570BFACCDFA}
+	EndGlobalSection
+EndGlobal
