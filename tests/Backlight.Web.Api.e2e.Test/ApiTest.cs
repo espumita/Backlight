@@ -14,7 +14,7 @@ namespace Backlight.Web.Api.e2e.Test {
 
         [Test]
         public async Task read() {
-            var response = await client.GetAsync("/back/api/entity/2");
+            var response = await client.GetAsync("/back/api/type/Backlight.Sample.Web.Api.Entities.ExampleEntity/entity/2");
 
         }
     }
