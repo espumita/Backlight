@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Backlight.Sample.Web.Api.Entities;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 
 namespace Backlight.Web.Api.e2e.Test {
@@ -20,10 +21,28 @@ namespace Backlight.Web.Api.e2e.Test {
         }
 
         [Test]
-        public async Task read() {
-            var readUri = $"/back/api/type/{AEntityName}/entity/{AnEntityId}";
+        public async Task create() {
+            var requestUri = $"/back/api/type/{AEntityName}";
+            var content = AContentWith(new ExampleEntity2 {
+                Name = "Freddie Mercury"
+            });
 
-            var response = await client.GetAsync(readUri);
+            var response = await client.PutAsync(requestUri, content);
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseBody = await ReadBodyFrom(response.Content);
+            responseBody.Should().Contain("Enity created with id: ");
+        }
+
+        private ByteArrayContent AContentWith(ExampleEntity2 entity) {
+            return new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(entity)));
+        }
+
+        [Test]
+        public async Task read() {
+            var requestUri = $"/back/api/type/{AEntityName}/entity/{AnEntityId}";
+
+            var response = await client.GetAsync(requestUri);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(response.Content);
