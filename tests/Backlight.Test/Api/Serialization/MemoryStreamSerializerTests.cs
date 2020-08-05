@@ -7,13 +7,13 @@ using FluentAssertions;
 using NUnit.Framework;
 
 namespace Backlight.Test.Api.Serialization {
-    public class JsonStreamSerializerTests {
-        private JsonStreamSerializer serializer;
+    public class MemoryStreamSerializerTests {
+        private MemoryStreamSerializer serializer;
         private readonly UserEntity aUserEntity = new UserEntity{ Age = 23, Name = "aName" };
 
         [SetUp]
         public void SetUp() {
-            serializer = new JsonStreamSerializer();
+            serializer = new MemoryStreamSerializer();
         }
 
         [Test]

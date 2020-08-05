@@ -14,7 +14,7 @@ namespace Backlight.Services {
             }
             var entitySerializer = new JsonEntitySerializer();
             return services.AddSingleton(new BacklightService(options, entitySerializer))
-                .AddSingleton<StreamSerializer>(new JsonStreamSerializer())
+                .AddSingleton<StreamSerializer>(new MemoryStreamSerializer())
                 .AddSingleton<ApiRunner>();
         }
 

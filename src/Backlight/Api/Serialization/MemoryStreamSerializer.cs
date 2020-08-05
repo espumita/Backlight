@@ -2,8 +2,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 namespace Backlight.Api.Serialization {
-    public class JsonStreamSerializer : StreamSerializer {
-
+    public class MemoryStreamSerializer : StreamSerializer {
 
         public async Task<string> EntityPayloadFrom(Stream stream) {
             return await GetBodyFrom(stream);
