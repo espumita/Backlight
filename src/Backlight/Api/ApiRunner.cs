@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -22,16 +23,17 @@ namespace Backlight.Api {
         public async Task<ApiResult> Run(HttpContext httpContext) {
             if (IsNotAllowed(httpContext.Request.Method)) return await MethodNotAllowedResponse(httpContext);
             try {
+                var entityTypeName = TryToGetEntityTypeNameFrom(httpContext.Request);
                 var entityId = TryToGetEntityIdFrom(httpContext.Request);
-                var entityRequestBody = await streamSerializer.EntityRequestBodyFrom(httpContext.Request.Body);
+                var entityPayload = await TryToGetEntityPayloadFrom(httpContext.Request.Body);
                 return await (httpContext.Request.Method switch {
-                    var method when method.Equals(HttpMethods.Put) => new Create(service, httpContext).Execute(entityRequestBody.TypeName, entityRequestBody.PayLoad),
-                    var method when method.Equals(HttpMethods.Get) => new Read(service, httpContext).Execute(entityRequestBody.TypeName, entityId),
-                    var method when method.Equals(HttpMethods.Post) => new Update(service, httpContext).Execute(entityRequestBody.TypeName, entityId, entityRequestBody.PayLoad),
-                    var method when method.Equals(HttpMethods.Delete) => new Delete(service, httpContext).Execute(entityRequestBody.TypeName, entityId)
+                    var method when method.Equals(HttpMethods.Put) => new Create(service, httpContext).Execute(entityTypeName, entityPayload),
+                    var method when method.Equals(HttpMethods.Get) => new Read(service, httpContext).Execute(entityTypeName, entityId),
+                    var method when method.Equals(HttpMethods.Post) => new Update(service, httpContext).Execute(entityTypeName, entityId, entityPayload),
+                    var method when method.Equals(HttpMethods.Delete) => new Delete(service, httpContext).Execute(entityTypeName, entityId)
                 });
-            } catch (EntityRequestBodyDeserializationException) {
-                return await EntityRequestBodyDeserializationErrorResponse(httpContext);
+            } catch (TypeCanNotBeSerializedFromPathException) {
+                return await TypeCannotBeDeserializedFromPathResponse(httpContext);
             } catch (EntityIdCanNotBeSerializedFromPathException) {
                 return await EntityIdCannotBeSerializedFromPathResponse(httpContext);
             } catch (EntityProviderIsNotAvailableException) {
@@ -41,6 +43,10 @@ namespace Backlight.Api {
             } catch (EntityDeserializationException) {
                 return await EntityPayloadDeserializationErrorResponse(httpContext);
             }
+        }
+
+        private async Task<string> TryToGetEntityPayloadFrom(Stream requestBody) {
+            return await streamSerializer.EntityPayloadFrom(requestBody);
         }
 
         private static bool IsNotAllowed(string requestMethod) {
@@ -58,10 +64,18 @@ namespace Backlight.Api {
             return ApiResult.ERROR;
         }
 
+        private static string TryToGetEntityTypeNameFrom(HttpRequest request) {
+            if (request.Method == HttpMethods.Put) {
+                if (!Regex.IsMatch(request.Path.Value, "^/type/([\\w\\.\\-]+)$")) throw new TypeCanNotBeSerializedFromPathException();
+                return request.Path.Value.Split("/type/")[1];
+            };
+            if (!Regex.IsMatch(request.Path.Value, "^/type/([\\w\\.\\-]+)/entity([\\w\\.\\-\\/]+)$")) throw new TypeCanNotBeSerializedFromPathException();
+            return request.Path.Value.Split("/type/")[1].Split('/')[0];
+        }
         private static string TryToGetEntityIdFrom(HttpRequest request) {
             if (request.Method == HttpMethods.Put) return string.Empty;
-            if (!Regex.IsMatch(request.Path.Value, "^/([\\w\\.\\-]+)$")) throw new EntityIdCanNotBeSerializedFromPathException();
-            return request.Path.Value.Split('/')[1];
+            if (!Regex.IsMatch(request.Path.Value, "^/type/([\\w\\.\\-]+)/entity/([\\w\\.\\-]+)(?<!\\/)$")) throw new EntityIdCanNotBeSerializedFromPathException();
+            return request.Path.Value.Split("/entity/")[1];
         }
 
         private ApiMethod ApiMethodFor(HttpContext httpContext) {
@@ -73,11 +87,10 @@ namespace Backlight.Api {
             };
         }
 
-        private async Task<ApiResult> EntityRequestBodyDeserializationErrorResponse(HttpContext httpContext) {
-            await ResponseWith(HttpStatusCode.BadRequest, ErrorMessages.EntityDeserializationError, httpContext);
+        private async Task<ApiResult> TypeCannotBeDeserializedFromPathResponse(HttpContext httpContext) {
+            await ResponseWith(HttpStatusCode.BadRequest, ErrorMessages.TypeCannotBeDeserializedFromPathError, httpContext);
             return ApiResult.ERROR;
         }
-
         private async Task<ApiResult> EntityIdCannotBeSerializedFromPathResponse(HttpContext httpContext) {
             await ResponseWith(HttpStatusCode.BadRequest, ErrorMessages.EntityIdCannotBeDeserializedFromPathError, httpContext);
             return ApiResult.ERROR;

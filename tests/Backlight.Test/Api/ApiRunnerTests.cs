@@ -27,7 +27,6 @@ namespace Backlight.Test.Api {
         public void SetUp() {
             backlightService = Substitute.For<BacklightService>(null, null);
             httpContext = new DefaultHttpContext();
-            httpContext.Request.Path = $"/{AnEntityId}";
             httpContext.Response.Body = new MemoryStream();
             streamSerializer = Substitute.For<StreamSerializer>();
 
@@ -45,25 +44,47 @@ namespace Backlight.Test.Api {
             responseBody.Should().Be("Http method is not allowed");
         }
 
-        [Test, TestCaseSource("AllowedMethods")]
-        public async Task get_bad_request_when_the_entity_request_body_deserialization_has_an_error(string httpMethod) {
-            httpContext.Request.Method = httpMethod;
-            streamSerializer.EntityRequestBodyFrom(Arg.Any<Stream>()).Throws(new EntityRequestBodyDeserializationException());
+        [Test, TestCaseSource("BadTypePathsWithMethods")]
+        public async Task get_bad_request_when_request_has_bad_type_path((string httpMethod, string path) testCaseSource) {
+            httpContext.Request.Method = testCaseSource.httpMethod;
+            httpContext.Request.Path = testCaseSource.path;
 
             await runner.Run(httpContext);
 
             httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
             var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("Enity deserialization error");
+            responseBody.Should().Be("Type error in path");
         }
 
-        [Test, TestCaseSource("AllowedMethods")]
-        public async Task get_bad_request_when_entity_type_is_not_configured(string httpMethod) {
-            httpContext.Request.Method = httpMethod;
-            GivenARequestBodyWith(new EntityRequestBody {
-                TypeName = AEntityName,
-                PayLoad = string.Empty
-            });
+        [Test, TestCaseSource("BadTypesPaths")]
+        public async Task get_bad_request_when_request_has_bad_type_path_for_puth_method(string path) {
+            httpContext.Request.Method = HttpMethods.Put;
+            httpContext.Request.Path = path;
+
+            await runner.Run(httpContext);
+
+            httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
+            responseBody.Should().Be("Type error in path");
+        }
+
+        [Test, TestCaseSource("BadEntityIdsPathsWithMethods")]
+        public async Task get_bad_request_when_request_has_bad_entity_path((string httpMethod, string path) testCaseSource) {
+            httpContext.Request.Method = testCaseSource.httpMethod;
+            httpContext.Request.Path = testCaseSource.path;
+
+            await runner.Run(httpContext);
+
+            httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
+            responseBody.Should().Be("Error in entity id path");
+        }
+
+        [Test, TestCaseSource("AllowedMethodsWithPath")]
+        public async Task get_bad_request_when_entity_type_is_not_configured((string httpMethod, string path) testCaseSource) {
+            httpContext.Request.Method = testCaseSource.httpMethod;
+            httpContext.Request.Path = testCaseSource.path;
+            GivenARequestBodyWith(string.Empty);
             backlightService.Create(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityIsNotConfiguredException>();
             backlightService.Read(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityIsNotConfiguredException>();
             backlightService.Update(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>()).Throws<EntityIsNotConfiguredException>();
@@ -76,12 +97,10 @@ namespace Backlight.Test.Api {
             responseBody.Should().Be("Enity is not configured");
         }
 
-        [Test, TestCaseSource("AllowedMethods")]
-        public async Task get_bad_request_when_entity_provider_available(string httpMethod) {
-            httpContext.Request.Method = httpMethod;
-            GivenARequestBodyWith(new EntityRequestBody {
-                TypeName = AEntityName
-            });
+        [Test, TestCaseSource("AllowedMethodsWithPath")]
+        public async Task get_bad_request_when_entity_provider_available((string httpMethod, string path) testCaseSource) {
+            httpContext.Request.Method = testCaseSource.httpMethod;
+            httpContext.Request.Path = testCaseSource.path;
             backlightService.Create(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityProviderIsNotAvailableException>();
             backlightService.Read(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityProviderIsNotAvailableException>();
             backlightService.Update(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>()).Throws<EntityProviderIsNotAvailableException>();
@@ -94,12 +113,10 @@ namespace Backlight.Test.Api {
             responseBody.Should().Be("Enity provider is not available");
         }
 
-        [Test, TestCaseSource("AllowedMethods")]
-        public async Task get_bad_request_when_entity_deserialization_throws_an_exception(string httpMethod) {
-            httpContext.Request.Method = httpMethod;
-            GivenARequestBodyWith(new EntityRequestBody {
-                TypeName = AEntityName
-            });
+        [Test, TestCaseSource("AllowedMethodsWithPath")]
+        public async Task get_bad_request_when_entity_deserialization_throws_an_exception((string httpMethod, string path) testCaseSource) {
+            httpContext.Request.Method = testCaseSource.httpMethod;
+            httpContext.Request.Path = testCaseSource.path;
             backlightService.Create(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityDeserializationException>();
             backlightService.Read(Arg.Any<string>(), Arg.Any<string>()).Throws<EntityDeserializationException>();
             backlightService.Update(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>()).Throws<EntityDeserializationException>();
@@ -112,27 +129,11 @@ namespace Backlight.Test.Api {
             responseBody.Should().Be("Enity payload deserialization error");
         }
 
-        [Test, TestCaseSource("BadPathsWithMethods")]
-        public async Task get_bad_request_when_request_has_bad_path((string httpMethod, string path) testCaseSource) {
-            httpContext.Request.Method = testCaseSource.httpMethod;
-            httpContext.Request.Path = testCaseSource.path;
-
-            await runner.Run(httpContext);
-
-            httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
-            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
-            responseBody.Should().Be("Error in entity id path");
-        }
-
         [Test]
         public async Task execute_service_create_entity() {
-            var httpMethod = HttpMethods.Put;
-            httpContext.Request.Path = string.Empty;
-            httpContext.Request.Method = httpMethod;
-            var anEntityPayload = new EntityRequestBody {
-                TypeName = AEntityName,
-                PayLoad = ASerializedEntity
-            };
+            httpContext.Request.Method = HttpMethods.Put;
+            httpContext.Request.Path = $"/type/{AEntityName}";
+            var anEntityPayload = ASerializedEntity;
             GivenARequestBodyWith(anEntityPayload);
             backlightService.Create(AEntityName, ASerializedEntity).Returns(AnEntityId);
 
@@ -145,13 +146,8 @@ namespace Backlight.Test.Api {
 
         [Test]
         public async Task execute_service_read_entity() {
-            var httpMethod = HttpMethods.Get;
-            httpContext.Request.Method = httpMethod;
-            httpContext.Request.Path = $"/{AnEntityId}";
-            var anEntityPayLoad = new EntityRequestBody {
-                TypeName = AEntityName
-            };
-            GivenARequestBodyWith(anEntityPayLoad);
+            httpContext.Request.Path = $"/type/{AEntityName}/entity/{AnEntityId}";
+            httpContext.Request.Method = HttpMethods.Get;
             backlightService.Read(AEntityName, AnEntityId).Returns(ASerializedEntity);
 
             await runner.Run(httpContext);
@@ -163,13 +159,9 @@ namespace Backlight.Test.Api {
 
         [Test]
         public async Task execute_service_update_entity() {
-            var httpMethod = HttpMethods.Post;
-            httpContext.Request.Method = httpMethod;
-            httpContext.Request.Path = $"/{AnEntityId}";
-            var anEntityPayload = new EntityRequestBody {
-                TypeName = AEntityName,
-                PayLoad = ASerializedEntity
-            };
+            httpContext.Request.Method = HttpMethods.Post;
+            httpContext.Request.Path = $"/type/{AEntityName}/entity/{AnEntityId}";
+            var anEntityPayload = ASerializedEntity;
             GivenARequestBodyWith(anEntityPayload);
 
             await runner.Run(httpContext);
@@ -182,13 +174,8 @@ namespace Backlight.Test.Api {
 
         [Test]
         public async Task execute_delete_entity_provider() {
-            var httpMethod = HttpMethods.Delete;
-            httpContext.Request.Method = httpMethod;
-            httpContext.Request.Path = $"/{AnEntityId}";
-            var anEntityPayload = new EntityRequestBody {
-                TypeName = AEntityName
-            };
-            GivenARequestBodyWith(anEntityPayload);
+            httpContext.Request.Method = HttpMethods.Delete;
+            httpContext.Request.Path = $"/type/{AEntityName}/entity/{AnEntityId}";
 
             await runner.Run(httpContext);
 
@@ -206,29 +193,49 @@ namespace Backlight.Test.Api {
             yield return HttpMethods.Trace;
         }
 
-        public static IEnumerable<string> AllowedMethods() {
-            yield return HttpMethods.Put;
-            yield return HttpMethods.Get;
-            yield return HttpMethods.Post;
-            yield return HttpMethods.Delete;
+        public static IEnumerable<(string httpMethod, string path)> AllowedMethodsWithPath() {
+            return new List<(string httpMethod, string path)> {
+                (HttpMethods.Put, "/type/Backlight.Test.UserEntity"),
+                (HttpMethods.Get, "/type/Backlight.Test.UserEntity/entity/anEntityId"),
+                (HttpMethods.Post, "/type/Backlight.Test.UserEntity/entity/anEntityId"),
+                (HttpMethods.Delete, "/type/Backlight.Test.UserEntity/entity/anEntityId")
+            };
         }
 
-        public static IEnumerable<(string httpMethod, string path)> BadPathsWithMethods() {
+        public static IEnumerable<(string httpMethod, string path)> BadTypePathsWithMethods() {
             return new List<string> {
                 HttpMethods.Get,
                 HttpMethods.Post,
                 HttpMethods.Delete
             }.SelectMany(method => {
-                return BadPaths().Select(path => (method, path));
+                return BadTypesPaths().Select(path => (method, path));
             });
         }
 
-        private static IEnumerable<string> BadPaths() {
+        private static IEnumerable<string> BadTypesPaths() {
+            yield return string.Empty;
             yield return "/";
             yield return "//";
-            yield return $"/{AnEntityId}/";
-            yield return $"/{AnEntityId}/{AnEntityId}";
-            yield return string.Empty;
+            yield return "/type/";
+            yield return "/type//";
+            yield return "/type/Backlight.Test.UserEntity/";
+            yield return "/type/Backlight.Test.UserEntity/Backlight.Test.UserEntity";
+        }
+        public static IEnumerable<(string httpMethod, string path)> BadEntityIdsPathsWithMethods() {
+            return new List<string> {
+                HttpMethods.Get,
+                HttpMethods.Post,
+                HttpMethods.Delete
+            }.SelectMany(method => {
+                return BadEntityIdPaths().Select(path => (method, path));
+            });
+        }
+
+        private static IEnumerable<string> BadEntityIdPaths() {
+            yield return "/type/Backlight.Test.UserEntity/entity/";
+            yield return "/type/Backlight.Test.UserEntity/entity//";
+            yield return "/type/Backlight.Test.UserEntity/entity/anEntityId/";
+            yield return "/type/Backlight.Test.UserEntity/entity/anEntityId//";
         }
 
         private static async Task<string> ReadBodyFrom(Stream bodyStream) {
@@ -237,9 +244,9 @@ namespace Backlight.Test.Api {
             var streamReader = new StreamReader(bodyStream);
             return await streamReader.ReadToEndAsync();
         }
-        private void GivenARequestBodyWith(EntityRequestBody entityRequestBody) {
-            streamSerializer.EntityRequestBodyFrom(Arg.Any<Stream>())
-                .Returns(entityRequestBody);
+        private void GivenARequestBodyWith(string entityPayload) {
+            streamSerializer.EntityPayloadFrom(Arg.Any<Stream>())
+                .Returns(entityPayload);
         }
     }
 

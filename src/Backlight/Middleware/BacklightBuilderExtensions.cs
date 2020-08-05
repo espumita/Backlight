@@ -11,7 +11,7 @@ namespace Backlight.Middleware {
                 setupAction(configuration);
             }
             return applicationBuilder.UseMiddleware<BacklightMiddleware>(configuration, new IndexHtmlLoader())
-                .Map($"/{configuration.RoutePrefix}/api/entity", ConfigureApiEndpointRunner());
+                .Map($"/{configuration.RoutePrefix}/api", ConfigureApiEndpointRunner());
         }
 
         private static Action<IApplicationBuilder> ConfigureApiEndpointRunner() {
