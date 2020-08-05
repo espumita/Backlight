@@ -14,7 +14,9 @@ namespace Backlight.Sample.Web.Api.Providers {
 
         public async Task<object> Read<T>(string entityId, T returnType) {
             Console.WriteLine($"Readed {entityId}");
-            return new ExampleEntity2();
+            return new ExampleEntity2 {
+                Name = "George Lucas"
+            };
         }
 
         public async Task Update<T>(string entityId, T entity) {
