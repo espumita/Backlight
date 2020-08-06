@@ -1,6 +1,7 @@
 ﻿using System;
 using Backlight.Api;
 using Backlight.Api.Serialization;
+using Backlight.OpenApi;
 using Backlight.Services.EntitySerialization;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +16,8 @@ namespace Backlight.Services {
             var entitySerializer = new JsonEntitySerializer();
             return services.AddSingleton(new BacklightService(options, entitySerializer))
                 .AddSingleton<StreamSerializer>(new MemoryStreamSerializer())
-                .AddSingleton<ApiRunner>();
+                .AddSingleton<ApiRunner>()
+                .AddSingleton<OpenApiGenerator>();
         }
 
     }

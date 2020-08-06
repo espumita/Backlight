@@ -12,4 +12,8 @@
     <EmbeddedResource Include="Middleware\Html\index.html" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NSwag.Core" Version="13.7.0" />
+  </ItemGroup>
+
 </Project>
