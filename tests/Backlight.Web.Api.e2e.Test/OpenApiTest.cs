@@ -20,10 +20,6 @@ namespace Backlight.Web.Api.e2e.Test {
             client = TestFixture.serverClient;
         }
 
-        //TODO
-        //test dates
-        //test complex types
-
         [Test]
         public async Task get_open_api_definition_from_sample() {
             var requestUri = $"/back/OpenApi.json";

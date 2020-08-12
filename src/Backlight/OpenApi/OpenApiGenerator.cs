@@ -63,7 +63,7 @@ namespace Backlight.OpenApi {
                 var openApiRequestBody = new OpenApiRequestBody();
                 openApiRequestBody.IsRequired = true;
                 openApiRequestBody.Content.Add(new KeyValuePair<string, OpenApiMediaType>("application/json", new OpenApiMediaType {
-                    Schema = JsonSchema.FromType(typeof(string))
+                    Schema = JsonSchema.FromType(type)
                 }));
                 var putOperation = new OpenApiOperation {
                     OperationId = OperationId(httpMethod, type),
