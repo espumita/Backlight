@@ -35,9 +35,17 @@ namespace Backlight.Web.Api.e2e.Test {
             var document = JsonConvert.DeserializeObject<OpenApiDocument>(responseBody);
             document.OpenApi.Should().Be("3.0.0");
             VerifyOpenApiDocumentInfo(document);
+
             VerifyCreationFor<ExampleEntity>(document);
             VerifyReadFor<ExampleEntity>(document);
             VerifyUpdateFor<ExampleEntity>(document);
+
+            VerifyCreationFor<ExampleEntity2>(document);
+            VerifyReadFor<ExampleEntity2>(document);
+            VerifyUpdateFor<ExampleEntity2>(document);
+            VerifyDeleteFor<ExampleEntity2>(document);
+
+            VerifyReadFor<ExampleEntity3>(document);
         }
 
         private static void VerifyCreationFor<T>(OpenApiDocument document) {
@@ -72,6 +80,16 @@ namespace Backlight.Web.Api.e2e.Test {
             openApiOperation.RequestBody.IsRequired.Should().BeTrue();
             openApiOperation.RequestBody.Content.ContainsKey("application/json").Should().BeTrue();
             var requestBodyContent = openApiOperation.RequestBody.Content["application/json"];
+            //TODO requestBodyContent.Schema.Should().BeEquivalentTo(JsonSchema.FromType<T>());
+            openApiOperation.Responses.ContainsKey("200").Should().BeTrue();
+        }
+
+        private static void VerifyDeleteFor<T>(OpenApiDocument document) {
+            document.Paths.ContainsKey($"/api/type/{typeof(T).FullName}/entity/{{id}}").Should().BeTrue();
+            var postPath = document.Paths[$"/api/type/{typeof(T).FullName}/entity/{{id}}"];
+            postPath.ContainsKey(OpenApiOperationMethod.Delete).Should().BeTrue();
+            var openApiOperation = postPath[OpenApiOperationMethod.Delete];
+            openApiOperation.OperationId.Should().Be($"{typeof(T).FullName}-delete");
             //TODO requestBodyContent.Schema.Should().BeEquivalentTo(JsonSchema.FromType<T>());
             openApiOperation.Responses.ContainsKey("200").Should().BeTrue();
         }
