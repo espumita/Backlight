@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Backlight.Services;
 using Microsoft.AspNetCore.Http;
 using NJsonSchema;
 using NJsonSchema.Generation;
@@ -12,38 +15,21 @@ using NSwag;
 
 namespace Backlight.OpenApi {
     public class OpenApiGenerator {
+        private readonly BacklightService service;
+
+        public OpenApiGenerator(BacklightService service) {
+            this.service = service;
+        }
 
         public async Task GenerateAsync(HttpContext httpContext) {
             httpContext.Response.StatusCode = (int) HttpStatusCode.OK;
             var document = new OpenApiDocument();
-            document.Generator = $"Backlight v{typeof(OpenApiGenerator).GetTypeInfo().Assembly.GetName().Version} NSwag v{OpenApiDocument.ToolchainVersion} (NJsonSchema v{JsonSchema.ToolchainVersion})";
             document.SchemaType = SchemaType.OpenApi3;
-            document.Info = new OpenApiInfo {
-                Title = "Backlight",
-                Description = "Backlight Api Entity types definitions",
-                Version = "1.0.0"
-            };
-            var openApiOperation = new OpenApiOperation {
-                OperationId = $"test-put-1"
-            };
-            openApiOperation.Parameters.Add(new OpenApiParameter {
-                Name = "fullName",
-                Schema = new JsonSchema {
-                    Type = JsonObjectType.String
-                },
-                Position = 1
+            document.Info = OpenApiDocumentInfo();
+            service.Options.ProvidersForType.Keys.ToList().ForEach(type => {
+                if (service.Options.ProvidersForType[type].CanCreate()) document.Paths.Add($"/api/type/{type.FullName}", PathFor(OpenApiOperationMethod.Put, type));
             });
-            openApiOperation.Responses.Add(new KeyValuePair<string, OpenApiResponse>("200", new OpenApiResponse()));
-            var openApiRequestBody = new OpenApiRequestBody();
-            openApiRequestBody.Content.Add(new KeyValuePair<string, OpenApiMediaType>("application/json", new OpenApiMediaType {
-                Schema = JsonSchema.FromType<Test>()
-            }));
-            openApiRequestBody.IsRequired = true;
-            openApiOperation.RequestBody = openApiRequestBody;
-            document.Paths.Add("/api/type/{fullName}", new OpenApiPathItem {
-                new KeyValuePair<string, OpenApiOperation>(OpenApiOperationMethod.Put, openApiOperation)
-            });
-            document.Components.Schemas.Add(new KeyValuePair<string, JsonSchema>("TEST2", JsonSchema.FromType<Test>()));
+            //document.Components.Schemas.Add(new KeyValuePair<string, JsonSchema>("TEST2", JsonSchema.FromType<Test>()));
             //document.Paths.Add("/api/type/{fullName}/entity/{id}", new OpenApiPathItem {
             //    new KeyValuePair<string, OpenApiOperation>(OpenApiOperationMethod.Get, new OpenApiOperation {
             //        OperationId = $"test-get-1"
@@ -56,14 +42,39 @@ namespace Backlight.OpenApi {
             //    })
             //});
             //document.GenerateOperationIds();
-            var openApiSchemaResolver = new OpenApiSchemaResolver(document, new JsonSchemaGeneratorSettings());
+            //var openApiSchemaResolver = new OpenApiSchemaResolver(document, new JsonSchemaGeneratorSettings());
             var jsonSchema = document.ToJson();
             await httpContext.Response.WriteAsync(jsonSchema, Encoding.UTF8);
         }
+
+        private static OpenApiInfo OpenApiDocumentInfo() {
+            return new OpenApiInfo {
+                Title = "Backlight",
+                Description = "Backlight Api Entity types definitions",
+                Version = "1.0.0"
+            };
+        }
+
+        private OpenApiPathItem PathFor(string httpMethod, Type type) {
+            return new OpenApiPathItem {
+                new KeyValuePair<string, OpenApiOperation>(httpMethod, OperationFor(httpMethod, type))
+            };
+        }
+
+        private OpenApiOperation OperationFor(string httpMethod, Type type) {
+            var openApiRequestBody = new OpenApiRequestBody();
+            openApiRequestBody.IsRequired = true;
+            openApiRequestBody.Content.Add(new KeyValuePair<string, OpenApiMediaType>("application/json", new OpenApiMediaType {
+                Schema = JsonSchema.FromType(typeof(string))
+            }));
+            var openApiOperation = new OpenApiOperation {
+                OperationId = $"{type.FullName}-{httpMethod}",
+                RequestBody = openApiRequestBody,
+            };
+            openApiOperation.Responses.Add(new KeyValuePair<string, OpenApiResponse>("200", new OpenApiResponse()));
+            return openApiOperation;
+        }
+
     }
 
-    public class Test {
-        public string WTF { get; set; }
-        public DateTime WTF2 { get; set; }
-    }
 }
