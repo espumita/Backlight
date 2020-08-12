@@ -20,8 +20,12 @@ namespace Backlight.Web.Api.e2e.Test {
             client = TestFixture.serverClient;
         }
 
+        //TODO
+        //test dates
+        //test complex types
+
         [Test]
-        public async Task read() {
+        public async Task get_open_api_definition_from_sample() {
             var requestUri = $"/back/OpenApi.json";
 
             var response = await client.GetAsync(requestUri);
@@ -32,6 +36,7 @@ namespace Backlight.Web.Api.e2e.Test {
             document.OpenApi.Should().Be("3.0.0");
             VerifyOpenApiDocumentInfo(document);
             VerifyCreationFor<ExampleEntity>(document);
+            VerifyReadFor<ExampleEntity>(document);
         }
 
         private static void VerifyCreationFor<T>(OpenApiDocument document) {
@@ -43,7 +48,18 @@ namespace Backlight.Web.Api.e2e.Test {
             openApiOperation.RequestBody.IsRequired.Should().BeTrue();
             openApiOperation.RequestBody.Content.ContainsKey("application/json").Should().BeTrue();
             var requestBodyContent = openApiOperation.RequestBody.Content["application/json"];
-            //requestBodyContent.Schema.Should().BeEquivalentTo(JsonSchema.FromType<T>());
+            //TODO requestBodyContent.Schema.Should().BeEquivalentTo(JsonSchema.FromType<T>());
+            openApiOperation.Responses.ContainsKey("200").Should().BeTrue();
+        }
+
+        private static void VerifyReadFor<T>(OpenApiDocument document) {
+            document.Paths.ContainsKey($"/api/type/{typeof(T).FullName}/entity/{{id}}").Should().BeTrue();
+            var getPath = document.Paths[$"/api/type/{typeof(T).FullName}/entity/{{id}}"];
+            getPath.ContainsKey(OpenApiOperationMethod.Get).Should().BeTrue();
+            var openApiOperation = getPath[OpenApiOperationMethod.Get];
+            openApiOperation.OperationId.Should().Be($"{typeof(T).FullName}-get");
+            openApiOperation.Responses.ContainsKey("200").Should().BeTrue();
+            //TODO RESPONSES BODY FILL SCHEME JsonSchema.FromType<T>() ;
         }
 
         private static void VerifyOpenApiDocumentInfo(OpenApiDocument document) {
@@ -62,22 +78,4 @@ namespace Backlight.Web.Api.e2e.Test {
         }
     }
 
-    public class OpenApiDocumentTest {
-        public string OpenApi { get; set; }
-        public OpenApiInfoTest Info { get; set; }
-        public OpenApiPathsTest Paths { get; set; }
-    }
-
-    public class OpenApiInfoTest {
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Version { get; set; }
-
-    }
-
-    public class OpenApiPathsTest {
-        [JsonProperty("/api/type/{fullName}")]
-        public string PuthPath { get; set; }
-
-    }
 }
