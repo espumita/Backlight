@@ -37,6 +37,7 @@ namespace Backlight.Web.Api.e2e.Test {
             VerifyOpenApiDocumentInfo(document);
             VerifyCreationFor<ExampleEntity>(document);
             VerifyReadFor<ExampleEntity>(document);
+            VerifyUpdateFor<ExampleEntity>(document);
         }
 
         private static void VerifyCreationFor<T>(OpenApiDocument document) {
@@ -60,6 +61,19 @@ namespace Backlight.Web.Api.e2e.Test {
             openApiOperation.OperationId.Should().Be($"{typeof(T).FullName}-get");
             openApiOperation.Responses.ContainsKey("200").Should().BeTrue();
             //TODO RESPONSES BODY FILL SCHEME JsonSchema.FromType<T>() ;
+        }
+
+        private static void VerifyUpdateFor<T>(OpenApiDocument document) {
+            document.Paths.ContainsKey($"/api/type/{typeof(T).FullName}/entity/{{id}}").Should().BeTrue();
+            var postPath = document.Paths[$"/api/type/{typeof(T).FullName}/entity/{{id}}"];
+            postPath.ContainsKey(OpenApiOperationMethod.Post).Should().BeTrue();
+            var openApiOperation = postPath[OpenApiOperationMethod.Post];
+            openApiOperation.OperationId.Should().Be($"{typeof(T).FullName}-post");
+            openApiOperation.RequestBody.IsRequired.Should().BeTrue();
+            openApiOperation.RequestBody.Content.ContainsKey("application/json").Should().BeTrue();
+            var requestBodyContent = openApiOperation.RequestBody.Content["application/json"];
+            //TODO requestBodyContent.Schema.Should().BeEquivalentTo(JsonSchema.FromType<T>());
+            openApiOperation.Responses.ContainsKey("200").Should().BeTrue();
         }
 
         private static void VerifyOpenApiDocumentInfo(OpenApiDocument document) {

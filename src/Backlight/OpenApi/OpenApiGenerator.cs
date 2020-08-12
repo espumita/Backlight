@@ -23,12 +23,24 @@ namespace Backlight.OpenApi {
             document.SchemaType = SchemaType.OpenApi3;
             document.Info = OpenApiDocumentInfo();
             service.Options.ProvidersForType.Keys.ToList().ForEach(type => {
-                if (service.Options.ProvidersForType[type].CanCreate()) document.Paths.Add($"/api/type/{type.FullName}", PathFor(type, OpenApiOperationMethod.Put));
-                if (service.Options.ProvidersForType[type].CanRead()) document.Paths.Add($"/api/type/{type.FullName}/entity/{{id}}", PathFor(type, OpenApiOperationMethod.Get));
+                if (service.Options.ProvidersForType[type].CanCreate()) document.Paths.Add($"/api/type/{type.FullName}", PathFor(type, new List<string>{ OpenApiOperationMethod.Put }));
+                if (service.Options.ProvidersForType[type].CanRead()
+                    || service.Options.ProvidersForType[type].CanUpdate()
+                    || service.Options.ProvidersForType[type].CanDelete()
+                ) document.Paths.Add($"/api/type/{type.FullName}/entity/{{id}}", PathFor(type, HttpMethodsFor(type)));
             });
             //document.Components.Schemas.Add(new KeyValuePair<string, JsonSchema>("TEST2", JsonSchema.FromType<Test>()));
             var jsonSchema = document.ToJson();
             await httpContext.Response.WriteAsync(jsonSchema, Encoding.UTF8);
+        }
+
+        private List<string> HttpMethodsFor(Type type) {
+            var httpMethods = new List<string>();
+            var providersForType = service.Options.ProvidersForType[type];
+            if (providersForType.CanRead()) httpMethods.Add(OpenApiOperationMethod.Get);
+            if (providersForType.CanUpdate()) httpMethods.Add(OpenApiOperationMethod.Post);
+            if (providersForType.CanDelete()) httpMethods.Add(OpenApiOperationMethod.Delete);
+            return httpMethods;
         }
 
         private static OpenApiInfo OpenApiDocumentInfo() {
@@ -39,15 +51,15 @@ namespace Backlight.OpenApi {
             };
         }
 
-        private OpenApiPathItem PathFor(Type type, params string[] httpMethod) {
+        private OpenApiPathItem PathFor(Type type, List<string> httpMethod) {
             var openApiPathItem = new OpenApiPathItem();
-            httpMethod.ToList().ForEach(method => openApiPathItem.Add(
+            httpMethod.ForEach(method => openApiPathItem.Add(
                 new KeyValuePair<string, OpenApiOperation>(method, OperationFor(method, type))));
             return openApiPathItem;
         }
 
         private OpenApiOperation OperationFor(string httpMethod, Type type) {
-            if (httpMethod == "put") {
+            if (httpMethod == OpenApiOperationMethod.Put || httpMethod == OpenApiOperationMethod.Post) {
                 var openApiRequestBody = new OpenApiRequestBody();
                 openApiRequestBody.IsRequired = true;
                 openApiRequestBody.Content.Add(new KeyValuePair<string, OpenApiMediaType>("application/json", new OpenApiMediaType {
