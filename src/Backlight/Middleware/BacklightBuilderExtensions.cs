@@ -18,9 +18,8 @@ namespace Backlight.Middleware {
 
         private static Action<IApplicationBuilder> ConfigureApiEndpointRunner() {
             return applicationBuilder => {
-                var apiRunner = GetApiRunnerFrom(applicationBuilder);
                 applicationBuilder.Run(async httpContext => {
-                    await apiRunner.Run(httpContext);
+                    await GetApiRunnerFrom(applicationBuilder).Run(httpContext);
                 });
             };
         }
@@ -31,9 +30,8 @@ namespace Backlight.Middleware {
 
         private static Action<IApplicationBuilder> ConfigureOpenApiEndpointRunner() {
             return applicationBuilder => {
-                var openApiGenerator = GetOpenApiGeneratorFrom(applicationBuilder);
                 applicationBuilder.Run(async httpContext => {
-                    await openApiGenerator.GenerateAsync(httpContext);
+                    await GetOpenApiGeneratorFrom(applicationBuilder).GenerateAsync(httpContext);
                 });
             };
         }

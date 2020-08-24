@@ -1,15 +1,12 @@
 ﻿using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Backlight.Sample.Web.Api.Entities;
 using FluentAssertions;
 using Newtonsoft.Json;
-using NJsonSchema;
 using NSwag;
 using NUnit.Framework;
-using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace Backlight.Web.Api.e2e.Test {
     public class OpenApiTest {
@@ -22,7 +19,7 @@ namespace Backlight.Web.Api.e2e.Test {
 
         [Test]
         public async Task get_open_api_definition_from_sample() {
-            var requestUri = $"/back/OpenApi.json";
+            var requestUri = "/back/openapi.json";
 
             var response = await client.GetAsync(requestUri);
 
