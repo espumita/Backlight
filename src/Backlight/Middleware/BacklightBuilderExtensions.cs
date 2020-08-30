@@ -1,7 +1,7 @@
 using System;
 using Backlight.Api;
-using Backlight.Middleware.Html;
 using Backlight.OpenApi;
+using Backlight.UI;
 using Microsoft.AspNetCore.Builder;
 
 namespace Backlight.Middleware {

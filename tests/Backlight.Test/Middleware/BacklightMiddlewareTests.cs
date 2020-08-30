@@ -2,9 +2,11 @@
 using System.Net;
 using System.Threading.Tasks;
 using Backlight.Middleware;
-using Backlight.Middleware.Html;
+using Backlight.UI;
 using FluentAssertions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -18,13 +20,17 @@ namespace Backlight.Test.Middleware {
         private BacklightMiddleware middleware;
         private DefaultHttpContext httpContext;
         private IndexHtmlLoader indexHtmlLoader;
+        private ILoggerFactory loggerFactory;
+        private IWebHostEnvironment webHostEnvironment;
 
         [SetUp]
         public void SetUp() {
             next = Substitute.For<RequestDelegate>();
             configuration = new MiddlewareConfiguration();
             indexHtmlLoader = Substitute.For<IndexHtmlLoader>();
-            middleware = new BacklightMiddleware(next, configuration, indexHtmlLoader);
+            loggerFactory = Substitute.For<ILoggerFactory>();
+            webHostEnvironment = Substitute.For<IWebHostEnvironment>();
+            middleware = new BacklightMiddleware(next, configuration, indexHtmlLoader, webHostEnvironment, loggerFactory);
             httpContext = new DefaultHttpContext();
             httpContext.Response.Body = new MemoryStream();
         }

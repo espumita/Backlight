@@ -1,22 +1,33 @@
-using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Backlight.Middleware.Html;
+using Backlight.UI;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Backlight.Middleware {
     public class BacklightMiddleware {
+        private const string EmbeddedFileNamespace = "Backlight.UI.node_modules.swagger_ui_dist";
+
         private readonly RequestDelegate next;
         private readonly MiddlewareConfiguration configuration;
         private readonly IndexHtmlLoader idexHtmlLoader;
+        private readonly StaticFileMiddleware _staticFileMiddleware;
 
-        public BacklightMiddleware(RequestDelegate next, MiddlewareConfiguration configuration, IndexHtmlLoader idexHtmlLoader) {
+
+        public BacklightMiddleware(RequestDelegate next, MiddlewareConfiguration configuration, IndexHtmlLoader idexHtmlLoader, IWebHostEnvironment webHostEnvironment, ILoggerFactory loggerFactory) {
             this.next = next;
             this.configuration = configuration;
             this.idexHtmlLoader = idexHtmlLoader;
+            _staticFileMiddleware = CreateStaticFileMiddleware(next, webHostEnvironment, loggerFactory);
         }
 
         public async Task Invoke(HttpContext httpContext) {
@@ -31,7 +42,15 @@ namespace Backlight.Middleware {
                 await RespondWithIndexHtml(httpContext.Response);
                 return;
             }
-            await next.Invoke(httpContext);
+            await _staticFileMiddleware.Invoke(httpContext);
+        }
+        private StaticFileMiddleware CreateStaticFileMiddleware(RequestDelegate next, IWebHostEnvironment hostingEnv, ILoggerFactory loggerFactory)  {
+            var staticFileOptions = new StaticFileOptions {
+                RequestPath = string.IsNullOrEmpty(configuration.RoutePrefix) ? string.Empty : $"/{configuration.RoutePrefix}",
+                FileProvider = new EmbeddedFileProvider(typeof(IndexHtmlLoader).GetTypeInfo().Assembly, EmbeddedFileNamespace),
+            };
+
+            return new StaticFileMiddleware(next, hostingEnv, Options.Create(staticFileOptions), loggerFactory);
         }
 
         private static bool IsGet(string httpMethod) {

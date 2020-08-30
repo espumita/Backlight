@@ -3,15 +3,14 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backlight.Middleware.Html {
+namespace Backlight.UI {
     public class IndexHtmlLoader {
-        private const string BacklightIndexHtml = "Backlight.Middleware.Html.index.html";
+        private const string BacklightIndexHtml = "Backlight.UI.index.html";
 
         public virtual async Task<string> LoadRawWith(string documentTitle) {
             using (var fileStream = IndexHtmlFileStream()) {
                 var rawIndexHtlm = await RawIndexHtmlFrom(fileStream);
-                return new StringBuilder(rawIndexHtlm)
-                    .InjectConfiguration("DocumentTitle", documentTitle)
+                return StringBuilderConfigurationsExtensions.InjectConfiguration(new StringBuilder(rawIndexHtlm), "DocumentTitle", documentTitle)
                     .ToString();
             }
         }

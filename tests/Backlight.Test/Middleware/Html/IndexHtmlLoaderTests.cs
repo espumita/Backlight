@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Backlight.Middleware.Html;
+using Backlight.UI;
 using FluentAssertions;
 using NUnit.Framework;
 
