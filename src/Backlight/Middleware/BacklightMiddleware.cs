@@ -14,16 +14,15 @@ using Microsoft.Extensions.Options;
 
 namespace Backlight.Middleware {
     public class BacklightMiddleware {
-        private readonly RequestDelegate next;
         private readonly MiddlewareConfiguration configuration;
         private readonly IndexHtmlLoader idexHtmlLoader;
-        private readonly StaticFileMiddleware staticFileMiddleware;
+        private readonly StaticFileMiddleware staticFilesMiddleware;
         
         public BacklightMiddleware(RequestDelegate next, MiddlewareConfiguration configuration, IndexHtmlLoader idexHtmlLoader, IWebHostEnvironment webHostEnvironment, ILoggerFactory loggerFactory) {
-            this.next = next;
             this.configuration = configuration;
             this.idexHtmlLoader = idexHtmlLoader;
-            staticFileMiddleware = StaticFileMiddleware(next, webHostEnvironment, loggerFactory);
+            var staticFileOptions = StaticFileOptionsFrom(new UIStaticFilesProvider());
+            staticFilesMiddleware = new StaticFileMiddleware(next, webHostEnvironment, staticFileOptions, loggerFactory);
         }
 
         public async Task Invoke(HttpContext httpContext) {
@@ -38,16 +37,15 @@ namespace Backlight.Middleware {
                 await RespondWithIndexHtml(httpContext.Response);
                 return;
             }
-            await staticFileMiddleware.Invoke(httpContext);
+            await staticFilesMiddleware.Invoke(httpContext);
         }
-        private StaticFileMiddleware StaticFileMiddleware(RequestDelegate next, IWebHostEnvironment hostingEnv, ILoggerFactory loggerFactory)  {
-            var filesProvider = new UIStaticFilesProvider();
+
+        private IOptions<StaticFileOptions> StaticFileOptionsFrom(UIStaticFilesProvider filesProvider) {
             var staticFileOptions = new StaticFileOptions {
                 RequestPath = string.IsNullOrEmpty(configuration.RoutePrefix) ? string.Empty : $"/{configuration.RoutePrefix}",
                 FileProvider = new EmbeddedFileProvider(filesProvider.Assembly(), filesProvider.EmbeddedFilesNamespace()),
             };
-
-            return new StaticFileMiddleware(next, hostingEnv, Options.Create(staticFileOptions), loggerFactory);
+            return Options.Create(staticFileOptions);
         }
 
         private static bool IsGet(string httpMethod) {
