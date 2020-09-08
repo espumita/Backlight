@@ -9,7 +9,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Middleware\Html\index.html" />
+    <PackageReference Include="NSwag.Core" Version="13.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Backlight.UI\Backlight.UI.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,9 @@
+{
+  "name": "backlight",
+  "version": "1.0.0",
+  "main": "index.html",
+  "private": true,
+  "dependencies": {
+    "swagger-ui-dist": "3.26.0"
+  }
+}

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="index.html" />
+    <EmbeddedResource Include="node_modules/swagger-ui-dist/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
+  </ItemGroup>
+
+  <Target Name="YarnInstall" BeforeTargets="Build">
+    <Exec Command="yarn" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/yarn is required to build this project." />
+  </Target>
+
+</Project>
