@@ -185,6 +185,19 @@ namespace Backlight.Test.Api {
             responseBody.Should().Be("Enity deleted");
         }
 
+        [Test]
+        public async Task execute_read_all_ids_service() {
+            httpContext.Request.Path = $"/types/{AEntityName}/all";
+            httpContext.Request.Method = HttpMethods.Get;
+            backlightService.ReadAllIds(AEntityName).Returns($"[\"${AnEntityId}\"]");
+
+            await runner.Run(httpContext);
+
+            httpContext.Response.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            var responseBody = await ReadBodyFrom(httpContext.Response.Body);
+            responseBody.Should().Be($"[\"${AnEntityId}\"]");
+        }
+
         public static IEnumerable<string> NotAllowedMethods() {
             yield return HttpMethods.Connect;
             yield return HttpMethods.Head;

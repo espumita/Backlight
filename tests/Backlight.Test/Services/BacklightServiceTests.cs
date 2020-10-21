@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Backlight.Providers;
 using Backlight.Services;
 using Backlight.Services.EntitySerialization;
@@ -37,7 +39,7 @@ namespace Backlight.Test.Services {
 
         [Test]
         public async Task use_provider_on_read() {
-            var provider = Substitute.For<ReadProvider>();
+            var provider = Substitute.For<ReadProviderForTest>();
             options.For<UserEntity>().AddRead(provider);
             provider.Read(AnEntityId, typeof(UserEntity)).Returns(aUserEntity);
             serializer.Serialize(aUserEntity, typeof(UserEntity)).Returns(ASerializedEntity);
@@ -46,6 +48,19 @@ namespace Backlight.Test.Services {
 
             readedEntity.Should().Be(ASerializedEntity);
         }
+
+        [Test]
+        public async Task use_provider_on_read_all_ids() {
+            var provider = Substitute.For<ReadProviderForTest>();
+            options.For<UserEntity>().AddRead(provider);
+            provider.ReadAllIds().Returns(new List<string>{ AnEntityId });
+            serializer.Serialize(Arg.Is<List<string>>(x => x.Count == 1 && x.First().Equals(AnEntityId)), typeof(List<string>)).Returns($"[\"${AnEntityId}\"]");
+
+            var allEntitiesIds = await ServiceWith(options).ReadAllIds(AEntityName);
+
+            allEntitiesIds.Should().Be(ASerializedEntity);
+        }
+
 
         [Test]
         public async Task use_provider_on_update() {
@@ -72,5 +87,11 @@ namespace Backlight.Test.Services {
             return new BacklightService(options, serializer);
         }
 
+        public interface ReadProviderForTest : ReadProvider, ReadAllIdsProvider {
+
+        }
+
     }
+
+
 }

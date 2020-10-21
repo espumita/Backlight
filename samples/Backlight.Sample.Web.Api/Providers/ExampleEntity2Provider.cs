@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Backlight.Providers;
 using Backlight.Sample.Web.Api.Entities;
@@ -26,6 +27,14 @@ namespace Backlight.Sample.Web.Api.Providers {
 
         public async Task Delete(string entityId) {
             Console.WriteLine($"Deleted {entityId}");
+        }
+
+        public async Task<List<string>> ReadAllIds() {
+            return new List<string> {
+                "1",
+                "G",
+                "2"
+            };
         }
     }
 }

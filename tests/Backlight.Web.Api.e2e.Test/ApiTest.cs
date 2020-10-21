@@ -46,6 +46,7 @@ namespace Backlight.Web.Api.e2e.Test {
             entity.Name.Should().Be("George Lucas");
         }
 
+
         [Test]
         public async Task update() {
             var requestUri = $"/back/api/types/{AEntityName}/entities/{AnEntityId}";
@@ -70,6 +71,18 @@ namespace Backlight.Web.Api.e2e.Test {
             var responseBody = await ReadBodyFrom(response.Content);
             responseBody.Should().Be("Enity deleted");
         }
+        
+        [Test]
+        public async Task read_all_ids() {
+            var requestUri = $"/back/api/types/{AEntityName}/all";
+
+            var response = await client.GetAsync(requestUri);
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseBody = await ReadBodyFrom(response.Content);
+            responseBody.Should().Be("[\"1\",\"G\",\"2\"]");
+        }
+
 
         private ByteArrayContent AContentWith(ExampleEntity2 entity) {
             return new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(entity)));

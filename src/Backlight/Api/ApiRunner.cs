@@ -24,6 +24,7 @@ namespace Backlight.Api {
             if (IsNotAllowed(httpContext.Request.Method)) return await MethodNotAllowedResponse(httpContext);
             try {
                 var entityTypeName = TryToGetEntityTypeNameFrom(httpContext.Request);
+                if (IsReadAllIds(httpContext.Request)) return await new ReadAllIds(service, httpContext).Execute(entityTypeName);
                 var entityId = TryToGetEntityIdFrom(httpContext.Request);
                 var entityPayload = await TryToGetEntityPayloadFrom(httpContext.Request.Body);
                 return await (httpContext.Request.Method switch {
@@ -43,6 +44,10 @@ namespace Backlight.Api {
             } catch (EntityDeserializationException) {
                 return await EntityPayloadDeserializationErrorResponse(httpContext);
             }
+        }
+
+        private bool IsReadAllIds(HttpRequest request) {
+            return Regex.IsMatch(request.Path.Value, "^/types/([\\w\\.\\-]+)/all$");
         }
 
         private async Task<string> TryToGetEntityPayloadFrom(Stream requestBody) {
@@ -69,6 +74,7 @@ namespace Backlight.Api {
                 if (!Regex.IsMatch(request.Path.Value, "^/types/([\\w\\.\\-]+)$")) throw new TypeCanNotBeSerializedFromPathException();
                 return request.Path.Value.Split("/types/")[1];
             };
+            if (Regex.IsMatch(request.Path.Value, "^/types/([\\w\\.\\-]+)/all$")) return request.Path.Value.Split("/types/")[1].Split('/')[0];
             if (!Regex.IsMatch(request.Path.Value, "^/types/([\\w\\.\\-]+)/entities([\\w\\.\\-\\/]+)$")) throw new TypeCanNotBeSerializedFromPathException();
             return request.Path.Value.Split("/types/")[1].Split('/')[0];
         }
@@ -76,15 +82,6 @@ namespace Backlight.Api {
             if (request.Method == HttpMethods.Put) return string.Empty;
             if (!Regex.IsMatch(request.Path.Value, "^/types/([\\w\\.\\-]+)/entities/([\\w\\.\\-]+)(?<!\\/)$")) throw new EntityIdCanNotBeSerializedFromPathException();
             return request.Path.Value.Split("/entities/")[1];
-        }
-
-        private ApiMethod ApiMethodFor(HttpContext httpContext) {
-            return httpContext.Request.Method switch {
-                var method when method.Equals(HttpMethods.Put) => new Create(service, httpContext),
-                var method when method.Equals(HttpMethods.Get) => new Read(service, httpContext),
-                var method when method.Equals(HttpMethods.Post) => new Update(service, httpContext),
-                var method when method.Equals(HttpMethods.Delete) => new Delete(service, httpContext),
-            };
         }
 
         private async Task<ApiResult> TypeCannotBeDeserializedFromPathResponse(HttpContext httpContext) {

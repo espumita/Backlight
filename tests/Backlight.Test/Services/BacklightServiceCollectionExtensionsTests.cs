@@ -49,7 +49,7 @@ namespace Backlight.Test.Services {
 
         [Test]
         public void be_configured_with_a_read_provider() {
-            var readProvider = Substitute.For<ReadProvider>();
+            var readProvider = Substitute.For<ReadProviderForTest>();
             readProvider.Read(AnEntityId, typeof(UserEntity)).Returns(AUserEntity);
             
             collection.AddBacklight(configuration => {
@@ -138,7 +138,7 @@ namespace Backlight.Test.Services {
 
         [Test]
         public void throw_an_exception_when_try_to_add_a_read_provider_twice() {
-            var readProvider = Substitute.For<ReadProvider>();
+            var readProvider = Substitute.For<ReadProviderForTest>();
 
             Action action = () => collection.AddBacklight(configuration => {
                 configuration.For<UserEntity>()
@@ -204,6 +204,10 @@ namespace Backlight.Test.Services {
             providerForType.CanRead().Should().Be(read);
             providerForType.CanUpdate().Should().Be(update);
             providerForType.CanDelete().Should().Be(delete);
+        }
+
+        public interface ReadProviderForTest : ReadProvider, ReadAllIdsProvider {
+
         }
 
     }

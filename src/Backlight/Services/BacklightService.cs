@@ -15,6 +15,13 @@ namespace Backlight.Services {
             Options = options;
         }
 
+        public virtual async Task<string> ReadAllIds(string entityTypeName) {
+            var type = TryToGetConfiguredTypeFrom(entityTypeName);
+            var getAllIdsProvider = TryToGetReadAllIdsProviderForType(type);
+            var allEntitiesIds = await getAllIdsProvider.ReadAllIds();
+            return entitySerializer.Serialize(allEntitiesIds, allEntitiesIds.GetType());
+        }
+
         public virtual async Task<string> Create(string entityTypeName, string entityPayload) {
             var type = TryToGetConfiguredTypeFrom(entityTypeName);
             var createProvider = TryToGetCreateProvider(type);
@@ -48,6 +55,10 @@ namespace Backlight.Services {
             if (!isEntityConfigured) throw new EntityIsNotConfiguredException();
             var typeForName = Options.ProvidersForType.Keys.FirstOrDefault(type => type.FullName.Equals(typeName));
             return typeForName;
+        }
+        private ReadAllIdsProvider TryToGetReadAllIdsProviderForType(Type type) {
+            if (!Options.ProvidersForType[type].CanReadAllIds()) throw new EntityProviderIsNotAvailableException();
+            return Options.ProvidersForType[type].ReadAllIdses;
         }
 
         private CreateProvider TryToGetCreateProvider(Type type) {
