@@ -58,7 +58,7 @@ namespace Backlight.Test.Services {
 
             var allEntitiesIds = await ServiceWith(options).ReadAllIds(AEntityName);
 
-            allEntitiesIds.Should().Be(ASerializedEntity);
+            allEntitiesIds.Should().Be($"[\"${AnEntityId}\"]");
         }
 
 
