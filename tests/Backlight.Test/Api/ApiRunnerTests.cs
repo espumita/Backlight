@@ -132,7 +132,7 @@ namespace Backlight.Test.Api {
         [Test]
         public async Task execute_service_create_entity() {
             httpContext.Request.Method = HttpMethods.Put;
-            httpContext.Request.Path = $"/type/{AEntityName}";
+            httpContext.Request.Path = $"/types/{AEntityName}";
             var anEntityPayload = ASerializedEntity;
             GivenARequestBodyWith(anEntityPayload);
             backlightService.Create(AEntityName, ASerializedEntity).Returns(AnEntityId);
@@ -146,7 +146,7 @@ namespace Backlight.Test.Api {
 
         [Test]
         public async Task execute_service_read_entity() {
-            httpContext.Request.Path = $"/type/{AEntityName}/entity/{AnEntityId}";
+            httpContext.Request.Path = $"/types/{AEntityName}/entities/{AnEntityId}";
             httpContext.Request.Method = HttpMethods.Get;
             backlightService.Read(AEntityName, AnEntityId).Returns(ASerializedEntity);
 
@@ -160,7 +160,7 @@ namespace Backlight.Test.Api {
         [Test]
         public async Task execute_service_update_entity() {
             httpContext.Request.Method = HttpMethods.Post;
-            httpContext.Request.Path = $"/type/{AEntityName}/entity/{AnEntityId}";
+            httpContext.Request.Path = $"/types/{AEntityName}/entities/{AnEntityId}";
             var anEntityPayload = ASerializedEntity;
             GivenARequestBodyWith(anEntityPayload);
 
@@ -175,7 +175,7 @@ namespace Backlight.Test.Api {
         [Test]
         public async Task execute_delete_entity_provider() {
             httpContext.Request.Method = HttpMethods.Delete;
-            httpContext.Request.Path = $"/type/{AEntityName}/entity/{AnEntityId}";
+            httpContext.Request.Path = $"/types/{AEntityName}/entities/{AnEntityId}";
 
             await runner.Run(httpContext);
 
@@ -195,10 +195,10 @@ namespace Backlight.Test.Api {
 
         public static IEnumerable<(string httpMethod, string path)> AllowedMethodsWithPath() {
             return new List<(string httpMethod, string path)> {
-                (HttpMethods.Put, "/type/Backlight.Test.UserEntity"),
-                (HttpMethods.Get, "/type/Backlight.Test.UserEntity/entity/anEntityId"),
-                (HttpMethods.Post, "/type/Backlight.Test.UserEntity/entity/anEntityId"),
-                (HttpMethods.Delete, "/type/Backlight.Test.UserEntity/entity/anEntityId")
+                (HttpMethods.Put, "/types/Backlight.Test.UserEntity"),
+                (HttpMethods.Get, "/types/Backlight.Test.UserEntity/entities/anEntityId"),
+                (HttpMethods.Post, "/types/Backlight.Test.UserEntity/entities/anEntityId"),
+                (HttpMethods.Delete, "/types/Backlight.Test.UserEntity/entities/anEntityId")
             };
         }
 
@@ -216,10 +216,10 @@ namespace Backlight.Test.Api {
             yield return string.Empty;
             yield return "/";
             yield return "//";
-            yield return "/type/";
-            yield return "/type//";
-            yield return "/type/Backlight.Test.UserEntity/";
-            yield return "/type/Backlight.Test.UserEntity/Backlight.Test.UserEntity";
+            yield return "/types/";
+            yield return "/types//";
+            yield return "/types/Backlight.Test.UserEntity/";
+            yield return "/types/Backlight.Test.UserEntity/Backlight.Test.UserEntity";
         }
         public static IEnumerable<(string httpMethod, string path)> BadEntityIdsPathsWithMethods() {
             return new List<string> {
@@ -232,10 +232,10 @@ namespace Backlight.Test.Api {
         }
 
         private static IEnumerable<string> BadEntityIdPaths() {
-            yield return "/type/Backlight.Test.UserEntity/entity/";
-            yield return "/type/Backlight.Test.UserEntity/entity//";
-            yield return "/type/Backlight.Test.UserEntity/entity/anEntityId/";
-            yield return "/type/Backlight.Test.UserEntity/entity/anEntityId//";
+            yield return "/types/Backlight.Test.UserEntity/entities/";
+            yield return "/types/Backlight.Test.UserEntity/entities//";
+            yield return "/types/Backlight.Test.UserEntity/entities/anEntityId/";
+            yield return "/types/Backlight.Test.UserEntity/entities/anEntityId//";
         }
 
         private static async Task<string> ReadBodyFrom(Stream bodyStream) {

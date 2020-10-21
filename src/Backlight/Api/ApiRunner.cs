@@ -66,16 +66,16 @@ namespace Backlight.Api {
 
         private static string TryToGetEntityTypeNameFrom(HttpRequest request) {
             if (request.Method == HttpMethods.Put) {
-                if (!Regex.IsMatch(request.Path.Value, "^/type/([\\w\\.\\-]+)$")) throw new TypeCanNotBeSerializedFromPathException();
-                return request.Path.Value.Split("/type/")[1];
+                if (!Regex.IsMatch(request.Path.Value, "^/types/([\\w\\.\\-]+)$")) throw new TypeCanNotBeSerializedFromPathException();
+                return request.Path.Value.Split("/types/")[1];
             };
-            if (!Regex.IsMatch(request.Path.Value, "^/type/([\\w\\.\\-]+)/entity([\\w\\.\\-\\/]+)$")) throw new TypeCanNotBeSerializedFromPathException();
-            return request.Path.Value.Split("/type/")[1].Split('/')[0];
+            if (!Regex.IsMatch(request.Path.Value, "^/types/([\\w\\.\\-]+)/entities([\\w\\.\\-\\/]+)$")) throw new TypeCanNotBeSerializedFromPathException();
+            return request.Path.Value.Split("/types/")[1].Split('/')[0];
         }
         private static string TryToGetEntityIdFrom(HttpRequest request) {
             if (request.Method == HttpMethods.Put) return string.Empty;
-            if (!Regex.IsMatch(request.Path.Value, "^/type/([\\w\\.\\-]+)/entity/([\\w\\.\\-]+)(?<!\\/)$")) throw new EntityIdCanNotBeSerializedFromPathException();
-            return request.Path.Value.Split("/entity/")[1];
+            if (!Regex.IsMatch(request.Path.Value, "^/types/([\\w\\.\\-]+)/entities/([\\w\\.\\-]+)(?<!\\/)$")) throw new EntityIdCanNotBeSerializedFromPathException();
+            return request.Path.Value.Split("/entities/")[1];
         }
 
         private ApiMethod ApiMethodFor(HttpContext httpContext) {

@@ -22,7 +22,7 @@ namespace Backlight.Web.Api.e2e.Test {
 
         [Test]
         public async Task create() {
-            var requestUri = $"/back/api/type/{AEntityName}";
+            var requestUri = $"/back/api/types/{AEntityName}";
             var content = AContentWith(new ExampleEntity2 {
                 Name = "Freddie Mercury"
             });
@@ -36,7 +36,7 @@ namespace Backlight.Web.Api.e2e.Test {
 
         [Test]
         public async Task read() {
-            var requestUri = $"/back/api/type/{AEntityName}/entity/{AnEntityId}";
+            var requestUri = $"/back/api/types/{AEntityName}/entities/{AnEntityId}";
 
             var response = await client.GetAsync(requestUri);
 
@@ -48,7 +48,7 @@ namespace Backlight.Web.Api.e2e.Test {
 
         [Test]
         public async Task update() {
-            var requestUri = $"/back/api/type/{AEntityName}/entity/{AnEntityId}";
+            var requestUri = $"/back/api/types/{AEntityName}/entities/{AnEntityId}";
             var content = AContentWith(new ExampleEntity2 {
                 Name = "Ellen DeGeneres"
             });
@@ -62,7 +62,7 @@ namespace Backlight.Web.Api.e2e.Test {
 
         [Test]
         public async Task delete() {
-            var requestUri = $"/back/api/type/{AEntityName}/entity/{AnEntityId}";
+            var requestUri = $"/back/api/types/{AEntityName}/entities/{AnEntityId}";
 
             var response = await client.DeleteAsync(requestUri);
 
