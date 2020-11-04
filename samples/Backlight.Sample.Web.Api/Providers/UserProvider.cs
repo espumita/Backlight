@@ -5,24 +5,22 @@ using Backlight.Providers;
 using Backlight.Sample.Web.Api.Entities;
 
 namespace Backlight.Sample.Web.Api.Providers {
-    public class ExampleEntity2Provider : CRUDProvider {
+    public class UserProvider : CRUDProvider {
 
         public async Task<string> Create<T>(T entity) {
-            var exampleEntity2 = entity as ExampleEntity2;
-            Console.WriteLine($"Created {exampleEntity2.Name}");
+            var user = entity as User;
+            Console.WriteLine($"Created {user.Name}");
             return Guid.NewGuid().ToString();
         }
 
         public async Task<object> Read<T>(string entityId, T returnType) {
             Console.WriteLine($"Readed {entityId}");
-            return new ExampleEntity2 {
-                Name = "George Lucas"
-            };
+            return new User();
         }
 
         public async Task Update<T>(string entityId, T entity) {
-            var exampleEntity2 = entity as ExampleEntity2;
-            Console.WriteLine($"Updated {exampleEntity2.Name} with id {entityId}");
+            var user = entity as User;
+            Console.WriteLine($"Updated {user.Name} with id {entityId}");
         }
 
         public async Task Delete(string entityId) {
@@ -31,9 +29,22 @@ namespace Backlight.Sample.Web.Api.Providers {
 
         public async Task<List<string>> ReadAllIds() {
             return new List<string> {
-                "1",
-                "G",
-                "2"
+                "00000000",
+                "11111111",
+                "22222222",
+                "33333333",
+                "44444444",
+                "55555555",
+                "66666666",
+                "77777777",
+                "88888888",
+                "99999999",
+                "AAAAAAAA",
+                "BBBBBBBB",
+                "CCCCCCCC",
+                "DDDDDDDD",
+                "EEEEEEEE",
+                "FFFFFFFF"
             };
         }
     }

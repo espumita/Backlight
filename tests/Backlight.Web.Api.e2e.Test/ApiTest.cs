@@ -12,7 +12,7 @@ using NUnit.Framework;
 namespace Backlight.Web.Api.e2e.Test {
     public class ApiTest {
         private HttpClient client;
-        private string AEntityName = typeof(ExampleEntity2).FullName;
+        private string AEntityName = typeof(User).FullName;
         private string AnEntityId = Guid.NewGuid().ToString();
 
         [SetUp]
@@ -23,7 +23,7 @@ namespace Backlight.Web.Api.e2e.Test {
         [Test]
         public async Task create() {
             var requestUri = $"/back/api/types/{AEntityName}";
-            var content = AContentWith(new ExampleEntity2 {
+            var content = AContentWith(new User {
                 Name = "Freddie Mercury"
             });
 
@@ -42,7 +42,7 @@ namespace Backlight.Web.Api.e2e.Test {
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(response.Content);
-            var entity = JsonSerializer.Deserialize<ExampleEntity2>(responseBody);
+            var entity = JsonSerializer.Deserialize<User>(responseBody);
             entity.Name.Should().Be("George Lucas");
         }
 
@@ -50,7 +50,7 @@ namespace Backlight.Web.Api.e2e.Test {
         [Test]
         public async Task update() {
             var requestUri = $"/back/api/types/{AEntityName}/entities/{AnEntityId}";
-            var content = AContentWith(new ExampleEntity2 {
+            var content = AContentWith(new User {
                 Name = "Ellen DeGeneres"
             });
 
@@ -80,11 +80,11 @@ namespace Backlight.Web.Api.e2e.Test {
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseBody = await ReadBodyFrom(response.Content);
-            responseBody.Should().Be("[\"1\",\"G\",\"2\"]");
-        }
+            responseBody.Should().Be("[\"00000000\",\"11111111\",\"22222222\",\"33333333\",\"44444444\",\"55555555\",\"66666666\",\"77777777\",\"88888888\",\"99999999\",\"AAAAAAAA\",\"BBBBBBBB\",\"CCCCCCCC\",\"DDDDDDDD\",\"EEEEEEEE\",\"FFFFFFFF\"]");
+       }
 
 
-        private ByteArrayContent AContentWith(ExampleEntity2 entity) {
+        private ByteArrayContent AContentWith(User entity) {
             return new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(entity)));
         }
 

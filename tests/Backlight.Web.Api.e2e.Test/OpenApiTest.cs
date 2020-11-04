@@ -29,16 +29,16 @@ namespace Backlight.Web.Api.e2e.Test {
             document.OpenApi.Should().Be("3.0.0");
             VerifyOpenApiDocumentInfo(document);
 
-            VerifyCreationFor<ExampleEntity>(document);
-            VerifyReadFor<ExampleEntity>(document);
-            VerifyUpdateFor<ExampleEntity>(document);
+            VerifyCreationFor<Exam>(document);
+            VerifyReadFor<Exam>(document);
+            VerifyUpdateFor<Exam>(document);
 
-            VerifyCreationFor<ExampleEntity2>(document);
-            VerifyReadFor<ExampleEntity2>(document);
-            VerifyUpdateFor<ExampleEntity2>(document);
-            VerifyDeleteFor<ExampleEntity2>(document);
+            VerifyCreationFor<User>(document);
+            VerifyReadFor<User>(document);
+            VerifyUpdateFor<User>(document);
+            VerifyDeleteFor<User>(document);
 
-            VerifyReadFor<ExampleEntity3>(document);
+            VerifyReadFor<Notes>(document);
         }
 
         private static void VerifyCreationFor<T>(OpenApiDocument document) {

@@ -18,18 +18,18 @@ namespace Backlight.Sample.Web.Api {
 
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllers();
-            var exampleEntityProvider = new ExampleEntityProvider();
-            var exampleEntity2Provider = new ExampleEntity2Provider();
-            var exampleEntity3Provider = new ExampleEntity3Provider();
+            var exampleEntityProvider = new ExamProvider();
+            var exampleEntity2Provider = new UserProvider();
+            var exampleEntity3Provider = new NotesProvider();
 
             services.AddBacklight(configuration => {
-                configuration.For<ExampleEntity>()
+                configuration.For<Exam>()
                     .AddCreate(exampleEntityProvider)
                     .AddRead(exampleEntityProvider)
                     .AddUpdate(exampleEntityProvider);
-                configuration.For<ExampleEntity2>()
+                configuration.For<User>()
                     .AddCRUD(exampleEntity2Provider);
-                configuration.For<ExampleEntity3>()
+                configuration.For<Notes>()
                     .AddRead(exampleEntity3Provider);
             });
         }
