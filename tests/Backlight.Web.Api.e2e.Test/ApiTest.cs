@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Backlight.Sample.Web.Api.Entities;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 
 namespace Backlight.Web.Api.e2e.Test {

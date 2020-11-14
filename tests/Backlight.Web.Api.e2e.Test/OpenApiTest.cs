@@ -38,7 +38,7 @@ namespace Backlight.Web.Api.e2e.Test {
             VerifyUpdateFor<User>(document);
             VerifyDeleteFor<User>(document);
 
-            VerifyReadFor<Notes>(document);
+            VerifyReadFor<Note>(document);
         }
 
         private static void VerifyCreationFor<T>(OpenApiDocument document) {

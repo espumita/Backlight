@@ -29,7 +29,7 @@ namespace Backlight.Sample.Web.Api {
                     .AddUpdate(exampleEntityProvider);
                 configuration.For<User>()
                     .AddCRUD(exampleEntity2Provider);
-                configuration.For<Notes>()
+                configuration.For<Note>()
                     .AddRead(exampleEntity3Provider);
             });
         }

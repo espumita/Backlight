@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Backlight.Sample.Web.Api.Entities {
     public class User {
+        public string Id { get; set; }
         public string Name { get; set; } = "George Lucas";
         public string FirstName { get; set; } = "George";
         public string SecondName { get; set; } = "Lucas";
