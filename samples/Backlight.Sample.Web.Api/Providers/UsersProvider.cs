@@ -5,7 +5,7 @@ using Backlight.Providers;
 using Backlight.Sample.Web.Api.Entities;
 
 namespace Backlight.Sample.Web.Api.Providers {
-    public class UserProvider : CRUDProvider {
+    public class UsersProvider : CRUDProvider {
 
         public async Task<string> Create<T>(T entity) {
             var user = entity as User;

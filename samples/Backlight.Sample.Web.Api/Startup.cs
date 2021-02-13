@@ -18,19 +18,19 @@ namespace Backlight.Sample.Web.Api {
 
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllers();
-            var exampleEntityProvider = new ExamProvider();
-            var exampleEntity2Provider = new UserProvider();
-            var exampleEntity3Provider = new NotesProvider();
+            var examsProvider = new ExamsProvider();
+            var usersProvider = new UsersProvider();
+            var notesProvider = new NotesProvider();
 
             services.AddBacklight(configuration => {
                 configuration.For<Exam>()
-                    .AddCreate(exampleEntityProvider)
-                    .AddRead(exampleEntityProvider)
-                    .AddUpdate(exampleEntityProvider);
+                    .AddCreate(examsProvider)
+                    .AddRead(examsProvider)
+                    .AddUpdate(examsProvider);
                 configuration.For<User>()
-                    .AddCRUD(exampleEntity2Provider);
+                    .AddCRUD(usersProvider);
                 configuration.For<Note>()
-                    .AddRead(exampleEntity3Provider);
+                    .AddRead(notesProvider);
             });
         }
 

@@ -5,7 +5,7 @@ using Backlight.Providers;
 using Backlight.Sample.Web.Api.Entities;
 
 namespace Backlight.Sample.Web.Api.Providers {
-    public class ExamProvider : CreateProvider, ReadProvider, UpdateProvider, ReadAllIdsProvider {
+    public class ExamsProvider : CreateProvider, ReadProvider, UpdateProvider, ReadAllIdsProvider {
         public async Task<string> Create<T>(T entity) {
             var exam = entity as Exam;
             Console.WriteLine($"Created {exam.Grade}");
