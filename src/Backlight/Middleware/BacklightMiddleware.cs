@@ -75,7 +75,7 @@ namespace Backlight.Middleware {
         private async Task RespondWithIndexHtml(HttpResponse response) {
             response.StatusCode = 200;
             response.ContentType = "text/html;charset=utf-8";
-            var rawIndexHtml = await idexHtmlLoader.LoadRawWith(configuration.IndexHtmlDocumentTitle);
+            var rawIndexHtml = await idexHtmlLoader.LoadRawWith(configuration.IndexHtmlDocumentTitle, configuration.RoutePrefix);
             await response.WriteAsync(rawIndexHtml, Encoding.UTF8);
         }
 

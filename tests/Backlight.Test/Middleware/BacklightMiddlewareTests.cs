@@ -67,7 +67,7 @@ namespace Backlight.Test.Middleware {
             configuration.IndexHtmlDocumentTitle = AIndexHtmlDocumentTitle;
             httpContext.Request.Method = HttpMethods.Get;
             httpContext.Request.Path = new PathString($"/{ARoutePrefix}/index.html");
-            indexHtmlLoader.LoadRawWith(AIndexHtmlDocumentTitle).Returns(ARawIndexHtml);
+            indexHtmlLoader.LoadRawWith(AIndexHtmlDocumentTitle, ARoutePrefix).Returns(ARawIndexHtml);
 
             await middleware.Invoke(httpContext);
 
