@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-swagger-ui-dist@3.26.0:
-  version "3.26.0"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.26.0.tgz#6dccd492bf9c97fe508d8438c754991277a6164f"
-  integrity sha512-z58RlRUk//dTg6jwgFBVv0JNyfDpoRNUgEyoA9cRheNvUuklMTKMY3hgDfXSZpmnGgZEG8iA/SAZGE56hvRuug==
+backlight-ui-dist@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/backlight-ui-dist/-/backlight-ui-dist-1.0.2.tgz#0d49866e0d1d852b01ec16a68a194b08300ec018"
+  integrity sha512-4iYtx9i1jOU/mUhi8WQpqagYtrRZNbun0ybgYX/y7akO4xzpDupBrs/EyXxPbpc97AXX66H13zJYxjgvEe6/1Q==

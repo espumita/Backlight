@@ -4,6 +4,6 @@
   "main": "index.html",
   "private": true,
   "dependencies": {
-    "swagger-ui-dist": "3.26.0"
+    "backlight-ui-dist": "1.0.2"
   }
 }
