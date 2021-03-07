@@ -67,7 +67,9 @@ namespace Backlight.Test.Middleware {
             configuration.IndexHtmlDocumentTitle = AIndexHtmlDocumentTitle;
             httpContext.Request.Method = HttpMethods.Get;
             httpContext.Request.Path = new PathString($"/{AUrlPath}/index.html");
-            indexHtmlLoader.LoadRawWith(AIndexHtmlDocumentTitle, AUrlPath).Returns(ARawIndexHtml);
+            httpContext.Request.Scheme = "https";
+            httpContext.Request.Host = new HostString("localhost", 44349);
+            indexHtmlLoader.LoadRawWith(AIndexHtmlDocumentTitle, "https://localhost:44349", AUrlPath).Returns(ARawIndexHtml);
 
             await middleware.Invoke(httpContext);
 

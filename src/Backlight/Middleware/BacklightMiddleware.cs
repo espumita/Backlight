@@ -34,10 +34,14 @@ namespace Backlight.Middleware {
                 return;
             }
             if (IsGet(httpMethod) && IsIndexHtmlUrlPath(configuration.UrlPath, path)) {
-                await RespondWithIndexHtml(httpContext.Response);
+                await RespondWithIndexHtml(httpContext.Response, RootUrlFrom(httpContext.Request));
                 return;
             }
             await staticFilesMiddleware.Invoke(httpContext);
+        }
+
+        private string RootUrlFrom(HttpRequest request) {
+            return $"{request.Scheme}://{request.Host}";
         }
 
         private IOptions<StaticFileOptions> StaticFileOptionsFrom(UIStaticFilesProvider filesProvider) {
@@ -72,10 +76,10 @@ namespace Backlight.Middleware {
             return Regex.IsMatch(path, $"^/{Regex.Escape(urlPath)}/?index.html$");
         }
 
-        private async Task RespondWithIndexHtml(HttpResponse response) {
+        private async Task RespondWithIndexHtml(HttpResponse response, string rootUrl) {
             response.StatusCode = 200;
             response.ContentType = "text/html;charset=utf-8";
-            var rawIndexHtml = await idexHtmlLoader.LoadRawWith(configuration.IndexHtmlDocumentTitle, configuration.UrlPath);
+            var rawIndexHtml = await idexHtmlLoader.LoadRawWith(configuration.IndexHtmlDocumentTitle, rootUrl, configuration.UrlPath);
             await response.WriteAsync(rawIndexHtml, Encoding.UTF8);
         }
 

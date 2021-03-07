@@ -7,12 +7,12 @@ namespace Backlight.UI {
     public class IndexHtmlLoader {
         private const string BacklightIndexHtml = "Backlight.UI.index.html";
 
-        public virtual async Task<string> LoadRawWith(string documentTitle, string urlPath) {
+        public virtual async Task<string> LoadRawWith(string documentTitle, string rootUrl, string urlPath) {
             using (var fileStream = IndexHtmlFileStream()) {
                 var rawIndexHtlm = await RawIndexHtmlFrom(fileStream);
                 return new StringBuilder(rawIndexHtlm)
                     .InjectConfiguration("DocumentTitle", documentTitle)
-                    .InjectConfiguration("RootUrl", "https://localhost:44349") //TODO refactor this value
+                    .InjectConfiguration("RootUrl", rootUrl)
                     .InjectConfiguration("UrlPath", urlPath)
                     .ToString();
             }
