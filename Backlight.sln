@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backlight.Sample.Web.Api", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backlight.Web.Api.e2e.Test", "tests\Backlight.Web.Api.e2e.Test\Backlight.Web.Api.e2e.Test.csproj", "{9F3DFCDB-796E-48EC-AEA5-148E88800521}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backlight.UI", "Backlight.UI\Backlight.UI.csproj", "{644E9008-E47B-4E58-B139-638D5EFC2C6B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backlight.UI", "src\Backlight.UI\Backlight.UI.csproj", "{DF7550B7-1362-4849-B734-4C029A58B93A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,10 +39,10 @@ Global
 		{9F3DFCDB-796E-48EC-AEA5-148E88800521}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F3DFCDB-796E-48EC-AEA5-148E88800521}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F3DFCDB-796E-48EC-AEA5-148E88800521}.Release|Any CPU.Build.0 = Release|Any CPU
-		{644E9008-E47B-4E58-B139-638D5EFC2C6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{644E9008-E47B-4E58-B139-638D5EFC2C6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{644E9008-E47B-4E58-B139-638D5EFC2C6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{644E9008-E47B-4E58-B139-638D5EFC2C6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF7550B7-1362-4849-B734-4C029A58B93A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF7550B7-1362-4849-B734-4C029A58B93A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF7550B7-1362-4849-B734-4C029A58B93A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF7550B7-1362-4849-B734-4C029A58B93A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
