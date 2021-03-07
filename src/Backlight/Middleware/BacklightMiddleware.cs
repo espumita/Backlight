@@ -29,11 +29,11 @@ namespace Backlight.Middleware {
             var httpMethod = httpContext.Request.Method;
             var path = httpContext.Request.Path.Value;
 
-            if (IsGet(httpMethod) && RoutePrefixIsRequestedWithOrWithoutSlash(configuration.RoutePrefix, path)) {
+            if (IsGet(httpMethod) && UrlPathIsRequestedWithOrWithoutSlash(configuration.UrlPath, path)) {
                 RedirectToIndexHtml(httpContext, path);
                 return;
             }
-            if (IsGet(httpMethod) && IsIndexHtmlRoute(configuration.RoutePrefix, path)) {
+            if (IsGet(httpMethod) && IsIndexHtmlUrlPath(configuration.UrlPath, path)) {
                 await RespondWithIndexHtml(httpContext.Response);
                 return;
             }
@@ -42,7 +42,7 @@ namespace Backlight.Middleware {
 
         private IOptions<StaticFileOptions> StaticFileOptionsFrom(UIStaticFilesProvider filesProvider) {
             var staticFileOptions = new StaticFileOptions {
-                RequestPath = string.IsNullOrEmpty(configuration.RoutePrefix) ? string.Empty : $"/{configuration.RoutePrefix}",
+                RequestPath = string.IsNullOrEmpty(configuration.UrlPath) ? string.Empty : $"/{configuration.UrlPath}",
                 FileProvider = new EmbeddedFileProvider(filesProvider.Assembly(), filesProvider.EmbeddedFilesNamespace()),
             };
             return Options.Create(staticFileOptions);
@@ -52,8 +52,8 @@ namespace Backlight.Middleware {
             return httpMethod == HttpMethods.Get;
         }
 
-        private static bool RoutePrefixIsRequestedWithOrWithoutSlash(string routePrefix, string path) {
-            return Regex.IsMatch(path, $"^/?{Regex.Escape(routePrefix)}/?$");
+        private static bool UrlPathIsRequestedWithOrWithoutSlash(string urlPath, string path) {
+            return Regex.IsMatch(path, $"^/?{Regex.Escape(urlPath)}/?$");
         }
 
         private static void RedirectToIndexHtml(HttpContext httpContext, string path) {
@@ -68,14 +68,14 @@ namespace Backlight.Middleware {
             response.Headers["Location"] = location;
         }
 
-        private static bool IsIndexHtmlRoute(string routePrefix, string path) {
-            return Regex.IsMatch(path, $"^/{Regex.Escape(routePrefix)}/?index.html$");
+        private static bool IsIndexHtmlUrlPath(string urlPath, string path) {
+            return Regex.IsMatch(path, $"^/{Regex.Escape(urlPath)}/?index.html$");
         }
 
         private async Task RespondWithIndexHtml(HttpResponse response) {
             response.StatusCode = 200;
             response.ContentType = "text/html;charset=utf-8";
-            var rawIndexHtml = await idexHtmlLoader.LoadRawWith(configuration.IndexHtmlDocumentTitle, configuration.RoutePrefix);
+            var rawIndexHtml = await idexHtmlLoader.LoadRawWith(configuration.IndexHtmlDocumentTitle, configuration.UrlPath);
             await response.WriteAsync(rawIndexHtml, Encoding.UTF8);
         }
 

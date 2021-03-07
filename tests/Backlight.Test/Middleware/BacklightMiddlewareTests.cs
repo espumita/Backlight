@@ -12,7 +12,7 @@ using NUnit.Framework;
 
 namespace Backlight.Test.Middleware {
     public class BacklightMiddlewareTests {
-        private const string ARoutePrefix = "back";
+        private const string AUrlPath = "back";
         private const string AIndexHtmlDocumentTitle = "BackLight";
         private const string ARawIndexHtml = "rawIndexHtml";
         private RequestDelegate next;
@@ -37,22 +37,22 @@ namespace Backlight.Test.Middleware {
 
         [Test]
         public async Task redirect_to_index_html_when_route_is_correct_but_do_not_have_slash() {
-            configuration.RoutePrefix = ARoutePrefix;
+            configuration.UrlPath = AUrlPath;
             httpContext.Request.Method = HttpMethods.Get;
-            httpContext.Request.Path = new PathString($"/{ARoutePrefix}");
+            httpContext.Request.Path = new PathString($"/{AUrlPath}");
 
             await middleware.Invoke(httpContext);
 
             httpContext.Response.StatusCode = (int) HttpStatusCode.Redirect;
             var responseHeader = httpContext.Response.Headers["Location"];
-            responseHeader.ToString().Should().Be($"{ARoutePrefix}/index.html");
+            responseHeader.ToString().Should().Be($"{AUrlPath}/index.html");
         }
 
         [Test]
         public async Task redirect_to_index_html_when_route_is_correct_and_have_slash() {
-            configuration.RoutePrefix = ARoutePrefix;
+            configuration.UrlPath = AUrlPath;
             httpContext.Request.Method = HttpMethods.Get;
-            httpContext.Request.Path = new PathString($"/{ARoutePrefix}/");
+            httpContext.Request.Path = new PathString($"/{AUrlPath}/");
 
             await middleware.Invoke(httpContext);
 
@@ -63,11 +63,11 @@ namespace Backlight.Test.Middleware {
 
         [Test]
         public async Task render_index_html() {
-            configuration.RoutePrefix = ARoutePrefix;
+            configuration.UrlPath = AUrlPath;
             configuration.IndexHtmlDocumentTitle = AIndexHtmlDocumentTitle;
             httpContext.Request.Method = HttpMethods.Get;
-            httpContext.Request.Path = new PathString($"/{ARoutePrefix}/index.html");
-            indexHtmlLoader.LoadRawWith(AIndexHtmlDocumentTitle, ARoutePrefix).Returns(ARawIndexHtml);
+            httpContext.Request.Path = new PathString($"/{AUrlPath}/index.html");
+            indexHtmlLoader.LoadRawWith(AIndexHtmlDocumentTitle, AUrlPath).Returns(ARawIndexHtml);
 
             await middleware.Invoke(httpContext);
 

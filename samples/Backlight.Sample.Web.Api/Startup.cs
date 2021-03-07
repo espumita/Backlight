@@ -50,7 +50,7 @@ namespace Backlight.Sample.Web.Api {
                 endpoints.MapControllers();
             });
             app.UseBacklight(configuration => {
-                configuration.RoutePrefix = "back";
+                configuration.UrlPath = "back";
             });
         }
     }
