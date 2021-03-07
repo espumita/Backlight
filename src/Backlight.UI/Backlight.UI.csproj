@@ -1,7 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Description>CRUD backoffice generator UI library for APIs built on ASP.NET Core</Description>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Backlight.UI</PackageId>
+    <PackageTags>crud;backoffice;webapi;aspnet;aspnetcore</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Version>1.0.0</Version>
+    <PackageProjectUrl>https://github.com/espumita/Backlight</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/espumita/Backlight.git</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
