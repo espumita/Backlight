@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-backlight-ui-dist@1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/backlight-ui-dist/-/backlight-ui-dist-1.0.6.tgz#11501f2ab8e530e2aa5c5d8ea701e1fba0dd4c3b"
-  integrity sha512-FZFmyY8n1WkLqCzmHF0/e24uTq5V/hxQyls61IGtnV/vRjg3PHJxKjV0Pzsna3MEu0h5K1yiyC6gwgeS02sJwQ==
+backlight-ui-dist@1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/backlight-ui-dist/-/backlight-ui-dist-1.0.7.tgz#25fb58a41395898ce00985ba37a749d90108d25f"
+  integrity sha512-V+2hclMWAypKjWATIKYynWAxgYfEYFPn/jfL1tMq74q3HCDR2g87sxZXWqEEB34xQVaja93w6JgG3EjewHjBZQ==
