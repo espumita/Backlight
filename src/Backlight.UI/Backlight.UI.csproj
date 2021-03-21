@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>CRUD backoffice generator UI library for APIs built on ASP.NET Core</Description>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Backlight.UI</PackageId>
     <PackageTags>crud;backoffice;webapi;aspnet;aspnetcore</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
