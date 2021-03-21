@@ -6,7 +6,7 @@
     <PackageId>Backlight</PackageId>
     <PackageTags>crud;backoffice;webapi;aspnet;aspnetcore</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Version>1.0.1</Version>
+    <Version>1.0.7</Version>
     <PackageProjectUrl>https://github.com/espumita/Backlight</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/espumita/Backlight.git</RepositoryUrl>
