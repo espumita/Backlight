@@ -6,11 +6,16 @@
     <PackageId>Backlight</PackageId>
     <PackageTags>crud;backoffice;webapi;aspnet;aspnetcore</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Version>1.0.7</Version>
+    <Version>1.0.8</Version>
     <PackageProjectUrl>https://github.com/espumita/Backlight</PackageProjectUrl>
+    <PackageIcon>backlight.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/espumita/Backlight.git</RepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include=".\..\..\backlight-icon.png" Pack="true" PackagePath="backlight.png" Visible="False"/>
+  </ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
