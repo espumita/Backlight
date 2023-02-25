@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>CRUD backoffice generator library for APIs built on ASP.NET Core</Description>
-    <TargetFrameworks>net5.0</TargetFrameworks>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <PackageId>Backlight</PackageId>
     <PackageTags>crud;backoffice;webapi;aspnet;aspnetcore</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NSwag.Core" Version="13.10.8" />
+    <PackageReference Include="NSwag.Core" Version="13.18.2" />
   </ItemGroup>
 
   <ItemGroup>
