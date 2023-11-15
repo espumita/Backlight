@@ -4,6 +4,6 @@
   "main": "index.html",
   "private": true,
   "dependencies": {
-    "backlight-ui-dist": "1.0.10"
+    "backlight-ui-dist": "1.0.11"
   }
 }

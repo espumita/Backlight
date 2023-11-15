@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>CRUD backoffice generator library for APIs built on ASP.NET Core</Description>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <PackageId>Backlight</PackageId>
     <PackageTags>crud;backoffice;webapi;aspnet;aspnetcore</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include=".\..\..\backlight-icon.png" Pack="true" PackagePath="backlight.png" Visible="False"/>
+    <None Include=".\..\..\backlight-icon.png" Pack="true" PackagePath="backlight.png" Visible="False" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NSwag.Core" Version="13.18.2" />
+    <PackageReference Include="NSwag.Core" Version="13.20.0" />
   </ItemGroup>
 
   <ItemGroup>

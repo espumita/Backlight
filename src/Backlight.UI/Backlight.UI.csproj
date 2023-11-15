@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>CRUD backoffice generator UI library for APIs built on ASP.NET Core</Description>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <PackageId>Backlight.UI</PackageId>
     <PackageTags>crud;backoffice;webapi;aspnet;aspnetcore</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -11,6 +11,7 @@
     <PackageIcon>backlight.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/espumita/Backlight.git</RepositoryUrl>
+	  <Root>.\</Root>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,11 +23,9 @@
     <EmbeddedResource Include="node_modules/backlight-ui-dist/**/*" Exclude="**/*/*.map;**/*/*.json;**/*/*.md" />
   </ItemGroup>
 
-  <Target Name="YarnInstall" BeforeTargets="Build">
-    <Exec Command="yarn" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-    </Exec>
-    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/yarn is required to build this project." />
-  </Target>
+	<Target Name="YarnInstall" BeforeTargets="Build">
+		<Message Importance="high" Text="Restoring dependencies using 'yarn'. This may take several minutes..." />
+		<Exec WorkingDirectory="$(Root)" Command="yarn" />
+	</Target>
 
 </Project>
